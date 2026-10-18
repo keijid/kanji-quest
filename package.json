@@ -11,7 +11,8 @@
     "data": "tsx scripts/build-data.ts --table",
     "data:kanjivg": "tsx scripts/fetch-kanjivg.ts",
     "icons": "tsx scripts/make-icons.ts",
-    "partners": "tsx scripts/cut-partners.ts"
+    "partners": "tsx scripts/cut-partners.ts",
+    "title": "tsx scripts/cut-title.ts"
   },
   "dependencies": {
     "@serwist/next": "^9.5.13",

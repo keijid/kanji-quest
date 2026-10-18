@@ -25,6 +25,7 @@ const withSerwist = withSerwistInit({
     { url: `${basePath}/manifest.webmanifest`, revision },
     { url: `${basePath}/sfx/sounds.json`, revision },
     ...PUBLIC_FILES.map((f) => ({ url: `${basePath}/${f}`, revision })),
+    { url: `${basePath}/title.png`, revision },
   ],
 });
 

@@ -45,7 +45,10 @@ export default function Home() {
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`${BASE}/icons/icon-192.png`} alt="" width={58} height={58} className="h-[58px] w-[58px] flex-none rounded-[14px] border-2 border-ink" />
-          <div className="font-yusei text-[clamp(24px,3vw,32px)] tracking-[2px]">カンジクエスト</div>
+          <h1 className="m-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${BASE}/title.png`} alt="カンジクエスト" className="block h-[clamp(32px,4.2vw,46px)] w-auto" />
+          </h1>
         </div>
         <div className="flex-1" />
         <div className="flex flex-wrap gap-2.5 text-[17px]">
