@@ -2,7 +2,7 @@
 
 小学2〜3年生向けの、小学2年生で習う漢字160字（漢字検定9級の範囲）の学習アプリです。冒険マップを進みながら「よみ／かき／かきじゅん・かくすう／おくりがな」を手書きで学びます。
 
-- 公開先：Firebase Hosting（https://＜プロジェクトID＞.web.app）。Firebase の準備がすむまでは https://keijid.github.io/kanji-quest/ （ログインなし）
+- 公開先：https://kanji-quest-c6be1.web.app （Firebase Hosting。iPad の Safari で開き「ホーム画面に追加」）
 - Google ログイン必須。学習の記録は端末（IndexedDB）とクラウド（Firestore）に保存し、ほかの端末でも続きから使えます。準備の手順は [docs/firebase-setup.md](docs/firebase-setup.md)
 - 一度開けばオフラインでも使えます（Service Worker）
 
@@ -25,7 +25,7 @@ GitHub Pages と同じ形（/kanji-quest 配下）でビルドするには：
 NEXT_PUBLIC_BASE_PATH=/kanji-quest npm run build   # out/ に書き出し
 ```
 
-`main` に push すると GitHub Actions（`.github/workflows/deploy.yml`）が公開します。リポジトリ変数 `FIREBASE_PROJECT_ID` があれば Firebase Hosting に、なければ GitHub Pages に公開します。
+`main` に push すると GitHub Actions（`.github/workflows/deploy.yml`）が公開します。リポジトリ変数 `FIREBASE_PROJECT_ID` があれば Firebase Hosting に公開します（ない場合は GitHub Pages 向けにビルドしますが、GitHub Pages の公開は 2026-10-18 に止めました）。
 
 ## データ
 

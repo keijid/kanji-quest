@@ -1,5 +1,8 @@
 # Firebase の準備（Google ログイン・クラウド保存・公開先）
 
+> 2026-10-18 に設定ずみ（プロジェクト ID：`kanji-quest-c6be1`、公開先：https://kanji-quest-c6be1.web.app）。作り直すときの手順として残しています。
+> つまずいた点：サービスアカウントには、下の3つに加えて **Service Usage ユーザー**（Service Usage Consumer）のロールも必要。`apiKey` は設定画面の伏せ字（••••）ではなく、「SDK の設定と構成」→「構成」の値をコピーする。
+
 アプリのコードはできています。Firebase のプロジェクト作成と GitHub への登録は、アカウントの持ち主の作業が必要なので、この手順でお願いします。
 終わると、`main` への push で **https://＜プロジェクトID＞.web.app** に公開され、Google ログインが必須になります（GitHub Pages への公開は止まります）。
 
@@ -57,6 +60,7 @@ iPad のホーム画面アプリでもログインできるよう、ログイン
    - Firebase Hosting 管理者
    - Firebase Rules 管理者
    - API キー閲覧者
+   - Service Usage ユーザー
 3. ターミナルで、JSON を GitHub のシークレットに登録し、**登録したら JSON ファイルは消す**
    ```bash
    gh secret set FIREBASE_SERVICE_ACCOUNT --repo keijid/kanji-quest < ~/Downloads/＜保存されたファイル名＞.json
