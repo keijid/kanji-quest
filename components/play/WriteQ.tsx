@@ -10,9 +10,11 @@ import type { Question } from '@/lib/quiz';
 import type { PartnerId } from '@/lib/partners';
 
 // ---- 手書きで答える問題（よみ・かき・おくりがな） ----
-export function WriteQ({ q, partner, hint, onAnswer, submitLabel }: {
+export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLabel }: {
   q: Exclude<Question, { kind: 'stroke' }>;
   partner?: PartnerId;
+  /** 相棒の進化の段階（ヒントのアイコン） */
+  partnerStage?: number;
   hint: boolean;
   onAnswer: (ok: boolean) => void;
   /** もぎテストでは「つぎへ」 */
@@ -54,7 +56,7 @@ export function WriteQ({ q, partner, hint, onAnswer, submitLabel }: {
       <Card className="flex flex-[1_1_340px] flex-col justify-center gap-[18px] rounded-[18px] p-6">
         <div className="text-[17px] text-frame">{prompt}</div>
         <Sentence src={q.sentence} />
-        {hint && partner && <HintBubble partner={partner}><Mk>{hintFor(q)}</Mk></HintBubble>}
+        {hint && partner && <HintBubble partner={partner} stage={partnerStage}><Mk>{hintFor(q)}</Mk></HintBubble>}
       </Card>
       <div className={`flex flex-[1_1_420px] flex-col gap-[14px] ${q.kind === 'read' ? '' : 'items-center justify-center'}`}>
         {q.kind === 'read' && (

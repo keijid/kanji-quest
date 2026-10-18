@@ -88,9 +88,9 @@ export default function Play() {
       </div>
 
       {q.kind === 'stroke' ? (
-        <StrokeQ key={i} q={q} partner={d.profile.partner} phase={phase} onAnswer={answer} />
+        <StrokeQ key={i} q={q} partner={d.profile.partner} partnerStage={d.evo.stage} phase={phase} onAnswer={answer} />
       ) : (
-        <WriteQ key={i} q={q} partner={d.profile.partner} hint={phase === 'hint'} onAnswer={answer} />
+        <WriteQ key={i} q={q} partner={d.profile.partner} partnerStage={d.evo.stage} hint={phase === 'hint'} onAnswer={answer} />
       )}
 
       {(phase === 'correct' || phase === 'reveal') && (
@@ -131,7 +131,7 @@ function AnswerView({ q }: { q: Question }) {
 }
 
 // ---- かきじゅん・かくすう ----
-function StrokeQ({ q, partner, phase, onAnswer }: { q: Extract<Question, { kind: 'stroke' }>; partner: PartnerId; phase: Phase; onAnswer: (ok: boolean) => void }) {
+function StrokeQ({ q, partner, partnerStage, phase, onAnswer }: { q: Extract<Question, { kind: 'stroke' }>; partner: PartnerId; partnerStage: number; phase: Phase; onAnswer: (ok: boolean) => void }) {
   const total = kanjiOf(q.char).strokes;
   const [sel, setSel] = useState<number | null>(null);
   const [play, setPlay] = useState(0);
@@ -163,7 +163,7 @@ function StrokeQ({ q, partner, phase, onAnswer }: { q: Extract<Question, { kind:
           <StrokeSvg char={q.char} highlight={q.sub === 'nth' ? q.index : undefined} play={hint ? play : 0} />
         </div>
         {hint && (
-          <HintBubble partner={partner} size={52}>
+          <HintBubble partner={partner} stage={partnerStage} size={52}>
             <span className="text-[17px]">{hintFor(q)}<br />いま <b className="text-[22px] text-primary">{Math.min(play || 1, total)}</b> かくめ</span>
           </HintBubble>
         )}
