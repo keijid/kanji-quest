@@ -19,13 +19,7 @@ npm test           # 手書き判定のテスト
 npm run typecheck
 ```
 
-GitHub Pages と同じ形（/kanji-quest 配下）でビルドするには：
-
-```bash
-NEXT_PUBLIC_BASE_PATH=/kanji-quest npm run build   # out/ に書き出し
-```
-
-`main` に push すると GitHub Actions（`.github/workflows/deploy.yml`）が公開します。リポジトリ変数 `FIREBASE_PROJECT_ID` があれば Firebase Hosting に公開します（ない場合は GitHub Pages 向けにビルドしますが、GitHub Pages の公開は 2026-10-18 に止めました）。
+`main` に push すると GitHub Actions（`.github/workflows/deploy.yml`）が Firebase Hosting に公開します。
 
 ## データ
 

@@ -1,8 +1,6 @@
 name: Deploy
 
-# リポジトリ変数 FIREBASE_PROJECT_ID が
-#   設定されている → Firebase Hosting に公開（Google ログイン必須・クラウド保存）
-#   設定されていない → これまでどおり GitHub Pages に公開（ログインなし・端末内保存）
+# Firebase Hosting に公開する（リポジトリ変数 FIREBASE_PROJECT_ID が必要）
 # 設定のしかたは docs/firebase-setup.md
 
 on:
@@ -12,8 +10,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: deploy
@@ -63,34 +59,3 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
           npx -y firebase-tools@15.34.0 deploy --only hosting,firestore:rules --project "${{ vars.FIREBASE_PROJECT_ID }}" --non-interactive
           rm -f "$RUNNER_TEMP/sa.json"
-
-  pages-build:
-    if: vars.FIREBASE_PROJECT_ID == ''
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm install -g npm@11.6.2
-      - run: npm ci
-      - run: npm run build
-        env:
-          NEXT_PUBLIC_BASE_PATH: /kanji-quest
-      # _next/ フォルダを GitHub Pages に配信させるため Jekyll を止める
-      - run: touch out/.nojekyll
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: out
-
-  pages-deploy:
-    needs: pages-build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4

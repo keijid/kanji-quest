@@ -2,8 +2,7 @@ import type { NextConfig } from 'next';
 import withSerwistInit from '@serwist/next';
 import { existsSync, readdirSync } from 'node:fs';
 
-// GitHub Pages（https://keijid.github.io/kanji-quest/）では /kanji-quest 配下に置く。
-// ビルド時に NEXT_PUBLIC_BASE_PATH=/kanji-quest を渡す（.github/workflows/deploy.yml）。ローカルでは空。
+// サブパス配下に置くときだけ、ビルド時に NEXT_PUBLIC_BASE_PATH を渡す。Firebase Hosting・ローカルでは空。
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
 // 静的に書き出す全画面。Service Worker が先に保存して、オフラインでも開けるようにする

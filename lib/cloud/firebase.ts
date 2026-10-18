@@ -63,7 +63,7 @@ export function getFirebase() {
 /**
  * Google でログイン。
  * アプリと同じドメインでログイン画面を出せるとき（Firebase Hosting）は画面ごと切りかえる（iPad のホーム画面アプリでも動く）。
- * それ以外（GitHub Pages など、ドメインがちがうとき）はポップアップ。
+ * それ以外（ドメインがちがうとき）はポップアップ。
  */
 export async function signInWithGoogle() {
   const { auth } = getFirebase();
