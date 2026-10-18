@@ -18,6 +18,9 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      "design_handoff_kanji_quest/**",
+      "public/sw.js",
+      "public/swe-worker*.js",
     ],
   },
 ];

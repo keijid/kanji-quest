@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Service Worker（ビルド時に生成）
+public/sw.js
+public/sw.js.map
+public/swe-worker*.js
+
+# デザイン資料（公開しない。手元でだけ参照する）
+/design_handoff_kanji_quest/
+# KanjiVG の元 SVG（scripts/fetch-kanjivg.ts が固定コミットから取り直せる）
+/data/kanjivg-src/
+# ローカルのプレビュー設定
+/.claude/

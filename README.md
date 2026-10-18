@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# カンジクエスト
 
-## Getting Started
+小学2〜3年生向けの、漢字検定9級（小1・小2配当の240字）の学習アプリです。冒険マップを進みながら「よみ／かき／かきじゅん・かくすう／おくりがな」を手書きで学びます。
 
-First, run the development server:
+- 公開先：https://keijid.github.io/kanji-quest/ （iPad の Safari で開き「ホーム画面に追加」）
+- ログインなし。名前と学習の記録は端末の中（IndexedDB）にだけ保存します
+- 一度開けばオフラインでも使えます（Service Worker）
+
+## 技術
+
+Next.js（App Router・静的書き出し）+ React + TypeScript + Tailwind CSS v4 / Dexie（IndexedDB）/ Zustand / Serwist（PWA）
+
+## 開発
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm test           # 手書き判定のテスト
+npm run typecheck
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+GitHub Pages と同じ形（/kanji-quest 配下）でビルドするには：
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_BASE_PATH=/kanji-quest npm run build   # out/ に書き出し
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`main` に push すると GitHub Actions（`.github/workflows/deploy.yml`）が GitHub Pages に公開します。
 
-## Learn More
+## データ
 
-To learn more about Next.js, take a look at the following resources:
+| ファイル | 中身 |
+|---|---|
+| `data/kanji-list.ts` | 240字と並び順（10字ずつ24ステージ。1〜8が小1、9〜24が小2） |
+| `data/kanji-source.txt` | 読み・画数・部首・ことば・問題文の元データ（手で書く） |
+| `data/kanji.json` | ↑ をチェックして書き出したもの（`npm run data`。一覧表 `data/kanji-table.md` も出る） |
+| `data/strokes.json` | KanjiVG から取り出した書き順のパス（`npm run data:kanjivg`） |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`npm run data` は、画数が KanjiVG と合うか、例文・ことばに小2までに習わない漢字がないか、ふりがなの付け忘れがないか、などを確かめます。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 手書きの自動判定
 
-## Deploy on Vercel
+`lib/recognize/` — KanjiVG のお手本と形だけを比べます（書き順・画の向きは見ない）。大きさと位置をそろえ、向きつきの chamfer 距離で240字（ひらがなは約80字）の中の順位を出し、甘めの条件で正解にします。しきい値は `scripts/calibrate-recognizer.ts` で調整し、`tests/recognize.test.ts` で確認しています。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 差し替える素材
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 相棒のイラスト（3体×5段階）：`public/partners/<fire|wood|light>-<1..5>.png` を置き、`components/Partner.tsx` の `HAS_PARTNER_ART` を `true` に
+- 効果音：`public/sfx/README.md`
+
+## ライセンス・クレジット
+
+- 書き順データ：[KanjiVG](https://kanjivg.tagaini.net/)（CC BY-SA 3.0）。`data/strokes.json` は CC BY-SA 3.0（`data/LICENSE-KanjiVG.md`）
+- フォント：Yusei Magic / Kiwi Maru / Klee One（SIL Open Font License 1.1）

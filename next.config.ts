@@ -1,7 +1,35 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
+import withSerwistInit from '@serwist/next';
+
+// GitHub Pages（https://keijid.github.io/kanji-quest/）では /kanji-quest 配下に置く。
+// ビルド時に NEXT_PUBLIC_BASE_PATH=/kanji-quest を渡す（.github/workflows/deploy.yml）。ローカルでは空。
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
+// 静的に書き出す全画面。Service Worker が先に保存して、オフラインでも開けるようにする
+const ROUTES = ['', 'onboard', 'home', 'play', 'result', 'practice', 'zukan', 'mock', 'parent', 'credits', ...Array.from({ length: 24 }, (_, i) => `stage/${i + 1}`)];
+const revision = process.env.GITHUB_SHA ?? String(Date.now());
+
+const withSerwist = withSerwistInit({
+  swSrc: 'app/sw.ts',
+  swDest: 'public/sw.js',
+  swUrl: '/sw.js', // basePath は Serwist が前に付ける
+  scope: `${basePath}/`,
+  disable: process.env.NODE_ENV === 'development',
+  additionalPrecacheEntries: [
+    ...ROUTES.map((r) => ({ url: `${basePath}/${r ? `${r}/` : ''}`, revision })),
+    // 画面を切りかえるときに読む RSC のデータ（?_rsc=… はキャッシュの照合で無視する）
+    ...ROUTES.map((r) => ({ url: `${basePath}/${r ? `${r}/` : ''}index.txt`, revision })),
+    { url: `${basePath}/manifest.webmanifest`, revision },
+    { url: `${basePath}/sfx/sounds.json`, revision },
+  ],
+});
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'export',
+  basePath,
+  trailingSlash: true,
+  images: { unoptimized: true },
+  env: { NEXT_PUBLIC_BASE_PATH: basePath },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

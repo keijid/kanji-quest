@@ -1,0 +1,40 @@
+'use client';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/lib/db';
+import { addStudySeconds } from '@/lib/progress';
+import { setSfxEnabled, unlockSfx } from '@/lib/sfx';
+
+const TICK = 15; // 秒
+const NO_PROFILE_OK = ['/onboard', '/credits'];
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const lastInput = useRef(0);
+  const router = useRouter();
+  const path = usePathname();
+  const meta = useLiveQuery(() => db.meta.get('main'), []);
+  const profile = useLiveQuery(async () => (await db.profile.get('me')) ?? null, []);
+
+  useEffect(() => { setSfxEnabled(meta?.settings.sfx ?? true); }, [meta?.settings.sfx]);
+
+  // 名前・相棒がまだなければ「はじめて」へ
+  useEffect(() => {
+    if (profile === null && !NO_PROFILE_OK.some((p) => path.startsWith(p))) router.replace('/onboard/');
+  }, [profile, path, router]);
+
+  useEffect(() => {
+    const onInput = () => { lastInput.current = Date.now(); unlockSfx(); };
+    window.addEventListener('pointerdown', onInput, { passive: true });
+    // 画面が見えていて、1分以内にさわっていたら学習時間に足す（保護者画面は数えない）
+    const id = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      if (Date.now() - lastInput.current > 60_000) return;
+      if (location.pathname.includes('/parent')) return;
+      void addStudySeconds(TICK);
+    }, TICK * 1000);
+    return () => { window.removeEventListener('pointerdown', onInput); clearInterval(id); };
+  }, []);
+
+  return <>{children}</>;
+}

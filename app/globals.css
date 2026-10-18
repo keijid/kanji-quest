@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* README「Design Tokens」をそのまま。色名は README の Token 名に合わせる */
+@theme {
+  --color-ink: #3a2614;
+  --color-paper: #fbf0d4;
+  --color-paper-edge: #ecd6a4;
+  --color-card: #fff7e2;
+  --color-cell: #fffdf4;
+  --color-map: #f6e4b8;
+  --color-frame: #8a5a34;
+  --color-dash: #c9a46a;
+  --color-muted: #b59a72;
+  --color-primary: #b8321f;
+  --color-success: #5a8a3a;
+  --color-boss: #3a5a8a;
+  --color-gold: #c48a12;
+  --color-hint: #fbeec0;
+  --color-gauge-a: #e0a43a;
+  --color-gauge-b: #d18f22;
+  --color-outer: #5a3e2b;
+  --color-stroke-todo: #e6d3ad;
+  --color-star-off: #d9c49a;
+  --color-done-bg: #eef4dc;
+
+  /* ぼかしなしのハード影 */
+  --shadow-hard-4: 4px 4px 0 var(--color-ink);
+  --shadow-hard-5: 5px 5px 0 var(--color-ink);
+  --shadow-hard-6: 6px 6px 0 var(--color-ink);
+  --shadow-hard-7: 7px 7px 0 var(--color-ink);
+  --shadow-hard-8: 8px 8px 0 var(--color-ink);
+
+  --font-yusei: var(--font-yusei-magic), "Kiwi Maru", serif;
+  --font-kiwi: var(--font-kiwi-maru), serif;
+  --font-klee: var(--font-klee-one), serif;
+
+  --animate-poyon: poyon 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  --animate-pop-in: pop-in 0.25s ease-out both;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@keyframes poyon {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.08); }
+  80% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+@keyframes pop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html, body {
+    background: var(--color-outer);
+    color: var(--color-ink);
+    font-family: var(--font-kiwi);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
   }
+  rt { font-size: 0.5em; }
+  button { font-family: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+  button:disabled { cursor: default; }
+  a { color: var(--color-primary); }
+  * { box-sizing: border-box; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 外枠：iPad では 0.8vw・2vw で縮小、スマホは 0 */
+.app-outer { min-height: 100dvh; display: flex; justify-content: center; padding: clamp(0px, 2vw, 24px); }
+.app-frame {
+  width: 100%;
+  max-width: 1366px;
+  min-height: calc(100dvh - 4vw);
+  background: radial-gradient(ellipse at center, var(--color-paper) 55%, var(--color-paper-edge) 100%);
+  border-radius: clamp(0px, 2vw, 28px);
+  border: clamp(0px, 0.8vw, 10px) solid var(--color-frame);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
+@media (max-width: 600px) {
+  .app-outer { padding: 0; }
+  .app-frame { border-width: 0; border-radius: 0; min-height: 100dvh; }
+}
+
+/* 手書きマスの十字の補助線 */
+.cell-guide {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --g: rgba(184, 50, 31, 0.25);
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), var(--g) calc(50% - 1px), var(--g) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(transparent calc(50% - 1px), var(--g) calc(50% - 1px), var(--g) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+.map-grid {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(138, 90, 52, 0.12) 39px 40px),
+    repeating-linear-gradient(90deg, transparent 0 39px, rgba(138, 90, 52, 0.12) 39px 40px),
+    var(--color-map);
+}
+
+.gauge-stripe { background: repeating-linear-gradient(45deg, var(--color-gauge-a) 0 8px, var(--color-gauge-b) 8px 16px); }
+
+.shield { clip-path: polygon(50% 0, 100% 12%, 100% 55%, 50% 100%, 0 55%, 0 12%); }
+
+/* 押したときの「ぽよん」：ハード影の分だけ沈む */
+.press { transition: transform 0.08s, box-shadow 0.08s; }
+.press:active:not(:disabled) { transform: translate(2px, 2px); }
