@@ -11,7 +11,7 @@ const klee = Klee_One({ weight: '600', subsets: ['latin'], variable: '--font-kle
 
 export const metadata: Metadata = {
   title: 'カンジクエスト',
-  description: '漢検9級（小1・小2の240字）を冒険しながら覚える学習アプリ',
+  description: '小学2年生の漢字160字を冒険しながら覚える学習アプリ（漢検9級）',
   applicationName: 'カンジクエスト',
   appleWebApp: { capable: true, title: 'カンジクエスト', statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false },

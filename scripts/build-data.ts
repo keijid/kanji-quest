@@ -73,7 +73,8 @@ lines.forEach((line, i) => {
   const [, strokeStr, radical, onStr, kunStr, wordStr, readStr, writeStr, okuriStr] = f;
   const g1 = G1.indexOf(c), g2 = G2.indexOf(c);
   if (g1 < 0 && g2 < 0) return err(c, '240字の一覧にない');
-  const stage = g1 >= 0 ? Math.floor(g1 / 10) + 1 : Math.floor(g2 / 10) + 9;
+  // 学習の対象は小2の160字（ステージ1〜16）。小1の字はステージ 0（問題に出さない）
+  const stage = g1 >= 0 ? 0 : Math.floor(g2 / 10) + 1;
   const e: KanjiEntry = {
     char: c,
     grade: g1 >= 0 ? 1 : 2,
@@ -162,7 +163,7 @@ if (process.argv.includes('--table')) {
   );
   writeFileSync(
     join(ROOT, 'data/kanji-table.md'),
-    `# 240字 データ一覧（自動生成：scripts/build-data.ts --table）\n\n[ ] が問題の対象、（ ）がふりがな。\n\n| ステージ | 字 | 画数 | 部首 | 音 | 訓 | ことば | よみ問題 | かき問題 | おくりがな問題 |\n|---|---|---|---|---|---|---|---|---|---|\n${rows.join('\n')}\n`,
+    `# 240字 データ一覧（自動生成：scripts/build-data.ts --table）\n\n学習の対象は小2の160字（ステージ1〜16）。ステージ0は小1の字（問題には出さない）。[ ] が問題の対象、（ ）がふりがな。\n\n| ステージ | 字 | 画数 | 部首 | 音 | 訓 | ことば | よみ問題 | かき問題 | おくりがな問題 |\n|---|---|---|---|---|---|---|---|---|---|\n${rows.join('\n')}\n`,
   );
   console.log('data/kanji-table.md を書き出しました');
 }

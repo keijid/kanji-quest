@@ -4,7 +4,7 @@
 // 2. 線を等間隔の点にして、点ごとに線の向きを持たせる
 // 3. 向きつきの chamfer 距離（それぞれの点から、相手のいちばん近い点までの距離の平均）を両方向で取る
 // 4. 候補（240字、またはひらがな）の中で順位を出し、甘めの条件で正解とする
-import { KANJI, STROKES } from '../data';
+import { ALL_KANJI, STROKES } from '../data';
 import { pathToPoints, type Pt } from './svgPath';
 
 export type Stroke = Pt[];
@@ -132,7 +132,8 @@ export function judge(strokes: Stroke[], expected: string, pool: readonly string
 }
 
 // 候補の集まり
-export const KANJI_POOL: readonly string[] = KANJI.map((k) => k.char);
+// 小1の字も候補に入れる（形の似た字とまちがえていないかを見るため）
+export const KANJI_POOL: readonly string[] = ALL_KANJI.map((k) => k.char);
 /** 小さい字（ゃ など）は大きい字と同じ形として扱う */
 const SMALL: Record<string, string> = { ぁ: 'あ', ぃ: 'い', ぅ: 'う', ぇ: 'え', ぉ: 'お', っ: 'つ', ゃ: 'や', ゅ: 'ゆ', ょ: 'よ', ゎ: 'わ' };
 export const KANA_POOL: readonly string[] = Object.keys(STROKES).filter((c) => /[ぁ-ゖー]/.test(c) && !SMALL[c]);

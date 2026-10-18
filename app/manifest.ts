@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'カンジクエスト',
     short_name: 'カンジクエスト',
-    description: '漢検9級（小1・小2の240字）を冒険しながら覚える学習アプリ',
+    description: '小学2年生の漢字160字を冒険しながら覚える学習アプリ（漢検9級）',
     lang: 'ja',
     start_url: `${BASE}/`,
     scope: `${BASE}/`,

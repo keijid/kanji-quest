@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { BackBtn } from '@/components/ui';
 import { useAppData } from '@/lib/hooks';
+import { TOTAL } from '@/lib/data';
 import { db, today, type Mode, type Settings } from '@/lib/db';
 import { resetAll } from '@/lib/progress';
 import { shuffle } from '@/lib/quiz';
@@ -53,7 +54,7 @@ export default function Parent() {
   const top = Math.max(35, ...mins);
 
   const kpis = [
-    { label: '覚えた漢字', value: `${d.learned} / 240字`, sub: `今週 +${learnedThisWeek}字` },
+    { label: '覚えた漢字', value: `${d.learned} / ${TOTAL}字`, sub: `今週 +${learnedThisWeek}字` },
     { label: '今週の学習時間', value: fmtMin(weekTotal), sub: `目標 ${s.goalMin}分/日 を${goalDays}日達成` },
     { label: '連続学習', value: `${d.streak}日`, sub: `最長 ${d.meta.streak.best}日` },
     { label: '合格予想', value: `${d.prediction}%`, sub: d.bestFull ? `模擬テスト最高 ${d.bestFull.score} / ${d.bestFull.max}点` : '模擬テストは未受験' },

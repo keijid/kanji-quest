@@ -1,3 +1,5 @@
+import { TOTAL } from './data';
+
 export type PartnerId = 'fire' | 'wood' | 'light';
 
 export const PARTNERS: Record<PartnerId, { name: string; kind: string; elem: string; color: string; tint: string }> = {
@@ -7,17 +9,17 @@ export const PARTNERS: Record<PartnerId, { name: string; kind: string; elem: str
 };
 export const PARTNER_IDS: PartnerId[] = ['fire', 'wood', 'light'];
 
-/** 進化の境目（覚えた字数）。5段階 */
-export const EVOLVE_AT = [0, 20, 60, 120, 180];
+/** 進化の境目（覚えた字数）。5段階。最後は全160字 */
+export const EVOLVE_AT = [0, 15, 40, 80, 120];
 
 export function evolution(learned: number) {
   let stage = 1;
   EVOLVE_AT.forEach((t, i) => { if (learned >= t) stage = i + 1; });
-  const next = EVOLVE_AT[stage] ?? 240;
+  const next = EVOLVE_AT[stage] ?? TOTAL;
   const prev = EVOLVE_AT[stage - 1];
   return {
     stage,
-    /** 次の段階（最終段階なら全240字）まであと何字 */
+    /** 次の段階（最終段階なら全160字）まであと何字 */
     remaining: Math.max(0, next - learned),
     /** 今の段階の中での進み具合 0〜1 */
     ratio: Math.min(1, (learned - prev) / (next - prev)),

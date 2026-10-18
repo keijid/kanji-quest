@@ -71,6 +71,8 @@ export class KanjiQuestDB extends Dexie {
       mocks: '++id, kind, at',
       meta: 'id',
     });
+    // v2：学習の対象を小2の160字（16ステージ）にした。ステージ番号の意味が変わるので、ステージの記録は消す
+    this.version(2).stores({}).upgrade((tx) => tx.table('stages').clear());
   }
 }
 

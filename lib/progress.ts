@@ -1,6 +1,6 @@
 // 進み具合のルール（PLAN.md「ルールの決め方」）
 import { db, DEFAULT_META, emptyHist, emptyStars, getMeta, today, MODES, type Mode, type Outcome, type MockResult } from './db';
-import { STAGE_COUNT, stageKanji } from './data';
+import { STAGE_COUNT, stageKanji, TOTAL } from './data';
 
 const HIST_LEN = 10;
 
@@ -129,7 +129,7 @@ export function currentStage(cleared: Set<number>) {
 export function passPrediction(fieldRates: Record<Mode, number | null>, learned: number, bestFull: MockResult | undefined) {
   const rates = MODES.map((m) => fieldRates[m]).filter((r): r is number => r !== null);
   const acc = rates.length ? rates.reduce((a, b) => a + b, 0) / rates.length : 0;
-  let p = acc * 0.6 + (learned / 240) * 0.4;
+  let p = acc * 0.6 + (learned / TOTAL) * 0.4;
   if (bestFull) p = p * 0.5 + (bestFull.score / bestFull.max) * 0.5;
   return Math.round(p * 100);
 }

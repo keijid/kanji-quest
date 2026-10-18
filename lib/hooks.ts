@@ -1,6 +1,7 @@
 'use client';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, DEFAULT_META, emptyStars, type KanjiProgress, type Mode, type StageProgress } from './db';
+import { TARGET_SET } from './data';
 import { currentStage, currentStreak, fieldRatesOf, levelOf, passPrediction, titleOf } from './progress';
 import { evolution } from './partners';
 
@@ -16,7 +17,8 @@ export function useAppData() {
       db.mocks.toArray(),
     ]);
     const m = meta ?? DEFAULT_META;
-    const learnedSet = new Set(kanji.filter((k) => k.learned).map((k) => k.char));
+    // 学習の対象（小2の160字）だけを数える
+    const learnedSet = new Set(kanji.filter((k) => k.learned && TARGET_SET.has(k.char)).map((k) => k.char));
     const stageMap = new Map<number, StageProgress>(stages.map((s) => [s.id, s]));
     const cleared = new Set(stages.filter((s) => s.bossCleared).map((s) => s.id));
     const level = levelOf(m.xp);
@@ -29,7 +31,7 @@ export function useAppData() {
       progress: new Map<string, KanjiProgress>(kanji.map((k) => [k.char, k])),
       learnedSet,
       learned: learnedSet.size,
-      weak: weak.map((w) => w.char),
+      weak: weak.map((w) => w.char).filter((c) => TARGET_SET.has(c)),
       stageStars: (id: number): Record<Mode, number> => stageMap.get(id)?.stars ?? emptyStars(),
       bossCleared: (id: number) => cleared.has(id),
       current: currentStage(cleared),

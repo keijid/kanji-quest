@@ -3,30 +3,31 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BackBtn, Btn, Card, Mk } from '@/components/ui';
 import { useAppData } from '@/lib/hooks';
-import { KANJI, kanjiOf, kanjiReadingText } from '@/lib/data';
+import { KANJI, kanjiOf, kanjiReadingText, TOTAL } from '@/lib/data';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
 
-type Tab = 1 | 2 | 3;
+// 学習の対象は小2の160字だけなので、タブは「2ねん」と「にがて」
+type Tab = 2 | 3;
 
 export default function Zukan() {
   const router = useRouter();
   const d = useAppData();
   const startPractice = useGame((s) => s.startPractice);
-  const [tab, setTab] = useState<Tab>(1);
+  const [tab, setTab] = useState<Tab>(2);
   const [sel, setSel] = useState<string>(KANJI[0].char);
   if (!d?.profile) return null;
 
-  const list = tab === 3 ? d.weak : KANJI.filter((k) => k.grade === tab).map((k) => k.char);
+  const list = tab === 3 ? d.weak : KANJI.map((k) => k.char);
   const k = kanjiOf(sel);
   const rd = kanjiReadingText(k);
   const weakSet = new Set(d.weak);
-  const tabs: [Tab, string][] = [[1, '1ねん 80'], [2, '2ねん 160'], [3, `にがて ${d.weak.length}`]];
+  const tabs: [Tab, string][] = [[2, `2ねん ${TOTAL}`], [3, `にがて ${d.weak.length}`]];
 
   const pickTab = (t: Tab) => {
     sfx('tap');
     setTab(t);
-    const first = t === 3 ? d.weak[0] : KANJI.find((x) => x.grade === t)!.char;
+    const first = t === 3 ? d.weak[0] : KANJI[0].char;
     if (first) setSel(first);
   };
 
@@ -35,7 +36,7 @@ export default function Zukan() {
       <div className="flex flex-wrap items-center gap-[14px]">
         <BackBtn href="/home/" />
         <div className="font-yusei text-[clamp(24px,3vw,32px)]">かんじずかん</div>
-        <div className="text-base text-frame">あつめた {d.learned} / 240</div>
+        <div className="text-base text-frame">あつめた {d.learned} / {TOTAL}</div>
         <div className="flex-1" />
         <div className="flex gap-2">
           {tabs.map(([t, label]) => (

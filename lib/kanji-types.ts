@@ -3,7 +3,7 @@ export type Kun = { stem: string; okuri: string };
 export type KanjiEntry = {
   char: string;
   grade: 1 | 2;
-  /** 1〜24 */
+  /** 1〜16（小2）。小1の字は 0（問題に出さない） */
   stage: number;
   strokes: number;
   radical: string;

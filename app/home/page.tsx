@@ -5,7 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Btn, Card, Mk } from '@/components/ui';
 import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
-import { STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
+import { STAGE_COUNT, STAGE_NAMES, stageKanji, TOTAL } from '@/lib/data';
 import { db, today } from '@/lib/db';
 import { PARTNERS } from '@/lib/partners';
 import { reviewSet } from '@/lib/quiz';
@@ -149,7 +149,7 @@ export default function Home() {
               <div className="gauge-stripe h-full" style={{ width: `${d.prediction}%` }} />
             </div>
             <div className="flex justify-between text-sm">
-              <span>おぼえた {d.learned}/240<Mk>{'{字:じ}'}</Mk></span>
+              <span>おぼえた {d.learned}/{TOTAL}<Mk>{'{字:じ}'}</Mk></span>
               <span className="text-primary">{d.prediction}%</span>
             </div>
           </Card>
@@ -168,7 +168,7 @@ export default function Home() {
           <div className="text-[13px] text-primary">{d.weak.length ? <>にがて {d.weak.length}<Mk>{'{字:じ}'}</Mk></> : 'にがて なし'}</div>
         </Btn>
         <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/zukan/')}>
-          かんじずかん<div className="text-[13px] text-frame">240<Mk>{'{字:じ}'}</Mk></div>
+          かんじずかん<div className="text-[13px] text-frame">{TOTAL}<Mk>{'{字:じ}'}</Mk></div>
         </Btn>
         <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/mock/')}>
           もぎテスト<div className="text-[13px] text-frame">ほんばん・ミニ</div>
