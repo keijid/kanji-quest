@@ -111,7 +111,8 @@ export default function Play() {
           ) : (
             <div className="font-yusei text-[40px] text-primary"><Mk>答えは これ！</Mk></div>
           )}
-          <AnswerView q={q} />
+          {/* せいかいの ときは 答えを出さない（自分で書いたので） */}
+          {phase === 'reveal' && <AnswerView q={q} />}
           <div className="text-center text-[17px] text-frame">
             {phase === 'reveal' ? <Mk>にがての かん字に 入れたよ。後で 5回 書こう！</Mk>
               : outcome === 1 ? `ヒントで せいかい ＋${XP.hint} けいけんち` : `＋${XP.first} けいけんち`}

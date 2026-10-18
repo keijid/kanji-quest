@@ -8,6 +8,7 @@ import { useGame } from '@/lib/game';
 import { STAGE_NAMES, stageKanji } from '@/lib/data';
 import { evolution, PARTNERS } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
+import { LevelUp } from '@/components/LevelUp';
 
 const KIND_TITLE = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' } as const;
 
@@ -95,6 +96,7 @@ export default function Result() {
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={() => setShowEvolve(false)}>やったね！</Btn>
         </Modal>
       )}
+      <LevelUp blocked={showEvolve} />
     </div>
   );
 }

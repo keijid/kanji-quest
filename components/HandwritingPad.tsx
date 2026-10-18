@@ -72,7 +72,7 @@ export const HandwritingPad = forwardRef<PadHandle, Props>(function HandwritingP
   };
 
   return (
-    <div className={`relative overflow-hidden ${className ?? ''}`} style={style}>
+    <div data-pad className={`relative overflow-hidden ${className ?? ''}`} style={style}>
       {guide && <div className="cell-guide" />}
       <canvas
         ref={canvas}

@@ -5,6 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 import { addStudySeconds } from '@/lib/progress';
 import { setSfxEnabled, unlockSfx } from '@/lib/sfx';
+import { installPalmRejection } from '@/lib/palm';
 import { AuthGate } from './AuthGate';
 
 const TICK = 15; // 秒
@@ -33,6 +34,8 @@ function Shell({ children }: { children: ReactNode }) {
     // 「/」は app/page.tsx が振り分けるので、ここでは何もしない（2か所から同時に移動しないように）
     if (profile === null && path !== '/' && !NO_PROFILE_OK.some((p) => path.startsWith(p))) router.replace('/onboard/');
   }, [profile, path, router]);
+
+  useEffect(() => { installPalmRejection(); }, []);
 
   useEffect(() => {
     const onInput = () => { lastInput.current = Date.now(); unlockSfx(); };

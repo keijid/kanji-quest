@@ -53,6 +53,11 @@ export function playSynth(ctx: AudioContext, name: SfxName) {
       [C5, E5, G5].forEach((f, i) => bell(ctx, out, f * 2, i * 0.09, 0.3, 0.3));
       bell(ctx, out, C7, 0.3, 0.8, 0.3);
       break;
+    case 'levelUp': // テッテレー
+      [G5, C6, E6].forEach((f, i) => note(ctx, out, f, i * 0.09, 0.12, 0.28, 'square'));
+      note(ctx, out, G6, 0.27, 0.5, 0.28, 'square');
+      bell(ctx, out, C7, 0.27, 0.9, 0.22);
+      break;
     case 'stageClear': // ファンファーレ
       [C5, C5, C5].forEach((f, i) => note(ctx, out, f, i * 0.11, 0.1, 0.32, 'square'));
       note(ctx, out, G5, 0.36, 0.18, 0.32, 'square');

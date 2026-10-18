@@ -1,10 +1,12 @@
 'use client';
 // 09 もぎテスト：選択 → 実施 → けっか。テスト中はヒントなし・1回だけ答える
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { BackBtn, Btn, Card, Mk, ProgressBar } from '@/components/ui';
 import { StrokeSvg, KANJIVG_CREDIT } from '@/components/StrokeSvg';
 import { WriteQ } from '@/components/play/WriteQ';
 import { useAppData } from '@/lib/hooks';
+import { STAGE_COUNT } from '@/lib/data';
 import { db, type MockField } from '@/lib/db';
 import { buildMock, FIELD_TITLE, FULL, maxScore, MINI, type MockTest } from '@/lib/mock';
 import { recordAnswers, type AnswerLog } from '@/lib/progress';
@@ -16,6 +18,7 @@ type Done = { test: MockTest; answers: boolean[]; score: number; max: number };
 
 export default function Mock() {
   const d = useAppData();
+  const router = useRouter();
   const [run, setRun] = useState<Run | null>(null);
   const [done, setDone] = useState<Done | null>(null);
   const [left, setLeft] = useState(0);
@@ -56,7 +59,10 @@ export default function Mock() {
     return () => clearInterval(id);
   }, [run]);
 
-  if (!d?.profile) return null;
+  // もぎテストは ぜんぶの ステージを クリアしてから
+  const locked = !!d && !d.bossCleared(STAGE_COUNT);
+  useEffect(() => { if (locked) router.replace('/home/'); }, [locked, router]);
+  if (!d?.profile || locked) return null;
 
   const start = (kind: 'full' | 'mini') => {
     const test = buildMock(kind, d.weak);

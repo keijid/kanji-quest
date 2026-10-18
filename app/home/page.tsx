@@ -5,13 +5,14 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Btn, Card, Mk } from '@/components/ui';
 import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
-import { stageKanji, TOTAL } from '@/lib/data';
+import { STAGE_COUNT, stageKanji, TOTAL } from '@/lib/data';
 import { AdventureMap } from '@/components/AdventureMap';
 import { db, today } from '@/lib/db';
 import { PARTNERS } from '@/lib/partners';
 import { reviewSet } from '@/lib/quiz';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
+import { LevelUp } from '@/components/LevelUp';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -117,10 +118,18 @@ export default function Home() {
         <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/zukan/')}>
           <Mk>かん字ずかん</Mk><div className="text-[13px] text-frame">{TOTAL}<Mk>字</Mk></div>
         </Btn>
-        <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/mock/')}>
-          もぎテスト<div className="text-[13px] text-frame">ほんばん・ミニ</div>
-        </Btn>
+        {/* もぎテストは ぜんぶの ステージを クリアしてから */}
+        {d.bossCleared(STAGE_COUNT) ? (
+          <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/mock/')}>
+            もぎテスト<div className="text-[13px] text-frame">ほんばん・ミニ</div>
+          </Btn>
+        ) : (
+          <Btn shadow={5} className="min-h-[76px] text-lg" disabled>
+            ？？？<div className="text-[13px] text-frame"><Mk>ぜんぶの ステージを クリアすると 出てくるよ</Mk></div>
+          </Btn>
+        )}
       </footer>
+      <LevelUp />
     </div>
   );
 }

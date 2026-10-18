@@ -42,6 +42,8 @@ export type Meta = {
   xp: number;
   streak: { current: number; best: number; lastDate: string | null };
   settings: Settings;
+  /** レベルアップを知らせた さいごの レベル（なければ まだ知らせていない＝今のレベルから始める） */
+  seenLevel?: number;
 };
 
 export const DEFAULT_META: Meta = {

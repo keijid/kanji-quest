@@ -9,6 +9,7 @@ import { bossUnlocked } from '@/lib/progress';
 import { bossSet, stageSet } from '@/lib/quiz';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
+import { LevelUp } from '@/components/LevelUp';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -122,6 +123,7 @@ export function StageScreen({ stage }: { stage: number }) {
           </div>
         </div>
       )}
+      <LevelUp />
     </Screen>
   );
 }

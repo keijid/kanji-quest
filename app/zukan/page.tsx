@@ -6,6 +6,7 @@ import { useAppData } from '@/lib/hooks';
 import { KANJI, kanjiOf, kanjiReadingText, TOTAL } from '@/lib/data';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
+import { LevelUp } from '@/components/LevelUp';
 
 // 学習の対象は小2の160字だけなので、タブは「2ねん」と「にがて」
 type Tab = 2 | 3;
@@ -88,6 +89,7 @@ export default function Zukan() {
           <Btn tone="green" className="min-h-[60px] rounded-[14px] text-xl" onClick={() => { startPractice([k.char], '/zukan/'); router.push('/practice/'); }}><Mk>書いて れんしゅう</Mk></Btn>
         </Card>
       </div>
+      <LevelUp />
     </div>
   );
 }

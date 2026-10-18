@@ -3,8 +3,8 @@
 // iOS は最初のタップまで音を出せないので、unlockSfx() を最初のタップで呼ぶ（AppShell）。
 import { playSynth } from './sfx-synth';
 
-export type SfxName = 'tap' | 'correct' | 'wrong' | 'hint' | 'finish' | 'evolve' | 'stageClear';
-export const SFX_NAMES: SfxName[] = ['tap', 'correct', 'wrong', 'hint', 'finish', 'evolve', 'stageClear'];
+export type SfxName = 'tap' | 'correct' | 'wrong' | 'hint' | 'finish' | 'levelUp' | 'evolve' | 'stageClear';
+export const SFX_NAMES: SfxName[] = ['tap', 'correct', 'wrong', 'hint', 'finish', 'levelUp', 'evolve', 'stageClear'];
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 let enabled = true;

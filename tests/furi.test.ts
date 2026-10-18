@@ -8,7 +8,7 @@ import { parseTokens } from '@/lib/markup';
 const FILES = [
   'app/home/page.tsx', 'app/stage/[id]/StageScreen.tsx', 'app/lesson/page.tsx', 'app/play/page.tsx', 'app/result/page.tsx',
   'app/zukan/page.tsx', 'app/practice/page.tsx', 'app/mock/page.tsx', 'app/onboard/page.tsx',
-  'components/AdventureMap.tsx', 'components/play/WriteQ.tsx', 'lib/hints.ts', 'lib/mock.ts',
+  'components/AdventureMap.tsx', 'components/LevelUp.tsx', 'components/play/WriteQ.tsx', 'lib/hints.ts', 'lib/mock.ts',
 ];
 
 /** コメントを のぞいた、文字列と JSX の文 */

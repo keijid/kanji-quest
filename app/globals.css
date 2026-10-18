@@ -65,7 +65,12 @@
     font-family: var(--font-kiwi);
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
+    /* 手のひらや 長おしで 文字が 選ばれないように（入力らんは 選べる） */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
+  input, textarea { -webkit-user-select: text; user-select: text; }
   rt { font-size: 0.5em; }
   button { font-family: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
   button:disabled { cursor: default; }
