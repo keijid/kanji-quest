@@ -103,7 +103,6 @@
 
 .gauge-stripe { background: repeating-linear-gradient(45deg, var(--color-gauge-a) 0 8px, var(--color-gauge-b) 8px 16px); }
 
-.shield { clip-path: polygon(50% 0, 100% 12%, 100% 55%, 50% 100%, 0 55%, 0 12%); }
 
 /* 押したときの「ぽよん」：ハード影の分だけ沈む */
 .press { transition: transform 0.08s, box-shadow 0.08s; }

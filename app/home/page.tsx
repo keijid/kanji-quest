@@ -12,6 +12,8 @@ import { reviewSet } from '@/lib/quiz';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 // マップ上の位置（見本どおり）。cur-2, cur-1, cur, cur+1, ボス
 const SLOTS = [
   { x: 10, y: 72 },
@@ -41,7 +43,8 @@ export default function Home() {
     <div data-screen-label="02 ホーム" className="flex flex-1 flex-col">
       <header className="flex flex-wrap items-center gap-3 border-b-[3px] border-dashed border-dash px-[clamp(16px,2.4vw,28px)] py-4">
         <div className="flex items-center gap-3">
-          <div className="shield flex h-[58px] w-[50px] items-center justify-center bg-primary pb-1.5 font-yusei text-[26px] text-paper">字</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`${BASE}/icons/icon-192.png`} alt="" width={58} height={58} className="h-[58px] w-[58px] flex-none rounded-[14px] border-2 border-ink" />
           <div className="font-yusei text-[clamp(24px,3vw,32px)] tracking-[2px]">カンジクエスト</div>
         </div>
         <div className="flex-1" />
