@@ -1,6 +1,8 @@
 // 効果音。ふだんは lib/sfx-synth.ts でその場で合成して鳴らす。
 // public/sfx/<name>.mp3 を置き、public/sfx/sounds.json に名前を書けば、その音に差しかわる（public/sfx/README.md）。
-// iOS は最初のタップまで音を出せないので、unlockSfx() を最初のタップで呼ぶ（AppShell）。
+// iOS は タップ（指を はなしたとき・click）の中でしか 音を 出しはじめられないので、unlockSfx() を タップのたびに呼ぶ（AppShell）。
+// ホーム画面アプリは 裏に回って もどると AudioContext が 止まったまま（interrupted など）に なりやすいので、
+// もどってきた あとの さいしょの タップで 作りなおす。
 import { playSynth } from './sfx-synth';
 
 export type SfxName = 'tap' | 'correct' | 'wrong' | 'hint' | 'finish' | 'levelUp' | 'evolve' | 'stageClear';
@@ -9,6 +11,9 @@ export const SFX_NAMES: SfxName[] = ['tap', 'correct', 'wrong', 'hint', 'finish'
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 let enabled = true;
 let ctx: AudioContext | null = null;
+/** 裏に回った → つぎの タップで AudioContext を 作りなおす */
+let stale = false;
+let listening = false;
 const buffers = new Map<SfxName, AudioBuffer | null>();
 
 export function setSfxEnabled(on: boolean) {
@@ -27,12 +32,38 @@ async function load(name: SfxName) {
   }
 }
 
+/** 長さ 1 サンプルの 無音を 鳴らす。iOS は タップの中で 何か 鳴らすと、その あとも 音が 出せるように なる */
+function playSilence(c: AudioContext) {
+  const src = c.createBufferSource();
+  src.buffer = c.createBuffer(1, 1, 22050);
+  src.connect(c.destination);
+  src.start();
+}
+
 export function unlockSfx() {
-  if (ctx || typeof window === 'undefined') return;
+  if (typeof window === 'undefined') return;
+  // state が running でも 音が 出ないことが あるので、もどってきたら かならず 作りなおす
+  if (ctx && stale) {
+    void ctx.close().catch(() => {});
+    ctx = null;
+  }
+  stale = false;
+  if (ctx) {
+    if (ctx.state !== 'running') {
+      void ctx.resume().catch(() => {});
+      playSilence(ctx);
+    }
+    return;
+  }
   const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!AC) return;
   ctx = new AC();
-  void ctx.resume();
+  void ctx.resume().catch(() => {});
+  playSilence(ctx);
+  if (listening) return;
+  // ここからは さいしょの 1回だけ
+  listening = true;
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stale = true; });
   fetch(`${BASE}/sfx/sounds.json`)
     .then((r) => (r.ok ? r.json() : []))
     .then((names: string[]) => names.filter((n): n is SfxName => (SFX_NAMES as string[]).includes(n)).forEach((n) => void load(n)))
@@ -41,7 +72,7 @@ export function unlockSfx() {
 
 export function sfx(name: SfxName) {
   if (!enabled || !ctx) return;
-  if (ctx.state === 'suspended') void ctx.resume();
+  if (ctx.state !== 'running') void ctx.resume().catch(() => {});
   const buf = buffers.get(name);
   if (!buf) return playSynth(ctx, name);
   const src = ctx.createBufferSource();

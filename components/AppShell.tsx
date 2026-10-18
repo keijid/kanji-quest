@@ -40,6 +40,9 @@ function Shell({ children }: { children: ReactNode }) {
   useEffect(() => {
     const onInput = () => { lastInput.current = Date.now(); unlockSfx(); };
     window.addEventListener('pointerdown', onInput, { passive: true });
+    // iOS は 指を はなしたとき（pointerup・touchend）でないと 音を 出しはじめられない
+    window.addEventListener('pointerup', unlockSfx, { passive: true });
+    window.addEventListener('touchend', unlockSfx, { passive: true });
     // 画面が見えていて、1分以内にさわっていたら学習時間に足す（保護者画面は数えない）
     const id = setInterval(() => {
       if (document.visibilityState !== 'visible') return;
@@ -47,7 +50,12 @@ function Shell({ children }: { children: ReactNode }) {
       if (location.pathname.includes('/parent')) return;
       void addStudySeconds(TICK);
     }, TICK * 1000);
-    return () => { window.removeEventListener('pointerdown', onInput); clearInterval(id); };
+    return () => {
+      window.removeEventListener('pointerdown', onInput);
+      window.removeEventListener('pointerup', unlockSfx);
+      window.removeEventListener('touchend', unlockSfx);
+      clearInterval(id);
+    };
   }, []);
 
   return <>{children}</>;
