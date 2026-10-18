@@ -169,8 +169,11 @@ export async function cutSheet(o: CutOptions) {
 export type ComponentCutOptions = {
   src: string;
   outFiles: string[];
-  /** 絵どうしの境目（横位置の割合 0〜1）。数＝絵の数−1。かたまりは中心がどこにあるかで振り分ける */
-  boundaries: number[];
+  /**
+   * 絵どうしの境目（横位置の割合 0〜1）。数＝絵の数−1。かたまりは中心がどこにあるかで振り分ける。
+   * 'auto' なら、大きなかたまりを横位置で絵の数にまとめ、そのすきまの真ん中を境目にする
+   */
+  boundaries: number[] | 'auto';
   /** 背景とみなす色の近さ（背景が真っ白なら小さくてよい） */
   bgTol?: number;
   /** これより小さいかたまりはごみとして捨てる（画素数） */
@@ -215,26 +218,49 @@ export async function cutByComponents(o: ComponentCutOptions) {
     }
   }
 
-  // 残った部分を、つながったかたまりに分けて、中心の横位置で振り分ける
-  const group = new Int8Array(N).fill(-1);
+  // 残った部分を、つながったかたまりに分ける
+  type Comp = { pix: number[]; cx: number; minX: number; maxX: number };
+  const comps: Comp[] = [];
   const label = new Int32Array(N).fill(-1);
-  let id = 0;
   for (let k0 = 0; k0 < N; k0++) {
     if (!alpha[k0] || label[k0] >= 0) continue;
     const pix: number[] = [k0], q = [k0];
-    label[k0] = id;
-    let sx = 0, sy = 0;
+    label[k0] = comps.length;
+    let sx = 0, sy = 0, minX = W, maxX = 0;
     while (q.length) {
       const k = q.pop()!;
-      sx += k % W;
+      const x = k % W;
+      sx += x;
       sy += (k / W) | 0;
-      for (const n of nb(k)) if (n >= 0 && alpha[n] && label[n] < 0) { label[n] = id; q.push(n); pix.push(n); }
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      for (const n of nb(k)) if (n >= 0 && alpha[n] && label[n] < 0) { label[n] = comps.length; q.push(n); pix.push(n); }
     }
-    id++;
-    if (pix.length < minArea || (o.maxCenterY !== undefined && sy / pix.length / H > o.maxCenterY)) { for (const k of pix) alpha[k] = 0; continue; }
-    const cx = sx / pix.length / W;
-    const g = o.boundaries.filter((b) => cx >= b).length;
-    for (const k of pix) group[k] = g;
+    if (pix.length < minArea || (o.maxCenterY !== undefined && sy / pix.length / H > o.maxCenterY)) { for (const k of pix) alpha[k] = 0; label[k0] = -2; continue; }
+    comps.push({ pix, cx: sx / pix.length / W, minX: minX / W, maxX: maxX / W });
+  }
+
+  // 境目を決める（auto：大きなかたまりを横位置で絵の数にまとめ、まとまりどうしのすきまの真ん中）
+  let bounds: number[];
+  if (o.boundaries === 'auto') {
+    const total = comps.reduce((s, c) => s + c.pix.length, 0);
+    const groups = comps.filter((c) => c.pix.length >= total * 0.01).sort((a, b) => a.cx - b.cx).map((c) => ({ minX: c.minX, maxX: c.maxX, cx: c.cx }));
+    while (groups.length > o.outFiles.length) {
+      // 横にいちばん近い（重なりが大きい・すきまが小さい）となりどうしをまとめる
+      let best = 0;
+      for (let i = 1; i < groups.length - 1; i++) if (groups[i + 1].minX - groups[i].maxX < groups[best + 1].minX - groups[best].maxX) best = i;
+      const a = groups[best], b = groups[best + 1];
+      groups.splice(best, 2, { minX: Math.min(a.minX, b.minX), maxX: Math.max(a.maxX, b.maxX), cx: (a.cx + b.cx) / 2 });
+    }
+    if (groups.length < o.outFiles.length) throw new Error(`${o.src}: 絵が ${groups.length} 個しか見つからない`);
+    bounds = groups.slice(1).map((g, i) => (groups[i].maxX < g.minX ? (groups[i].maxX + g.minX) / 2 : (groups[i].cx + g.cx) / 2));
+  } else bounds = o.boundaries;
+
+  // 中心の横位置で振り分ける
+  const group = new Int8Array(N).fill(-1);
+  for (const c of comps) {
+    const g = bounds.filter((b) => c.cx >= b).length;
+    for (const k of c.pix) group[k] = g;
   }
 
   for (let g = 0; g < o.outFiles.length; g++) {

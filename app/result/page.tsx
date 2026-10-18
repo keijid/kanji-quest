@@ -43,7 +43,7 @@ export default function Result() {
         </div>
         <div className="text-[22px]"><span className="text-5xl text-primary">{correct}</span> / {total} もん せいかい</div>
         <div className="flex w-full max-w-[420px] items-center gap-[14px] border-t-[3px] border-dashed border-dash pt-4">
-          <PartnerAvatar id={d.profile.partner} size={84} stage={after.stage} fontSize={12} />
+          <PartnerAvatar id={d.profile.partner} size={84} stage={after.stage} mood={r.stars >= 2 ? 'happy' : 'cheer'} fontSize={12} />
           <div className="flex flex-1 flex-col gap-1.5">
             <div className="text-base">
               {r.newlyLearned.length ? <>{p.name}が よろこんでる！ ＋{r.newlyLearned.length}<Mk>{'{字:じ}'}</Mk> おぼえた</> : <>{p.name}も おうえん してるよ！</>}
@@ -80,7 +80,7 @@ export default function Result() {
       {showEvolve && (
         <Modal>
           <div className="font-yusei text-[44px]" style={{ color: p.color }}>しんか した！</div>
-          <div className="animate-poyon"><PartnerAvatar id={d.profile.partner} size={160} stage={after.stage} label={`${p.kind}\nしんか ${after.stage}`} /></div>
+          <div className="animate-poyon"><PartnerAvatar id={d.profile.partner} size={160} stage={after.stage} mood="happy" label={`${p.kind}\nしんか ${after.stage}`} /></div>
           <div className="text-lg">{p.name}が しんか {after.stage}に なったよ！</div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={() => setShowEvolve(false)}>やったね！</Btn>
         </Modal>

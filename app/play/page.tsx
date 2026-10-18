@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { BackBtn, Btn, Card, Mk, Modal, ProgressBar, Screen } from '@/components/ui';
 import { StrokeSvg, KANJIVG_CREDIT } from '@/components/StrokeSvg';
 import { WriteQ } from '@/components/play/WriteQ';
+import { PartnerAvatar } from '@/components/Partner';
 import { HintBubble } from '@/components/play/HintBubble';
 import { useAppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
@@ -95,6 +96,10 @@ export default function Play() {
 
       {(phase === 'correct' || phase === 'reveal') && (
         <Modal>
+          {/* 相棒の顔：せいかい＝よろこぶ、こたえを出すとき＝おどろく */}
+          <div className="-mt-3 animate-poyon">
+            <PartnerAvatar id={d.profile.partner} stage={d.evo.stage} mood={phase === 'correct' ? 'happy' : 'surprised'} size={110} />
+          </div>
           {phase === 'correct' ? (
             <div className="font-yusei text-5xl text-success">せいかい！</div>
           ) : (

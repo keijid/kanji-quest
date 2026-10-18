@@ -7,16 +7,19 @@ import { PARTNERS, type PartnerId } from '@/lib/partners';
 const HAS_PARTNER_ART = true;
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
-type Props = { id: PartnerId; size: number; stage?: number; label?: string; dashed?: 2 | 3; fontSize?: number };
+/** 表情：よろこぶ・はげます・おどろく（public/partners/<相棒>-<段階>-<表情>.png）。なしなら ふつうの顔 */
+export type Mood = 'happy' | 'cheer' | 'surprised';
 
-export function PartnerAvatar({ id, size, stage = 1, label, dashed = 3, fontSize = 14 }: Props) {
+type Props = { id: PartnerId; size: number; stage?: number; mood?: Mood; label?: string; dashed?: 2 | 3; fontSize?: number };
+
+export function PartnerAvatar({ id, size, stage = 1, mood, label, dashed = 3, fontSize = 14 }: Props) {
   const p = PARTNERS[id];
   if (HAS_PARTNER_ART) {
     // 絵があるときは、丸い枠・斜線の地なしで絵だけを出す
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={`${BASE}/partners/${id}-${stage}.png`}
+        src={`${BASE}/partners/${id}-${stage}${mood ? `-${mood}` : ''}.png`}
         alt={`${p.name}（しんか ${stage}）`}
         draggable={false}
         className="pointer-events-none flex-none select-none"

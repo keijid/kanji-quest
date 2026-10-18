@@ -21,6 +21,11 @@ const SHEETS: Record<string, Job> = {
   modes: { by: 'components', o: { src: gen('modes-sheet.jpg'), outFiles: ['read', 'write', 'stroke', 'okuri'].map((m) => pub(`modes/${m}.png`)), boundaries: [0.27, 0.496, 0.734], bgTol: 14, size: 192 } },
   // 称号のバッジ（左から かけだし たびびと → かんじ マスター）。下に勝手に付いた英語の文字は捨てる
   badges: { by: 'components', o: { src: gen('badges-sheet.jpg'), outFiles: [1, 2, 3, 4, 5, 6].map((n) => pub(`badges/badge-${n}.png`)), boundaries: [0.17, 0.321, 0.481, 0.6475, 0.81], bgTol: 14, maxCenterY: 0.69, size: 192 } },
+  // 相棒の表情（よろこぶ・はげます・おどろく）。5段階を横に並べた絵から public/partners/<相棒>-<段階>-<表情>.png
+  ...Object.fromEntries((['fire', 'wood', 'light'] as const).flatMap((id) => (['happy', 'cheer', 'surprised'] as const).map((m): [string, Job] => [
+    `${id}-${m}`,
+    { by: 'components', o: { src: gen(`moods/${id}-${m}-sheet.jpg`), outFiles: [1, 2, 3, 4, 5].map((n) => pub(`partners/${id}-${n}-${m}.png`)), boundaries: 'auto', bgTol: 14, enclosedTol: 10 } },
+  ]))),
 };
 
 (async () => {
