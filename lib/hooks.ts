@@ -44,7 +44,7 @@ export function useAppData() {
       streak: currentStreak(m.streak),
       evo: evolution(learnedSet.size),
       rates,
-      prediction: passPrediction(rates, learnedSet.size, bestFull),
+      prediction: passPrediction(kanji, TARGET_SET, bestFull),
       mocks,
       bestFull,
     };

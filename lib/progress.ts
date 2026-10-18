@@ -135,13 +135,30 @@ export function currentStage(cleared: Set<number>) {
 
 // ---- 合格予想 ----
 /**
- * 分野別の直近の正答率の平均 × 0.6 ＋ 習得率 × 0.4。もぎテスト（ほんばん）の最高点があれば半分ずつ混ぜる。
- * 0〜100 の整数。
+ * 1字の身につき具合 0〜1。全分野の直近の答え（新しい順に最大6つ）から：1回目で正解＝1、ヒントのあと正解＝0.6、まちがい＝0。
+ * 答えた数が3つに満たないうちは、その分だけ割り引く（1問だけ正解しても 1 にはしない）
  */
-export function passPrediction(fieldRates: Record<Mode, number | null>, learned: number, bestFull: MockResult | undefined) {
-  const rates = MODES.map((m) => fieldRates[m]).filter((r): r is number => r !== null);
-  const acc = rates.length ? rates.reduce((a, b) => a + b, 0) / rates.length : 0;
-  let p = acc * 0.6 + (learned / TOTAL) * 0.4;
+const RECENT = 6;
+const CONFIDENT = 3;
+export function kanjiMastery(hist: Record<Mode, Outcome[]>) {
+  // 分野ごとの履歴は古い順。分野をまたいで新しいものから取る（各分野の末尾から交互に）
+  const lists = MODES.map((m) => [...hist[m]].reverse());
+  const recent: Outcome[] = [];
+  for (let i = 0; recent.length < RECENT && lists.some((l) => i < l.length); i++) {
+    for (const l of lists) if (i < l.length && recent.length < RECENT) recent.push(l[i]);
+  }
+  if (!recent.length) return 0;
+  const score = recent.reduce((s: number, o) => s + (o === 2 ? 1 : o === 1 ? 0.6 : 0), 0) / recent.length;
+  return score * Math.min(1, recent.length / CONFIDENT);
+}
+
+/**
+ * 合格予想 0〜100：学習の対象（160字）それぞれの身につき具合の平均（まだやっていない字は 0）。
+ * もぎテスト（ほんばん。160字から出る）の最高点があれば、半分ずつ混ぜる
+ */
+export function passPrediction(progress: { char: string; hist: Record<Mode, Outcome[]> }[], targets: Set<string>, bestFull: MockResult | undefined) {
+  const sum = progress.filter((p) => targets.has(p.char)).reduce((s, p) => s + kanjiMastery(p.hist), 0);
+  let p = sum / TOTAL;
   if (bestFull) p = p * 0.5 + (bestFull.score / bestFull.max) * 0.5;
   return Math.round(p * 100);
 }
