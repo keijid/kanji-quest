@@ -45,6 +45,7 @@ NEXT_PUBLIC_BASE_PATH=/kanji-quest npm run build   # out/ に書き出し
 ## 差し替える素材
 
 - 相棒のイラスト（3体×5段階）：5段階を横に並べた1枚絵を `assets/partners-src/<fire|wood|light>-sheet.jpg` に置き、`npm run partners` で `public/partners/<id>-<1..5>.png`（背景透過・384px）に切り分けます
+- アプリアイコン：元の絵 `assets/icon-src.jpg`（正方形）を置きかえて `npm run icons`（`public/icons/` に各サイズを書き出す）
 - 効果音：`public/sfx/README.md`
 
 ## ライセンス・クレジット
