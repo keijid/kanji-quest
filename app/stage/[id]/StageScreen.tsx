@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { BackBtn, Card, Mk, Screen, Stars } from '@/components/ui';
 import { useAppData } from '@/lib/hooks';
-import { areaOf, STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
+import { STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
 import { MODES, type Mode } from '@/lib/db';
 import { bossUnlocked } from '@/lib/progress';
 import { bossSet, stageSet } from '@/lib/quiz';
@@ -82,9 +82,9 @@ export function StageScreen({ stage }: { stage: number }) {
         <button className={`${cardCls} bg-boss text-paper disabled:cursor-default`} onClick={() => go('boss')} disabled={!unlocked}>
           <div className="flex w-full items-center justify-between gap-2">
             <div className="font-yusei text-[28px]">ボスせん</div>
-            {/* このエリアのボス */}
+            {/* このステージのボス */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${BASE}/bosses/boss-${areaOf(stage) + 1}.png`} alt="" className="-my-3 h-[72px] w-[72px]" />
+            <img src={`${BASE}/bosses/stage-${stage}.png`} alt="" className="-my-3 h-[72px] w-[72px]" />
           </div>
           <div className="text-[15px] opacity-90">ぜんぶの もんだいが まざって でるよ</div>
           <div className="flex-1" />

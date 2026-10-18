@@ -119,12 +119,11 @@ export function AdventureMap({ current, learned, bossCleared }: Props) {
             const pos = { left: n.x, top: `${n.y}%` };
             if (n.kind === 'boss') {
               const cleared = bossCleared(n.stage);
-              const art = Math.min(MAP_ART.length, Math.floor((n.stage - 1) / STAGES_PER_AREA) + 1);
               const size = n.stage === STAGE_COUNT ? 96 : 72;
               const body = (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`${BASE}/bosses/boss-${art}.png`} alt="" style={{ width: size, height: size, filter: open ? undefined : 'grayscale(.8) opacity(.55)' }} />
+                  <img src={`${BASE}/bosses/stage-${n.stage}.png`} alt="" style={{ width: size, height: size, filter: open ? undefined : 'saturate(.6) opacity(.75)' }} />
                   <span className="-mt-1 rounded-md border-2 border-ink px-2 text-xs text-paper" style={{ background: cleared ? '#5a8a3a' : '#3a5a8a' }}>{cleared ? 'クリア' : 'ボス'}</span>
                   {n.i === here.i && <span className="mt-1 w-20 rounded-lg border-2 border-ink bg-primary text-center text-sm text-paper">いまここ</span>}
                 </>
