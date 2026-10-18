@@ -61,7 +61,7 @@ export default function Home() {
 
       <div className="flex flex-1 flex-wrap gap-5 px-[clamp(16px,2.4vw,28px)] pt-[18px]">
         <main className="relative min-h-[380px] flex-[1_1_520px] overflow-hidden rounded-[18px] border-[3px] border-ink bg-map">
-          <AdventureMap current={cur} practiced={d.practicedSet} bossCleared={d.bossCleared} />
+          <AdventureMap current={cur} practiced={d.practicedSet} bossCleared={d.bossCleared} partner={d.profile.partner} partnerStage={d.evo.stage} />
         </main>
 
         <aside className="flex max-w-full flex-[1_1_280px] flex-col gap-[14px]">

@@ -9,6 +9,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useGame } from '@/lib/game';
 import { Mk } from '@/components/ui';
+import { PartnerAvatar } from '@/components/Partner';
+import type { PartnerId } from '@/lib/partners';
 import { MAP_ART, STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
 import { sfx } from '@/lib/sfx';
 
@@ -45,9 +47,12 @@ type Props = {
   /** 1字ずつの練習を終えた字 */
   practiced: Set<string>;
   bossCleared: (stage: number) => boolean;
+  /** いまここ に立つ相棒 */
+  partner: PartnerId;
+  partnerStage: number;
 };
 
-export function AdventureMap({ current, practiced, bossCleared }: Props) {
+export function AdventureMap({ current, practiced, bossCleared, partner, partnerStage }: Props) {
   const router = useRouter();
   const startLesson = useGame((s) => s.startLesson);
   const nodes = useMemo(buildNodes, []);
@@ -110,8 +115,8 @@ export function AdventureMap({ current, practiced, bossCleared }: Props) {
             })}
           </svg>
 
-          {/* ステージの旗 */}
-          {nodes.filter((n) => n.kind === 'kanji' && n.i % PER_STAGE === 0).map((n) => (
+          {/* ステージの旗（いまここ の字には相棒が立つので出さない。ステージ名は左上に出ている） */}
+          {nodes.filter((n) => n.kind === 'kanji' && n.i % PER_STAGE === 0 && n.i !== here.i).map((n) => (
             <div
               key={`flag-${n.stage}`}
               className="absolute whitespace-nowrap rounded-md border-2 border-ink px-2 text-[13px]"
@@ -175,6 +180,16 @@ export function AdventureMap({ current, practiced, bossCleared }: Props) {
               </button>
             );
           })}
+
+          {/* 相棒：いまここ の上に立つ（上が足りないときは上はしに合わせる） */}
+          <div
+            className="pointer-events-none absolute z-[1] -translate-x-1/2"
+            style={{ left: here.x, top: `max(2px, calc(${here.y}% - ${here.kind === 'boss' ? 128 : 100}px))` }}
+          >
+            <div className="animate-bob drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]">
+              <PartnerAvatar id={partner} size={64} stage={partnerStage} mood={here.kind === 'boss' ? 'cheer' : undefined} />
+            </div>
+          </div>
         </div>
       </div>
 
