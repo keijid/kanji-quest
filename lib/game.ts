@@ -17,14 +17,14 @@ export type LastResult = {
 type GameState = {
   set: QuizSet | null;
   result: LastResult | null;
-  /** 5かい れんしゅう の対象と、終わったあとの戻り先 */
-  practice: { chars: string[]; returnTo: string } | null;
+  /** 5かい れんしゅう の対象と、やめたときの戻り先。then='lesson' なら、書きおわったら その字の もんだいへ進む */
+  practice: { chars: string[]; returnTo: string; then?: 'lesson' } | null;
   /** 1字ずつの練習で「おぼえよう」画面に出す字 */
   lesson: string | null;
   startLesson: (char: string) => void;
   startSet: (s: QuizSet) => void;
   finishSet: (r: LastResult) => void;
-  startPractice: (chars: string[], returnTo: string) => void;
+  startPractice: (chars: string[], returnTo: string, then?: 'lesson') => void;
   endPractice: () => void;
 };
 
@@ -38,7 +38,7 @@ export const useGame = create<GameState>()(
       startLesson: (char) => set({ lesson: char }),
       startSet: (s) => set({ set: s }),
       finishSet: (r) => set({ set: null, result: r }),
-      startPractice: (chars, returnTo) => set({ practice: { chars, returnTo } }),
+      startPractice: (chars, returnTo, then) => set({ practice: { chars, returnTo, then } }),
       endPractice: () => set({ practice: null }),
     }),
     { name: 'kq-game', storage: createJSONStorage(() => sessionStorage) },

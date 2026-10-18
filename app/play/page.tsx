@@ -71,7 +71,7 @@ export default function Play() {
     const correct = logs.filter((l) => l.outcome > 0).length;
     const stars = starsFor(correct, total);
     const learnedBefore = d.learned;
-    const { newlyLearned } = await recordAnswers(logs);
+    const { newlyLearned } = await recordAnswers(logs, { addWeak: set.kind === 'boss' });
     let bossCleared = false;
     if (set.stage && set.kind !== 'boss' && set.kind !== 'review' && set.kind !== 'lesson') await saveStageStars(set.stage, set.kind, stars);
     // 1字ずつの練習は、さいごまでやれば練習ずみ（まちがえた字は 5かい れんしゅう と ふくしゅう で身につける）
@@ -114,7 +114,7 @@ export default function Play() {
           {/* せいかいの ときは 答えを出さない（自分で書いたので） */}
           {phase === 'reveal' && <AnswerView q={q} />}
           <div className="text-center text-[17px] text-frame">
-            {phase === 'reveal' ? <Mk>にがての かん字に 入れたよ。後で 5回 書こう！</Mk>
+            {phase === 'reveal' ? <Mk>{set.kind === 'boss' ? 'にがての かん字に 入れたよ。後で 5回 書こう！' : '後で 5回 書いて おぼえよう！'}</Mk>
               : outcome === 1 ? `ヒントで せいかい ＋${XP.hint} けいけんち` : `＋${XP.first} けいけんち`}
           </div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={next} disabled={saving}>

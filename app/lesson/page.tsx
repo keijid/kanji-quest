@@ -8,13 +8,12 @@ import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
 import { kanjiOf, kanjiReadingText, STAGE_NAMES } from '@/lib/data';
-import { lessonSet } from '@/lib/quiz';
 
 export default function Lesson() {
   const router = useRouter();
   const d = useAppData();
   const char = useGame((s) => s.lesson);
-  const startSet = useGame((s) => s.startSet);
+  const startPractice = useGame((s) => s.startPractice);
   const [play, setPlay] = useState(1);
 
   // 最初の描画はサーバー側の初期値（null）なので、実際の値を見てから判断する
@@ -64,9 +63,9 @@ export default function Lesson() {
           </Card>
           <div className="flex items-center gap-3">
             <PartnerAvatar id={d.profile.partner} stage={d.evo.stage} mood="cheer" size={72} />
-            <div className="text-[17px] leading-relaxed"><Mk>書きじゅんを よく 見てから、もんだいに ちょうせん しよう！</Mk></div>
+            <div className="text-[17px] leading-relaxed"><Mk>書きじゅんを よく 見てから、5回 書いて みよう！ そのあと もんだいに ちょうせん！</Mk></div>
           </div>
-          <Btn tone="red" shadow={5} className="min-h-[72px] font-yusei text-[28px]" onClick={() => { startSet(lessonSet(char)); router.push('/play/'); }}>はじめる</Btn>
+          <Btn tone="red" shadow={5} className="min-h-[72px] font-yusei text-[28px]" onClick={() => { startPractice([char], '/lesson/', 'lesson'); router.push('/practice/'); }}>はじめる</Btn>
         </div>
       </div>
     </div>

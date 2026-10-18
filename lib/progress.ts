@@ -40,9 +40,10 @@ export type AnswerLog = { char: string; mode: Mode; outcome: Outcome };
 /**
  * セットの結果をまとめて保存する。
  * - 習得：よみ と かき の両方で正解（ヒントのあとの正解を含む）したら「覚えた」
- * - 苦手：まちがい（2回目もまちがい）で追加。追加後に2回続けて正解したら外す
+ * - 苦手：addWeak のとき（ボスせん）だけ、まちがい（2回目もまちがい）で追加する。
+ *   すでに苦手の字は、どこで まちがえても やり直し。2回続けて正解したら外す
  */
-export async function recordAnswers(logs: AnswerLog[]) {
+export async function recordAnswers(logs: AnswerLog[], { addWeak = false }: { addWeak?: boolean } = {}) {
   const newlyLearned: string[] = [];
   await db.transaction('rw', [db.kanji, db.weak, db.meta, db.days], async () => {
     for (const { char, mode, outcome } of logs) {
@@ -56,7 +57,9 @@ export async function recordAnswers(logs: AnswerLog[]) {
       await db.kanji.put(p);
 
       const w = await db.weak.get(char);
-      if (outcome === 0) await db.weak.put({ char, addedAt: w?.addedAt ?? Date.now(), streak: 0 });
+      if (outcome === 0) {
+        if (w || addWeak) await db.weak.put({ char, addedAt: w?.addedAt ?? Date.now(), streak: 0 });
+      }
       else if (w) {
         if (w.streak + 1 >= 2) await db.weak.delete(char);
         else await db.weak.put({ ...w, streak: w.streak + 1 });
