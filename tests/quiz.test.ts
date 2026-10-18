@@ -28,16 +28,17 @@ describe('1字ずつの練習', () => {
 });
 
 describe('ボスせん', () => {
-  it('ステージの10字すべてを、よみ（おくりがな）・かき・かきじゅん でもれなく出す', () => {
+  it('ステージの10字すべてを、よみ（おくりがなをまぜる）・かき・かきじゅん で1問ずつ、計30問', () => {
     for (let st = 1; st <= STAGE_COUNT; st++) {
       const chars = stageKanji(st).map((k) => k.char);
       const qs = bossSet(st).questions;
+      expect(qs).toHaveLength(30);
       for (const c of chars) {
         const mine = qs.filter((q) => q.char === c).map((q) => q.kind);
-        expect(mine.filter((k) => k === 'read')).toHaveLength(1);
+        expect(mine.filter((k) => k === 'read' || k === 'okuri')).toHaveLength(1);
+        if (!canAsk(c, 'okuri')) expect(mine).not.toContain('okuri');
         expect(mine.filter((k) => k === 'write')).toHaveLength(1);
         expect(mine.filter((k) => k === 'stroke')).toHaveLength(1);
-        expect(mine.filter((k) => k === 'okuri')).toHaveLength(canAsk(c, 'okuri') ? 1 : 0);
       }
       // よみ（おくりがなを含む）→ かき → かきじゅん の順
       const part = (k: string) => (k === 'read' || k === 'okuri' ? 0 : k === 'write' ? 1 : 2);

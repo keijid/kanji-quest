@@ -79,14 +79,12 @@ export function lessonSet(char: string): QuizSet {
 }
 
 /**
- * ボスせん：ステージの10字すべてを、よみ（おくりがなもここに入れる）→ かき → かきじゅん の順に、もれなく出す
+ * ボスせん：ステージの10字すべてを、よみ → かき → かきじゅん の順に1問ずつ（各10問・計30問）。
+ * おくりがなは「よみ」にまぜる：おくりがなのある字は、半分の確率で よみ の代わりに おくりがな を出す
  */
 export function bossSet(stage: number): QuizSet {
   const chars = stageKanji(stage).map((k) => k.char);
-  const reads = shuffle([
-    ...chars.map((c) => makeQuestion(c, 'read')),
-    ...chars.filter((c) => canAsk(c, 'okuri')).map((c) => makeQuestion(c, 'okuri')),
-  ]);
+  const reads = shuffle(chars).map((c) => makeQuestion(c, canAsk(c, 'okuri') && Math.random() < 0.5 ? 'okuri' : 'read'));
   const writes = shuffle(chars).map((c) => makeQuestion(c, 'write'));
   const strokes = shuffle(chars).map((c) => makeQuestion(c, 'stroke'));
   return { kind: 'boss', stage, questions: [...reads, ...writes, ...strokes] };
