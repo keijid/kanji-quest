@@ -183,10 +183,14 @@ function MockStroke({ q, no, onAnswer }: { q: Extract<Question, { kind: 'stroke'
         <div className="text-center text-[22px]">{q.sub === 'total' ? 'ぜんぶで なんかく？' : <><span className="text-primary">あかい ところ</span>は なんかくめ？</>}</div>
         {q.sub === 'nth' && <div className="text-xs text-frame">{KANJIVG_CREDIT}</div>}
       </Card>
-      <div className="grid max-w-[480px] flex-[1_1_360px] grid-cols-4 gap-3">
-        {Array.from({ length: 12 }, (_, j) => j + 1).map((v) => (
-          <button key={v} onClick={() => onAnswer(v === q.index + 1)} className="press aspect-[1.2] rounded-[14px] border-[3px] border-ink bg-card text-[30px] shadow-hard-4">{v}</button>
-        ))}
+      <div className="flex max-w-[480px] flex-[1_1_360px] flex-col gap-3">
+        <div className="grid grid-cols-4 gap-3">
+          {Array.from({ length: 12 }, (_, j) => j + 1).map((v) => (
+            <button key={v} onClick={() => onAnswer(v === q.index + 1)} className="press aspect-[1.2] rounded-[14px] border-[3px] border-ink bg-card text-[30px] shadow-hard-4">{v}</button>
+          ))}
+        </div>
+        {/* テストなのでヒントはなし。わからなければ不正解にして つぎへ */}
+        <button onClick={() => onAnswer(false)} className="press min-h-12 self-start rounded-xl border-[3px] border-ink bg-card px-4 text-[17px] shadow-hard-4">わからない</button>
       </div>
     </div>
   );

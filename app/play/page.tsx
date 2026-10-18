@@ -194,7 +194,14 @@ function StrokeQ({ q, partner, partnerStage, phase, onAnswer }: { q: Extract<Que
             );
           })}
         </div>
-        <div className="text-right text-xs text-frame">{KANJIVG_CREDIT}</div>
+        <div className="flex items-center justify-between gap-3">
+          {/* わからないとき：1回目はヒント（書き順アニメ）、ヒントのあとは こたえを みる */}
+          <button
+            onClick={() => { if (phase === 'ask' || phase === 'hint') { setSel(null); onAnswer(false); } }}
+            className="press min-h-12 rounded-xl border-[3px] border-ink bg-card px-4 text-[17px] shadow-hard-4"
+          >{hint ? 'こたえを みる' : 'わからない'}</button>
+          <div className="text-right text-xs text-frame">{KANJIVG_CREDIT}</div>
+        </div>
       </div>
     </div>
   );

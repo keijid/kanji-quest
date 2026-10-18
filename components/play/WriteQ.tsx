@@ -98,6 +98,10 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
           </div>
         )}
         <div className={`flex gap-3 ${q.kind === 'read' ? 'w-full' : 'w-[min(100%,460px)]'}`}>
+          {/* わからないとき：1回目はヒント、ヒントのあとは こたえを みる（＝まちがえたのと同じあつかい） */}
+          <Btn className="min-h-[68px] flex-1 px-1 text-[17px] leading-tight" onClick={() => { clear(); onAnswer(false); }} disabled={busy}>
+            {hint ? 'こたえを みる' : 'わからない'}
+          </Btn>
           <Btn className="min-h-[68px] flex-1 text-xl" onClick={clear}>けす</Btn>
           <Btn tone="green" className="min-h-[68px] flex-[2] font-yusei text-[26px]" onClick={check} disabled={!filled || busy}>
             {busy ? 'みているよ…' : submitLabel ?? (hint ? 'もう いちど' : 'こたえあわせ')}
