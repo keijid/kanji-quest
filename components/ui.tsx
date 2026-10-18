@@ -9,14 +9,15 @@ import { autoRuby } from '@/lib/furi';
 /** 記法つき文字列（{漢字:よみ}）を ruby 付きで表示する。記法のない かん字には lib/furi.ts の よみを つける */
 export function Mk({ children }: { children: string }) {
   const tokens = parseTokens(children).flatMap((t) => (t.t === 'text' && !t.raw ? autoRuby(t.s) : [t]));
+  // 1つの span に まとめる。flex の 親に じかに 置くと ruby が 1こずつ 上下中央に そろえられ、かん字だけ 下に ずれるため
   return (
-    <>
+    <span>
       {tokens.map((t, i) =>
         t.t === 'text' ? <span key={i}>{t.s}</span> : (
           <ruby key={i}>{t.base}<rt>{t.rt}</rt></ruby>
         ),
       )}
-    </>
+    </span>
   );
 }
 

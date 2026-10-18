@@ -41,7 +41,7 @@ export default function Home() {
         <div className="flex-1" />
         <div className="flex flex-wrap gap-2.5 text-[17px]">
           <div className="flex items-center gap-1.5 rounded-[10px] border-2 border-ink bg-card px-3.5 py-1.5">
-            <span className="text-xl text-primary">{d.streak}</span><Mk>日</Mk> れんぞく
+            <span><span className="mr-1 text-xl text-primary">{d.streak}</span><Mk>日</Mk> れんぞく</span>
           </div>
           <div className="flex items-center gap-1.5 rounded-[10px] border-2 border-ink bg-card py-1 pl-2 pr-3.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
