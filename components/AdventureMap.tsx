@@ -1,10 +1,13 @@
 'use client';
 // ホームの冒険マップ：160字（16ステージ×10字）と各ステージのボスを1本の道でつなぎ、横にスクロールして見る
-// - 今いるステージまで：字をタップするとそのステージへ。覚えた字には ★
-// - 先のステージ：うすい点線の丸（まだ行けない）
-// - いまここ：今のステージで、まだ覚えていない最初の字（全部覚えていればボス）
+// - 字をタップすると、その字の「おぼえよう」（1字ずつの練習）へ。練習ずみの字には ★
+// - 字は順番に開く：今のステージでは「いまここ」まで。先のステージは うすい点線の丸（まだ行けない）
+// - いまここ：今のステージで、まだ練習していない最初の字（全部練習していればボス）
+// - ボスをタップすると、そのステージ画面へ
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useGame } from '@/lib/game';
 import { Mk } from '@/components/ui';
 import { MAP_ART, STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
 import { sfx } from '@/lib/sfx';
@@ -39,20 +42,24 @@ const areaLeft = (a: number) => (a === 0 ? 0 : PAD + a * STAGES_PER_AREA * PER_S
 
 type Props = {
   current: number;
-  learned: Set<string>;
+  /** 1字ずつの練習を終えた字 */
+  practiced: Set<string>;
   bossCleared: (stage: number) => boolean;
 };
 
-export function AdventureMap({ current, learned, bossCleared }: Props) {
+export function AdventureMap({ current, practiced, bossCleared }: Props) {
+  const router = useRouter();
+  const startLesson = useGame((s) => s.startLesson);
   const nodes = useMemo(buildNodes, []);
   const scroller = useRef<HTMLDivElement>(null);
   const [away, setAway] = useState(false);
 
-  // いまここ：今のステージで、まだ覚えていない最初の字（全部覚えていればボス）
+  // いまここ：今のステージで、まだ練習していない最初の字（全部練習していればボス）
   const here = useMemo(() => {
     const inStage = nodes.filter((n) => n.stage === current);
-    return inStage.find((n) => n.kind === 'kanji' && !learned.has(n.char!)) ?? inStage[inStage.length - 1];
-  }, [nodes, current, learned]);
+    return inStage.find((n) => n.kind === 'kanji' && !practiced.has(n.char!)) ?? inStage[inStage.length - 1];
+  }, [nodes, current, practiced]);
+  const lesson = (c: string) => { sfx('tap'); startLesson(c); router.push('/lesson/'); };
 
   const scrollToHere = (smooth: boolean) => {
     const el = scroller.current;
@@ -115,7 +122,8 @@ export function AdventureMap({ current, learned, bossCleared }: Props) {
           ))}
 
           {nodes.map((n) => {
-            const open = n.stage <= current;
+            // 前のステージは全部、今のステージは「いまここ」まで開く（練習ずみの字はいつでも）
+            const open = n.stage < current || (n.stage === current && (n.i <= here.i || (n.kind === 'kanji' && practiced.has(n.char!))));
             const pos = { left: n.x, top: `${n.y}%` };
             if (n.kind === 'boss') {
               const cleared = bossCleared(n.stage);
@@ -137,12 +145,11 @@ export function AdventureMap({ current, learned, bossCleared }: Props) {
             if (n.i === here.i) {
               return (
                 <div key={n.i} className="absolute -translate-x-1/2 -translate-y-1/2" style={pos}>
-                  <Link
-                    href={`/stage/${n.stage}/`}
-                    onClick={() => sfx('tap')}
-                    aria-label={`いまここ：ステージ${n.stage}`}
-                    className="press flex h-[84px] w-[84px] items-center justify-center rounded-full border-4 border-ink bg-primary font-klee text-[44px] text-paper no-underline shadow-hard-6"
-                  >{n.char}</Link>
+                  <button
+                    onClick={() => lesson(n.char!)}
+                    aria-label={`いまここ：「${n.char}」を れんしゅう`}
+                    className="press flex h-[84px] w-[84px] items-center justify-center rounded-full border-4 border-ink bg-primary font-klee text-[44px] text-paper shadow-hard-6"
+                  >{n.char}</button>
                   <div className="absolute left-1/2 top-[92px] w-20 -translate-x-1/2 rounded-lg border-2 border-ink bg-paper text-center text-sm">いまここ</div>
                 </div>
               );
@@ -154,19 +161,18 @@ export function AdventureMap({ current, learned, bossCleared }: Props) {
                 </div>
               );
             }
-            const done = learned.has(n.char!);
+            const done = practiced.has(n.char!);
             return (
-              <Link
+              <button
                 key={n.i}
-                href={`/stage/${n.stage}/`}
-                onClick={() => sfx('tap')}
-                aria-label={`${n.char}（ステージ${n.stage}）${done ? '：おぼえた' : ''}`}
-                className="absolute flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] border-ink bg-card font-klee text-[30px] text-ink no-underline"
+                onClick={() => lesson(n.char!)}
+                aria-label={`「${n.char}」を れんしゅう（ステージ${n.stage}）${done ? '：れんしゅうずみ' : ''}`}
+                className="absolute flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] border-ink bg-card font-klee text-[30px] text-ink"
                 style={pos}
               >
                 {n.char}
                 {done && <span className="absolute -right-1 -top-1 text-[18px] leading-none text-gold drop-shadow-[1px_1px_0_#3a2614]">★</span>}
-              </Link>
+              </button>
             );
           })}
         </div>

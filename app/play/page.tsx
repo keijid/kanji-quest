@@ -12,12 +12,14 @@ import { useGame } from '@/lib/game';
 import { kanjiOf } from '@/lib/data';
 import type { Outcome } from '@/lib/db';
 import { hintFor } from '@/lib/hints';
-import { clearBoss, recordAnswers, saveStageStars, starsFor, XP, type AnswerLog } from '@/lib/progress';
+import { clearBoss, markPracticed, recordAnswers, saveStageStars, starsFor, XP, type AnswerLog } from '@/lib/progress';
 import type { Question, SetKind } from '@/lib/quiz';
 import type { PartnerId } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
 
-const TITLE: Record<SetKind, string> = { read: 'よみ', write: 'かき', stroke: 'かきじゅん・かくすう', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう' };
+const TITLE: Record<SetKind, string> = { read: 'よみ', write: 'かき', stroke: 'かきじゅん・かくすう', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' };
+/** ボスせんの中の分野（おくりがなは「よみ」に入れる） */
+const BOSS_PART: Record<Question['kind'], string> = { read: 'よみ', okuri: 'よみ', write: 'かき', stroke: 'かきじゅん' };
 const LABEL: Record<Question['kind'], string> = { read: '04 よみ', write: '05 かき', stroke: '05b かきじゅん', okuri: '05c おくりがな' };
 
 type Phase = 'ask' | 'hint' | 'correct' | 'reveal';
@@ -38,7 +40,9 @@ export default function Play() {
 
   const q = set.questions[i];
   const total = set.questions.length;
-  const backHref = set.stage ? `/stage/${set.stage}/` : '/home/';
+  // 1字ずつの練習は、マップ（ホーム）から来るので、やめたらホームへ
+  const backHref = set.kind === 'lesson' || !set.stage ? '/home/' : `/stage/${set.stage}/`;
+  const title = set.kind === 'lesson' ? `「${set.char}」の れんしゅう` : set.kind === 'boss' ? `ボスせん ・ ${BOSS_PART[q.kind]}` : TITLE[set.kind];
   const last = i === total - 1;
 
   /** 答えを出したとき。ok＝正解か */
@@ -69,7 +73,9 @@ export default function Play() {
     const learnedBefore = d.learned;
     const { newlyLearned } = await recordAnswers(logs);
     let bossCleared = false;
-    if (set.stage && set.kind !== 'boss' && set.kind !== 'review') await saveStageStars(set.stage, set.kind, stars);
+    if (set.stage && set.kind !== 'boss' && set.kind !== 'review' && set.kind !== 'lesson') await saveStageStars(set.stage, set.kind, stars);
+    // 1字ずつの練習は、さいごまでやれば練習ずみ（まちがえた字は 5かい れんしゅう と ふくしゅう で身につける）
+    if (set.kind === 'lesson' && set.char) await markPracticed(set.char);
     if (set.stage && set.kind === 'boss' && stars >= 2) { await clearBoss(set.stage); bossCleared = true; }
     if (bossCleared) sfx('stageClear');
     finishing.current = true;
@@ -83,7 +89,7 @@ export default function Play() {
     <Screen label={LABEL[q.kind]} className="gap-4 pb-20 pt-4">
       <div className="flex items-center gap-[14px]">
         <BackBtn href={backHref} label="やめる" />
-        <div className="font-yusei text-2xl">{TITLE[set.kind]}</div>
+        <div className="whitespace-nowrap font-yusei text-2xl">{title}</div>
         <ProgressBar value={i / total} className="flex-1" />
         <div className="text-lg">{i + 1} / {total}</div>
       </div>

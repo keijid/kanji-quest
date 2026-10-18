@@ -7,7 +7,7 @@ import { existsSync, readdirSync } from 'node:fs';
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
 // 静的に書き出す全画面。Service Worker が先に保存して、オフラインでも開けるようにする
-const ROUTES = ['', 'onboard', 'home', 'play', 'result', 'practice', 'zukan', 'mock', 'parent', 'credits', ...Array.from({ length: 16 }, (_, i) => `stage/${i + 1}`)];
+const ROUTES = ['', 'onboard', 'home', 'lesson', 'play', 'result', 'practice', 'zukan', 'mock', 'parent', 'credits', ...Array.from({ length: 16 }, (_, i) => `stage/${i + 1}`)];
 const revision = process.env.GITHUB_SHA ?? String(Date.now());
 // public/ の画像（相棒の絵・アイコン・マップの背景・ボス・モードのアイコン・称号のバッジ）も先に保存する
 const PUBLIC_FILES = ['partners', 'icons', 'maps', 'bosses', 'modes', 'badges']

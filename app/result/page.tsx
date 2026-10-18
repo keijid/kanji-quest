@@ -5,17 +5,18 @@ import { Btn, Card, Mk, Modal, ProgressBar } from '@/components/ui';
 import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
-import { STAGE_NAMES } from '@/lib/data';
+import { STAGE_NAMES, stageKanji } from '@/lib/data';
 import { evolution, PARTNERS } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
 
-const KIND_TITLE = { read: 'よみ', write: 'かき', stroke: 'かきじゅん・かくすう', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう' } as const;
+const KIND_TITLE = { read: 'よみ', write: 'かき', stroke: 'かきじゅん・かくすう', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' } as const;
 
 export default function Result() {
   const router = useRouter();
   const d = useAppData();
   const r = useGame((s) => s.result);
   const startPractice = useGame((s) => s.startPractice);
+  const startLesson = useGame((s) => s.startLesson);
   const [showEvolve, setShowEvolve] = useState(false);
 
   const before = r ? evolution(r.learnedBefore) : null;
@@ -31,13 +32,21 @@ export default function Result() {
   const correct = r.logs.filter((l) => l.outcome > 0).length;
   const total = r.set.questions.length;
   const wrong = [...new Set(r.logs.filter((l) => l.outcome === 0).map((l) => l.char))];
-  const where = r.set.stage ? `${STAGE_NAMES[r.set.stage - 1]} ・ ${KIND_TITLE[r.set.kind]}` : KIND_TITLE[r.set.kind];
+  const kindTitle = r.set.kind === 'lesson' ? `「${r.set.char}」の れんしゅう` : KIND_TITLE[r.set.kind];
+  const where = r.set.stage ? `${STAGE_NAMES[r.set.stage - 1]} ・ ${kindTitle}` : kindTitle;
+  // 1字ずつの練習のあと：同じステージで、まだ練習していない つぎの字（なければボスせん）
+  const nextChar = r.set.kind === 'lesson' && r.set.stage ? stageKanji(r.set.stage).map((k) => k.char).find((c) => !d.practicedSet.has(c)) : undefined;
+  const goNext = r.set.kind === 'lesson' && r.set.stage
+    ? nextChar
+      ? { label: `つぎの字「${nextChar}」へ`, go: () => { startLesson(nextChar); router.push('/lesson/'); } }
+      : { label: 'ボスせんへ', go: () => router.push(`/stage/${r.set.stage}/`) }
+    : null;
 
   return (
     <div data-screen-label="06 けっか" className="flex flex-1 flex-wrap content-center gap-5 px-[clamp(16px,2.4vw,28px)] pb-20 pt-6">
       <Card shadow={6} className="flex flex-[1_1_380px] flex-col items-center gap-[14px] rounded-[22px] p-7">
         <div className="text-lg text-frame"><Mk>{where}</Mk></div>
-        <div className="font-yusei text-[44px]">{r.bossCleared ? 'ステージ クリア！' : 'よく がんばった！'}</div>
+        <div className="font-yusei text-[44px]">{r.bossCleared ? 'ステージ クリア！' : r.set.kind === 'lesson' ? `「${r.set.char}」 れんしゅう できた！` : 'よく がんばった！'}</div>
         <div className="flex gap-2.5 text-[56px] leading-none text-gold">
           {[0, 1, 2].map((i) => <span key={i} className="animate-poyon" style={{ color: i < r.stars ? '#c48a12' : '#d9c49a', animationDelay: `${i * 0.15}s` }}>★</span>)}
         </div>
@@ -74,6 +83,7 @@ export default function Result() {
             <div className="text-base text-frame">まちがえた かんじは ないよ</div>
           </Card>
         )}
+        {goNext && <Btn tone={wrong.length ? 'card' : 'red'} className="min-h-[64px] font-yusei text-[24px]" onClick={goNext.go}>{goNext.label}</Btn>}
         <Btn className="min-h-[60px] text-lg" onClick={() => router.push('/home/')}>ちずに もどる</Btn>
       </div>
 

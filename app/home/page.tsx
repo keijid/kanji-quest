@@ -5,7 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Btn, Card, Mk } from '@/components/ui';
 import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
-import { TOTAL } from '@/lib/data';
+import { stageKanji, TOTAL } from '@/lib/data';
 import { AdventureMap } from '@/components/AdventureMap';
 import { db, today } from '@/lib/db';
 import { PARTNERS } from '@/lib/partners';
@@ -19,6 +19,7 @@ export default function Home() {
   const d = useAppData();
   const router = useRouter();
   const startSet = useGame((s) => s.startSet);
+  const startLesson = useGame((s) => s.startLesson);
   const todaySec = useLiveQuery(async () => (await db.days.get(today()))?.seconds ?? 0, []);
   if (!d?.profile) return null;
   const p = PARTNERS[d.profile.partner];
@@ -60,7 +61,7 @@ export default function Home() {
 
       <div className="flex flex-1 flex-wrap gap-5 px-[clamp(16px,2.4vw,28px)] pt-[18px]">
         <main className="relative min-h-[380px] flex-[1_1_520px] overflow-hidden rounded-[18px] border-[3px] border-ink bg-map">
-          <AdventureMap current={cur} learned={d.learnedSet} bossCleared={d.bossCleared} />
+          <AdventureMap current={cur} practiced={d.practicedSet} bossCleared={d.bossCleared} />
         </main>
 
         <aside className="flex max-w-full flex-[1_1_280px] flex-col gap-[14px]">
@@ -94,7 +95,16 @@ export default function Home() {
       </div>
 
       <footer className="grid gap-[14px] px-[clamp(16px,2.4vw,28px)] pb-[22px] pt-[18px]" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))' }}>
-        <Btn tone="red" shadow={5} className="min-h-[76px] font-yusei text-[28px]" onClick={() => router.push(`/stage/${cur}/`)}>ぼうけんへ！</Btn>
+        <Btn
+          tone="red"
+          shadow={5}
+          className="min-h-[76px] font-yusei text-[28px]"
+          onClick={() => {
+            // つぎに練習する字の「おぼえよう」へ。10字とも練習ずみならステージ画面（ボスせん）へ
+            const next = stageKanji(cur).map((k) => k.char).find((c) => !d.practicedSet.has(c));
+            if (next) { startLesson(next); router.push('/lesson/'); } else router.push(`/stage/${cur}/`);
+          }}
+        >ぼうけんへ！</Btn>
         <Btn
           shadow={5}
           className="min-h-[76px] text-lg"

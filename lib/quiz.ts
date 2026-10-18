@@ -9,11 +9,13 @@ export type Question =
   | { kind: 'okuri'; char: string; sentence: string; stem: string; okuri: string }
   | { kind: 'stroke'; char: string; sub: 'nth' | 'total'; index: number };
 
-export type SetKind = Mode | 'boss' | 'review';
+export type SetKind = Mode | 'boss' | 'review' | 'lesson';
 
 export type QuizSet = {
   kind: SetKind;
   stage: number | null;
+  /** 1字ずつの練習の字 */
+  char?: string;
   questions: Question[];
 };
 
@@ -62,13 +64,32 @@ export function stageSet(stage: number, mode: Mode): QuizSet {
   return { kind: mode, stage, questions: shuffle(chars).map((c) => makeQuestion(c, mode)) };
 }
 
-/** ボスせん：10字それぞれ、ランダムなモードで1問ずつ */
+/**
+ * 1字ずつの練習：その字だけを よみ（ちがう文で2問まで）→ おくりがな（ある字だけ）→ かき → かきじゅん の順に
+ */
+export function lessonSet(char: string): QuizSet {
+  const k = kanjiOf(char);
+  const reads = shuffle(k.questions.read).slice(0, 2).map((sentence): Question => ({
+    kind: 'read', char, sentence, answer: reading(parseTokens(targetOf(sentence))),
+  }));
+  const qs: Question[] = [...reads];
+  if (canAsk(char, 'okuri')) qs.push(makeQuestion(char, 'okuri'));
+  qs.push(makeQuestion(char, 'write'), makeQuestion(char, 'stroke'));
+  return { kind: 'lesson', stage: k.stage, char, questions: qs };
+}
+
+/**
+ * ボスせん：ステージの10字すべてを、よみ（おくりがなもここに入れる）→ かき → かきじゅん の順に、もれなく出す
+ */
 export function bossSet(stage: number): QuizSet {
-  const qs = stageKanji(stage).map((k) => {
-    const modes = (['read', 'write', 'stroke', 'okuri'] as Mode[]).filter((m) => canAsk(k.char, m));
-    return makeQuestion(k.char, pick(modes));
-  });
-  return { kind: 'boss', stage, questions: shuffle(qs) };
+  const chars = stageKanji(stage).map((k) => k.char);
+  const reads = shuffle([
+    ...chars.map((c) => makeQuestion(c, 'read')),
+    ...chars.filter((c) => canAsk(c, 'okuri')).map((c) => makeQuestion(c, 'okuri')),
+  ]);
+  const writes = shuffle(chars).map((c) => makeQuestion(c, 'write'));
+  const strokes = shuffle(chars).map((c) => makeQuestion(c, 'stroke'));
+  return { kind: 'boss', stage, questions: [...reads, ...writes, ...strokes] };
 }
 
 /** ふくしゅう：苦手の字（多くて10字）を よみ・かき で */

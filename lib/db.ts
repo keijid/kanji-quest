@@ -14,6 +14,9 @@ export type KanjiProgress = {
   hist: Record<Mode, Outcome[]>;
   learned: boolean;
   learnedAt?: number;
+  /** 1字ずつの練習（おぼえよう→問題）を終えた */
+  practiced?: boolean;
+  practicedAt?: number;
 };
 
 export type Weak = { char: string; addedAt: number; streak: number };

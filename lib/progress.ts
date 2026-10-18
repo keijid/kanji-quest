@@ -111,12 +111,21 @@ export async function saveStageStars(stage: number, mode: Mode, stars: number) {
   s.stars[mode] = Math.max(s.stars[mode], stars);
   await db.stages.put(s);
 }
+/** 1字ずつの練習を終えたしるし */
+export async function markPracticed(char: string) {
+  const p = (await db.kanji.get(char)) ?? { char, hist: emptyHist(), learned: false };
+  if (p.practiced) return;
+  await db.kanji.put({ ...p, practiced: true, practicedAt: Date.now() });
+}
+/** 練習ずみか（前の版で「おぼえた」になった字も練習ずみとみなす） */
+export const isPracticed = (p: { practiced?: boolean; learned: boolean } | undefined) => !!p && (!!p.practiced || p.learned);
+
 export async function clearBoss(stage: number) {
   const s = (await db.stages.get(stage)) ?? { id: stage, stars: emptyStars(), bossCleared: false };
   await db.stages.put({ ...s, bossCleared: true });
 }
-/** ボスせん：4モードすべてで★1以上 */
-export const bossUnlocked = (stars: Record<Mode, number>) => MODES.every((m) => stars[m] >= 1);
+/** ボスせん：そのステージの10字をすべて1字ずつ練習した */
+export const bossUnlocked = (stage: number, practiced: Set<string>) => stageKanji(stage).every((k) => practiced.has(k.char));
 
 /** 今いるステージ ＝ ボスをまだ倒していない最初のステージ */
 export function currentStage(cleared: Set<number>) {

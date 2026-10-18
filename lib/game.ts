@@ -19,6 +19,9 @@ type GameState = {
   result: LastResult | null;
   /** 5かい れんしゅう の対象と、終わったあとの戻り先 */
   practice: { chars: string[]; returnTo: string } | null;
+  /** 1字ずつの練習で「おぼえよう」画面に出す字 */
+  lesson: string | null;
+  startLesson: (char: string) => void;
   startSet: (s: QuizSet) => void;
   finishSet: (r: LastResult) => void;
   startPractice: (chars: string[], returnTo: string) => void;
@@ -31,6 +34,8 @@ export const useGame = create<GameState>()(
       set: null,
       result: null,
       practice: null,
+      lesson: null,
+      startLesson: (char) => set({ lesson: char }),
       startSet: (s) => set({ set: s }),
       finishSet: (r) => set({ set: null, result: r }),
       startPractice: (chars, returnTo) => set({ practice: { chars, returnTo } }),
