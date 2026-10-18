@@ -17,7 +17,8 @@ type Props = {
 export const HandwritingPad = forwardRef<PadHandle, Props>(function HandwritingPad({ className, style, guide = true, onChange, disabled }, ref) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const strokes = useRef<Stroke[]>([]);
-  const drawing = useRef<number | null>(null);
+  /** いま 書いている 指・ペン（pointerId と 種類） */
+  const drawing = useRef<{ id: number; type: string } | null>(null);
 
   const redraw = useCallback(() => {
     const el = canvas.current;
@@ -50,6 +51,15 @@ export const HandwritingPad = forwardRef<PadHandle, Props>(function HandwritingP
     }
   }, []);
 
+  // アプリの 切りかえなどで 指を はなした 知らせが とどかなくても、書いている とちゅうの まま のこらないように
+  useEffect(() => {
+    const reset = () => { drawing.current = null; };
+    const onVis = () => { if (document.hidden) reset(); };
+    window.addEventListener('blur', reset);
+    document.addEventListener('visibilitychange', onVis);
+    return () => { window.removeEventListener('blur', reset); document.removeEventListener('visibilitychange', onVis); };
+  }, []);
+
   useEffect(() => {
     redraw();
     const ro = new ResizeObserver(() => {
@@ -79,15 +89,22 @@ export const HandwritingPad = forwardRef<PadHandle, Props>(function HandwritingP
         className="absolute inset-0 h-full w-full"
         style={{ touchAction: 'none' }}
         onPointerDown={(e) => {
-          if (disabled || drawing.current !== null) return;
+          if (disabled) return;
+          const cur = drawing.current;
+          if (cur) {
+            // ペンは いつでも 書きはじめられる。先に ふれていた 手のひら・指の 線は すてる
+            // （ペンが 書いている とちゅうに 2本目の ペンは こないので、前の ペンは 知らせが とどかずに おわったもの）
+            if (e.pointerType !== 'pen') return;
+            if (cur.type !== 'pen') strokes.current.pop();
+          }
           e.preventDefault();
-          drawing.current = e.pointerId;
+          drawing.current = { id: e.pointerId, type: e.pointerType };
           try { canvas.current!.setPointerCapture(e.pointerId); } catch { /* キャプチャできなくても書ける */ }
           strokes.current.push([pt(e)]);
           redraw();
         }}
         onPointerMove={(e) => {
-          if (drawing.current !== e.pointerId) return;
+          if (drawing.current?.id !== e.pointerId) return;
           const coalesced = e.nativeEvent.getCoalescedEvents?.() ?? [];
           const events = coalesced.length ? coalesced : [e.nativeEvent];
           const r = canvas.current!.getBoundingClientRect();
@@ -96,11 +113,21 @@ export const HandwritingPad = forwardRef<PadHandle, Props>(function HandwritingP
           redraw();
         }}
         onPointerUp={(e) => {
-          if (drawing.current !== e.pointerId) return;
+          if (drawing.current?.id !== e.pointerId) return;
           drawing.current = null;
           onChange?.(false);
         }}
-        onPointerCancel={() => { drawing.current = null; onChange?.(strokes.current.length === 0); }}
+        onPointerCancel={(e) => {
+          if (drawing.current?.id !== e.pointerId) return;
+          drawing.current = null;
+          onChange?.(strokes.current.length === 0);
+        }}
+        // キャプチャが 外れたのに pointerup が こないことが あるので、ここでも 書きおわりに する
+        onLostPointerCapture={(e) => {
+          if (drawing.current?.id !== e.pointerId) return;
+          drawing.current = null;
+          onChange?.(strokes.current.length === 0);
+        }}
       />
     </div>
   );

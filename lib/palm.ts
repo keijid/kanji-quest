@@ -24,7 +24,11 @@ function reject(e: PointerEvent): boolean {
 }
 
 function onPointerDown(e: PointerEvent) {
-  if (e.pointerType === 'pen') lastPen = now();
+  if (e.pointerType === 'pen') {
+    lastPen = now();
+    // ペンが きたら、マスに のっている 手のひらは もう 書いていない（線は マスの がわで すてる）
+    padPointers.clear();
+  }
   if (reject(e)) {
     swallowUntil = now() + 1000;
     e.preventDefault();
@@ -57,6 +61,11 @@ function onClick(e: MouseEvent) {
   }
 }
 
+/** アプリの 切りかえなどで 指を はなした 知らせが とどかなくても、マスの 外が ずっと おせなく ならないように */
+function onHide() {
+  if (document.hidden) padPointers.clear();
+}
+
 let installed = false;
 export function installPalmRejection() {
   if (installed || typeof window === 'undefined') return;
@@ -66,4 +75,6 @@ export function installPalmRejection() {
   window.addEventListener('pointerup', onPointerEnd, { capture: true, passive: true });
   window.addEventListener('pointercancel', onPointerEnd, { capture: true, passive: true });
   window.addEventListener('click', onClick, { capture: true });
+  window.addEventListener('blur', () => padPointers.clear());
+  document.addEventListener('visibilitychange', onHide);
 }
