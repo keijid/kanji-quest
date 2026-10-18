@@ -1,14 +1,18 @@
 // Gemini API で画像を作る（キーは .env.local の GEMINI_API_KEY。画面には出さない）
+// .env.local がないとき（クラウド環境）はキーを付けずに送り、通信の途中で x-goog-api-key を付けてもらう
+//   （Node の fetch はそのままだとプロキシを通らないので NODE_USE_ENV_PROXY=1 を付けて実行する）
 // 使い方:
 //   npx tsx scripts/gen-image.ts --prompt-file prompts/x.txt --ref public/partners/fire-1.png --out assets/gen/x.png
 //   オプション: --model gemini-3.1-flash-image（既定） / --aspect 1:1（既定） / --size 1K|2K|4K（既定 1K） / --prompt "…"（ファイルの代わり）
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, extname, join } from 'node:path';
 
 const ROOT = join(__dirname, '..');
 
-function apiKey() {
-  const env = readFileSync(join(ROOT, '.env.local'), 'utf8');
+function apiKey(): string | undefined {
+  const file = join(ROOT, '.env.local');
+  if (!existsSync(file)) return undefined;
+  const env = readFileSync(file, 'utf8');
   const m = env.match(/^GEMINI_API_KEY=(.+)$/m);
   if (!m) throw new Error('.env.local に GEMINI_API_KEY がない');
   return m[1].trim();
@@ -42,9 +46,10 @@ async function main() {
     ...o.refs.map((f) => ({ inlineData: { mimeType: MIME[extname(f).toLowerCase()] ?? 'image/png', data: readFileSync(f).toString('base64') } })),
     { text: o.prompt },
   ];
+  const key = apiKey();
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${o.model}:generateContent`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey() },
+    headers: { 'content-type': 'application/json', ...(key ? { 'x-goog-api-key': key } : {}) },
     body: JSON.stringify({
       contents: [{ role: 'user', parts }],
       generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: o.aspect, imageSize: o.size } },
