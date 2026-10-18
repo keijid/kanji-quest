@@ -1,5 +1,5 @@
 // タイトル文字「カンジクエスト」（Gemini で作った assets/title-src.jpg、白い背景）を透過 PNG にする
-// 出力: public/title.png（高さ 160px。見出しでは高さ 40px 前後で表示する）
+// 出力: public/title.png（高さ 240px。表示はいちばん大きい「はじめて」画面で高さ 96px → Retina で 192px）
 // 使い方: npm run title
 import sharp from 'sharp';
 import { join } from 'node:path';
@@ -7,7 +7,7 @@ import { join } from 'node:path';
 const ROOT = join(__dirname, '..');
 const SRC = join(ROOT, 'assets', 'title-src.jpg');
 const OUT = join(ROOT, 'public', 'title.png');
-const HEIGHT = 160;
+const HEIGHT = 240;
 const BG_TOL = 40; // 外側からたどる背景の色の近さ
 const ENCLOSED_TOL = 14; // 文字のすきまに閉じこめられた白（文字のクリーム色とは 40 ほどちがう）
 const ENCLOSED_MIN = 60;

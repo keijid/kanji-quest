@@ -7,6 +7,8 @@ import { db, DEFAULT_META } from '@/lib/db';
 import { PARTNER_IDS, PARTNERS, type PartnerId } from '@/lib/partners';
 import { touchDay } from '@/lib/progress';
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 export default function Onboard() {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -20,7 +22,9 @@ export default function Onboard() {
   };
 
   return (
-    <div data-screen-label="01 はじめて" className="flex flex-1 flex-col items-center justify-center gap-7 px-5 py-8">
+    <div data-screen-label="01 はじめて" className="flex flex-1 flex-col items-center justify-center gap-5 px-5 py-5">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`${BASE}/title.png`} alt="カンジクエスト" className="block h-[clamp(48px,6.5vw,80px)] w-auto max-w-full" />
       <div className="flex flex-col items-center gap-1.5">
         <h1 className="text-center font-yusei text-[clamp(28px,4vw,40px)] font-normal"><Mk>{'ようこそ、{冒険:ぼうけん}の{世界:せかい}へ！'}</Mk></h1>
         <div className="text-lg text-frame">いっしょに たびをする あいぼうを えらんでね</div>
