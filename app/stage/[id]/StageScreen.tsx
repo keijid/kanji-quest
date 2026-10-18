@@ -14,10 +14,10 @@ const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
 // アイコンは public/modes/<モード>.png（Gemini で作った絵を scripts/cut-sheets.ts で切り出し）
 const MODE_CARDS: Record<Mode, { title: string; desc: string }> = {
-  read: { title: 'よみ', desc: 'かんじの よみかたを ひらがなで かこう' },
-  write: { title: 'かき', desc: 'ひらがなを かんじで かこう' },
-  stroke: { title: 'かきじゅん・かくすう', desc: 'なんばんめに かく？ ぜんぶで なんかく？' },
-  okuri: { title: 'おくりがな', desc: 'かんじの あとに つづく ひらがな' },
+  read: { title: '読み', desc: 'かん字の 読み方を ひらがなで 書こう' },
+  write: { title: '書き', desc: 'ひらがなを かん字で 書こう' },
+  stroke: { title: '書きじゅん・画数', desc: '何番目に 書く？ ぜんぶで 何画？' },
+  okuri: { title: 'おくりがな', desc: 'かん字の 後に つづく ひらがな' },
 };
 
 export function StageScreen({ stage }: { stage: number }) {
@@ -57,7 +57,7 @@ export function StageScreen({ stage }: { stage: number }) {
       </div>
 
       <Card shadow={0} className="flex flex-col gap-2.5 rounded-[18px] px-[18px] py-[14px]">
-        <div className="text-base">1<Mk>{'{字:じ}'}</Mk>ずつ れんしゅう しよう（10<Mk>{'{字:じ}'}</Mk>）</div>
+        <div className="text-base"><Mk>1字ずつ れんしゅう しよう（10字）</Mk></div>
         <div className="grid gap-2.5" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(64px,1fr))' }}>
           {chars.map((c, i) => {
             const done = d.practicedSet.has(c);
@@ -89,31 +89,31 @@ export function StageScreen({ stage }: { stage: number }) {
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex flex-col gap-1">
             <div className="font-yusei text-[28px]">ボスせん</div>
-            <div className="text-[15px] opacity-90">10<Mk>{'{字:じ}'}</Mk>の よみ（おくりがな）・かき・かきじゅんを ぜんぶ ためすよ（{bossCount}もん）</div>
+            <div className="text-[15px] opacity-90"><Mk>{`10字の 読み（おくりがな）・書き・書きじゅんを ぜんぶ ためすよ（${bossCount}もん）`}</Mk></div>
           </div>
           {/* このステージのボス */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`${BASE}/bosses/stage-${stage}.png`} alt="" className="-my-3 h-[88px] w-[88px] flex-none" />
         </div>
         <div className="text-[20px]">
-          {cleared ? 'クリア！ もう いちど ちょうせん できるよ' : unlocked ? 'ちょうせん できる！ 8わり せいかいで クリア' : `あと ${remaining}じ れんしゅう すると ちょうせん できる`}
+          <Mk>{cleared ? 'クリア！ もう一回 ちょうせん できるよ' : unlocked ? 'ちょうせん できる！ 8わり せいかいで クリア' : `あと ${remaining}字 れんしゅう すると ちょうせん できる`}</Mk>
         </div>
       </button>
 
       {open && (
         <div className="flex flex-col gap-2.5">
-          <div className="text-base text-frame">まとめて れんしゅう（すきな ときに）</div>
+          <div className="text-base text-frame"><Mk>まとめて れんしゅう（すきな 時に）</Mk></div>
           <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))' }}>
             {MODES.map((m) => {
               const c = MODE_CARDS[m];
               return (
                 <button key={m} className={`${cardCls} min-h-[110px] bg-card text-ink`} onClick={() => go(m)}>
                   <div className="flex w-full items-center justify-between gap-2">
-                    <div className="font-yusei text-[22px]">{c.title}</div>
+                    <div className="font-yusei text-[22px]"><Mk>{c.title}</Mk></div>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={`${BASE}/modes/${m}.png`} alt="" className="-my-2 h-12 w-12 flex-none" />
                   </div>
-                  <div className="text-[14px] opacity-90">{c.desc}</div>
+                  <div className="text-[14px] opacity-90"><Mk>{c.desc}</Mk></div>
                   <div className="flex-1" />
                   <Stars n={stars[m]} size={18} />
                 </button>

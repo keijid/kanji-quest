@@ -18,10 +18,10 @@ export function levelOf(xp: number) {
 const TITLES: [number, string][] = [
   [1, 'かけだし たびびと'],
   [6, '{見習:みなら}いけんし'],
-  [15, 'かんじ けんし'],
-  [25, 'かんじ きし'],
-  [35, 'かんじ はかせ'],
-  [50, 'かんじ マスター'],
+  [15, 'かん字 けんし'],
+  [25, 'かん字 きし'],
+  [35, 'かん字 はかせ'],
+  [50, 'かん字 マスター'],
 ];
 export const titleOf = (level: number) => [...TITLES].reverse().find(([l]) => level >= l)![1];
 /** 称号の段階 1〜6（バッジの絵 public/badges/badge-<段階>.png） */

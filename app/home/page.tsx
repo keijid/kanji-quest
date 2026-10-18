@@ -40,7 +40,7 @@ export default function Home() {
         <div className="flex-1" />
         <div className="flex flex-wrap gap-2.5 text-[17px]">
           <div className="flex items-center gap-1.5 rounded-[10px] border-2 border-ink bg-card px-3.5 py-1.5">
-            <span className="text-xl text-primary">{d.streak}</span>にち れんぞく
+            <span className="text-xl text-primary">{d.streak}</span><Mk>日</Mk> れんぞく
           </div>
           <div className="flex items-center gap-1.5 rounded-[10px] border-2 border-ink bg-card py-1 pl-2 pr-3.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -48,14 +48,14 @@ export default function Home() {
             <span>Lv.{d.level} <Mk>{d.title}</Mk></span>
           </div>
           <Link href="/parent/" onClick={() => sfx('tap')} className="flex min-h-11 items-center rounded-[10px] border-2 border-ink bg-card px-3 py-1.5 text-sm text-ink no-underline">
-            <Mk>{'おうちの{人:ひと}'}</Mk>
+            <Mk>おうちの人</Mk>
           </Link>
         </div>
       </header>
 
       {overLimit && (
         <div className="mx-[clamp(16px,2.4vw,28px)] mt-3 rounded-[14px] border-2 border-dashed border-gold bg-hint px-4 py-2 text-[17px]">
-          きょうは たくさん がんばったね。そろそろ ひと やすみ しよう！
+          <Mk>今日は たくさん がんばったね。そろそろ 一休み しよう！</Mk>
         </div>
       )}
 
@@ -75,19 +75,19 @@ export default function Home() {
             </div>
             <div className="text-[15px]">
               {d.evo.final ? (
-                d.evo.remaining === 0 ? 'ぜんぶ おぼえた！ さいこうの あいぼう！' : <>ぜんぶまで あと <span className="text-[22px] text-primary">{d.evo.remaining}</span><Mk>{'{字:じ}'}</Mk>！</>
+                d.evo.remaining === 0 ? 'ぜんぶ おぼえた！ さいこうの あいぼう！' : <>ぜんぶまで あと <span className="text-[22px] text-primary">{d.evo.remaining}</span><Mk>字</Mk>！</>
               ) : (
-                <>あと <span className="text-[22px] text-primary">{d.evo.remaining}</span><Mk>{'{字:じ}おぼえると しんか！'}</Mk></>
+                <>あと <span className="text-[22px] text-primary">{d.evo.remaining}</span><Mk>字 おぼえると しんか！</Mk></>
               )}
             </div>
           </Card>
           <Card className="flex flex-col gap-2 rounded-[18px] px-4 py-[14px]">
-            <div className="text-base"><Mk>{'{合格:ごうかく}よそう'}</Mk></div>
+            <div className="text-base"><Mk>合格よそう</Mk></div>
             <div className="h-5 overflow-hidden rounded-[10px] border-2 border-ink bg-paper">
               <div className="gauge-stripe h-full" style={{ width: `${d.prediction}%` }} />
             </div>
             <div className="flex justify-between text-sm">
-              <span>おぼえた {d.learned}/{TOTAL}<Mk>{'{字:じ}'}</Mk></span>
+              <span>おぼえた {d.learned}/{TOTAL}<Mk>字</Mk></span>
               <span className="text-primary">{d.prediction}%</span>
             </div>
           </Card>
@@ -112,10 +112,10 @@ export default function Home() {
           onClick={() => { startSet(reviewSet(d.weak)); router.push('/play/'); }}
         >
           ふくしゅう
-          <div className="text-[13px] text-primary">{d.weak.length ? <>にがて {d.weak.length}<Mk>{'{字:じ}'}</Mk></> : 'にがて なし'}</div>
+          <div className="text-[13px] text-primary">{d.weak.length ? <>にがて {d.weak.length}<Mk>字</Mk></> : 'にがて なし'}</div>
         </Btn>
         <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/zukan/')}>
-          かんじずかん<div className="text-[13px] text-frame">{TOTAL}<Mk>{'{字:じ}'}</Mk></div>
+          <Mk>かん字ずかん</Mk><div className="text-[13px] text-frame">{TOTAL}<Mk>字</Mk></div>
         </Btn>
         <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/mock/')}>
           もぎテスト<div className="text-[13px] text-frame">ほんばん・ミニ</div>

@@ -1,7 +1,7 @@
 'use client';
 // 09 もぎテスト：選択 → 実施 → けっか。テスト中はヒントなし・1回だけ答える
 import { useEffect, useState } from 'react';
-import { BackBtn, Btn, Card, ProgressBar } from '@/components/ui';
+import { BackBtn, Btn, Card, Mk, ProgressBar } from '@/components/ui';
 import { StrokeSvg, KANJIVG_CREDIT } from '@/components/StrokeSvg';
 import { WriteQ } from '@/components/play/WriteQ';
 import { useAppData } from '@/lib/hooks';
@@ -86,24 +86,24 @@ export default function Mock() {
           </div>
           <div className="flex flex-1 flex-wrap items-center justify-center gap-6">
             <button onClick={() => { sfx('tap'); start('full'); }} className="press flex min-h-[320px] max-w-[460px] flex-[1_1_320px] flex-col gap-3 rounded-[22px] border-[3px] border-ink bg-boss p-7 text-left text-paper shadow-hard-7">
-              <div className="text-base opacity-85">ほんばんと おなじ</div>
+              <div className="text-base opacity-85"><Mk>ほんばんと 同じ</Mk></div>
               <div className="font-yusei text-[40px]">ほんばん テスト</div>
               <div className="grid gap-x-[14px] gap-y-1.5 text-lg" style={{ gridTemplateColumns: 'auto 1fr' }}>
-                <div className="opacity-80">じかん</div><div>{FULL.minutes}ぷん</div>
-                <div className="opacity-80">まんてん</div><div>150てん（ごうかく {FULL.pass}てん くらい）</div>
-                <div className="opacity-80">もんだい</div><div>よみ・かき・かきじゅん・かくすう</div>
+                <div className="opacity-80"><Mk>時間</Mk></div><div><Mk>{`${FULL.minutes}{分:ぷん}`}</Mk></div>
+                <div className="opacity-80">まんてん</div><div><Mk>{`150点（合格 ${FULL.pass}点 くらい）`}</Mk></div>
+                <div className="opacity-80">もんだい</div><div><Mk>読み・書き・書きじゅん・画数</Mk></div>
               </div>
               <div className="flex-1" />
               <div className="text-base opacity-85">
-                {fulls.length ? `さいこう ${Math.max(...fulls.map((m) => m.score))}てん ・ ${fulls.length}かい チャレンジ` : 'まだ チャレンジ していないよ'}
+                <Mk>{fulls.length ? `さいこう ${Math.max(...fulls.map((m) => m.score))}点 ・ ${fulls.length}回 チャレンジ` : 'まだ チャレンジ していないよ'}</Mk>
               </div>
             </button>
             <button onClick={() => { sfx('tap'); start('mini'); }} className="press flex min-h-[320px] max-w-[460px] flex-[1_1_320px] flex-col gap-3 rounded-[22px] border-[3px] border-ink bg-card p-7 text-left shadow-hard-7">
-              <div className="text-base text-frame">すきま じかんに</div>
+              <div className="text-base text-frame"><Mk>すきま 時間に</Mk></div>
               <div className="font-yusei text-[40px]">ミニ テスト</div>
               <div className="grid gap-x-[14px] gap-y-1.5 text-lg" style={{ gridTemplateColumns: 'auto 1fr' }}>
-                <div className="text-frame">じかん</div><div>{MINI.minutes}ぷん</div>
-                <div className="text-frame">もんだい</div><div>{MINI.count}もん（にがて おおめ）</div>
+                <div className="text-frame"><Mk>時間</Mk></div><div><Mk>{`${MINI.minutes}{分:ぷん}`}</Mk></div>
+                <div className="text-frame">もんだい</div><div><Mk>{`${MINI.count}もん（にがて 多め）`}</Mk></div>
               </div>
               <div className="flex-1" />
               <div className="text-base text-frame">{minis.length ? `さいきん ${minis[0].score} / ${minis[0].max} もん` : 'まだ チャレンジ していないよ'}</div>
@@ -124,7 +124,7 @@ export default function Mock() {
               <div className="flex gap-1.5">
                 {run.test.sections.map((s, i) => (
                   <div key={s.field} className="rounded-[10px] border-2 border-ink px-[14px] py-2 text-[15px]" style={{ background: i === secIdx ? '#3a2614' : '#fff7e2', color: i === secIdx ? '#fbf0d4' : '#3a2614' }}>
-                    {FIELD_TITLE[s.field]}{i < secIdx ? ' ✓' : ''}
+                    <Mk>{FIELD_TITLE[s.field]}</Mk>{i < secIdx ? ' ✓' : ''}
                   </div>
                 ))}
               </div>
@@ -148,9 +148,9 @@ export default function Mock() {
           </div>
           <div className="flex flex-1 flex-wrap content-center gap-5">
             <Card shadow={6} className="flex flex-[1_1_360px] flex-col items-center gap-3 rounded-[22px] p-7">
-              <div className="font-yusei text-[44px]">{done.test.kind === 'full' ? (done.score >= FULL.pass ? 'ごうかく ライン こえた！' : 'よく がんばった！') : 'おつかれさま！'}</div>
-              <div className="text-[22px]"><span className="text-[64px] text-primary">{done.score}</span> / {done.max} {done.test.kind === 'full' ? 'てん' : 'もん'}</div>
-              {done.test.kind === 'full' && <div className="text-base text-frame">ごうかくの めやすは {FULL.pass}てん</div>}
+              <div className="font-yusei text-[44px]">{done.test.kind === 'full' ? <Mk>{done.score >= FULL.pass ? '合格 ライン こえた！' : 'よく がんばった！'}</Mk> : 'おつかれさま！'}</div>
+              <div className="text-[22px]"><span className="text-[64px] text-primary">{done.score}</span> / {done.max} <Mk>{done.test.kind === 'full' ? '点' : 'もん'}</Mk></div>
+              {done.test.kind === 'full' && <div className="text-base text-frame"><Mk>{`合格の めやすは ${FULL.pass}点`}</Mk></div>}
             </Card>
             <Card shadow={6} className="flex flex-[1_1_320px] flex-col gap-3 rounded-[22px] p-6">
               {done.test.sections.map((s) => {
@@ -158,7 +158,7 @@ export default function Mock() {
                 const c = done.answers.slice(start, start + s.questions.length).filter(Boolean).length;
                 return (
                   <div key={s.field} className="flex flex-col gap-1">
-                    <div className="flex justify-between text-[17px]"><span>{FIELD_TITLE[s.field]}</span><span>{c} / {s.questions.length}</span></div>
+                    <div className="flex justify-between text-[17px]"><span><Mk>{FIELD_TITLE[s.field]}</Mk></span><span>{c} / {s.questions.length}</span></div>
                     <ProgressBar value={s.questions.length ? c / s.questions.length : 0} height={14} color={s.questions.length && c / s.questions.length < 0.75 ? '#b8321f' : '#5a8a3a'} />
                   </div>
                 );
@@ -180,7 +180,7 @@ function MockStroke({ q, no, onAnswer }: { q: Extract<Question, { kind: 'stroke'
         <div className="flex h-[220px] w-[220px] items-center justify-center rounded-xl border-[3px] border-ink bg-cell p-3 font-klee text-[170px] leading-none">
           {q.sub === 'total' ? q.char : <StrokeSvg char={q.char} highlight={q.index} />}
         </div>
-        <div className="text-center text-[22px]">{q.sub === 'total' ? 'ぜんぶで なんかく？' : <><span className="text-primary">あかい ところ</span>は なんかくめ？</>}</div>
+        <div className="text-center text-[22px]">{q.sub === 'total' ? <Mk>ぜんぶで 何画？</Mk> : <><span className="text-primary"><Mk>赤い ところ</Mk></span><Mk>は 何画目？</Mk></>}</div>
         {q.sub === 'nth' && <div className="text-xs text-frame">{KANJIVG_CREDIT}</div>}
       </Card>
       <div className="flex max-w-[480px] flex-[1_1_360px] flex-col gap-3">

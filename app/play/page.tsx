@@ -17,9 +17,9 @@ import type { Question, SetKind } from '@/lib/quiz';
 import type { PartnerId } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
 
-const TITLE: Record<SetKind, string> = { read: 'よみ', write: 'かき', stroke: 'かきじゅん・かくすう', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' };
+const TITLE: Record<SetKind, string> = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' };
 /** ボスせんの中の分野（おくりがなは「よみ」に入れる） */
-const BOSS_PART: Record<Question['kind'], string> = { read: 'よみ', okuri: 'よみ', write: 'かき', stroke: 'かきじゅん' };
+const BOSS_PART: Record<Question['kind'], string> = { read: '読み', okuri: '読み', write: '書き', stroke: '書きじゅん' };
 const LABEL: Record<Question['kind'], string> = { read: '04 よみ', write: '05 かき', stroke: '05b かきじゅん', okuri: '05c おくりがな' };
 
 type Phase = 'ask' | 'hint' | 'correct' | 'reveal';
@@ -42,7 +42,7 @@ export default function Play() {
   const total = set.questions.length;
   // 1字ずつの練習は、マップ（ホーム）から来るので、やめたらホームへ
   const backHref = set.kind === 'lesson' || !set.stage ? '/home/' : `/stage/${set.stage}/`;
-  const title = set.kind === 'lesson' ? `「${set.char}」の れんしゅう` : set.kind === 'boss' ? `ボスせん ・ ${BOSS_PART[q.kind]}` : TITLE[set.kind];
+  const title = set.kind === 'lesson' ? `「{${set.char}:}」の れんしゅう` : set.kind === 'boss' ? `ボスせん ・ ${BOSS_PART[q.kind]}` : TITLE[set.kind];
   const last = i === total - 1;
 
   /** 答えを出したとき。ok＝正解か */
@@ -89,7 +89,7 @@ export default function Play() {
     <Screen label={LABEL[q.kind]} className="gap-4 pb-20 pt-4">
       <div className="flex items-center gap-[14px]">
         <BackBtn href={backHref} label="やめる" />
-        <div className="whitespace-nowrap font-yusei text-2xl">{title}</div>
+        <div className="whitespace-nowrap font-yusei text-2xl"><Mk>{title}</Mk></div>
         <ProgressBar value={i / total} className="flex-1" />
         <div className="text-lg">{i + 1} / {total}</div>
       </div>
@@ -109,15 +109,15 @@ export default function Play() {
           {phase === 'correct' ? (
             <div className="font-yusei text-5xl text-success">せいかい！</div>
           ) : (
-            <div className="font-yusei text-[40px] text-primary">こたえは これ！</div>
+            <div className="font-yusei text-[40px] text-primary"><Mk>答えは これ！</Mk></div>
           )}
           <AnswerView q={q} />
           <div className="text-center text-[17px] text-frame">
-            {phase === 'reveal' ? <Mk>{'にがての かんじに いれたよ。あとで 5かい かこう！'}</Mk>
+            {phase === 'reveal' ? <Mk>にがての かん字に 入れたよ。後で 5回 書こう！</Mk>
               : outcome === 1 ? `ヒントで せいかい ＋${XP.hint} けいけんち` : `＋${XP.first} けいけんち`}
           </div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={next} disabled={saving}>
-            {last ? 'けっかを みる' : 'つぎへ'}
+            <Mk>{last ? 'けっかを 見る' : 'つぎへ'}</Mk>
           </Btn>
         </Modal>
       )}
@@ -134,8 +134,8 @@ function AnswerView({ q }: { q: Question }) {
     case 'stroke':
       return (
         <>
-          <div className="text-2xl">{q.sub === 'nth' ? `「${q.char}」の ${q.index + 1}かくめ` : `「${q.char}」は ${k.strokes}かく`}</div>
-          {q.sub === 'nth' && <div className="text-[17px] text-frame">ぜんぶで {k.strokes}かく だよ</div>}
+          <div className="text-2xl"><Mk>{q.sub === 'nth' ? `「{${q.char}:}」の ${q.index + 1}画目` : `「{${q.char}:}」は ${k.strokes}画`}</Mk></div>
+          {q.sub === 'nth' && <div className="text-[17px] text-frame"><Mk>{`ぜんぶで ${k.strokes}画 だよ`}</Mk></div>}
         </>
       );
   }
@@ -167,7 +167,7 @@ function StrokeQ({ q, partner, partnerStage, phase, onAnswer }: { q: Extract<Que
     <div className="flex flex-1 flex-wrap items-center justify-center gap-6">
       <Card className="flex flex-[0_1_400px] flex-col items-center gap-[14px] rounded-[20px] p-[22px]">
         <div className="text-center text-[22px]">
-          {q.sub === 'nth' ? <><span className="text-primary">あかい ところ</span>は<br />なんかくめに かく？</> : <>ぜんぶで<br />なんかく？</>}
+          {q.sub === 'nth' ? <><span className="text-primary"><Mk>赤い ところ</Mk></span>は<br /><Mk>何画目に 書く？</Mk></> : <>ぜんぶで<br /><Mk>何画？</Mk></>}
         </div>
         <div className="relative aspect-square w-[min(100%,300px)] rounded-[14px] border-[3px] border-ink bg-cell p-3">
           <div className="cell-guide" style={{ ['--g' as string]: 'rgba(184,50,31,.18)' }} />
@@ -175,7 +175,7 @@ function StrokeQ({ q, partner, partnerStage, phase, onAnswer }: { q: Extract<Que
         </div>
         {hint && (
           <HintBubble partner={partner} stage={partnerStage} size={52}>
-            <span className="text-[17px]">{hintFor(q)}<br />いま <b className="text-[22px] text-primary">{Math.min(play || 1, total)}</b> かくめ</span>
+            <span className="text-[17px]"><Mk>{hintFor(q)}</Mk><br /><Mk>今</Mk> <b className="text-[22px] text-primary">{Math.min(play || 1, total)}</b> <Mk>画目</Mk></span>
           </HintBubble>
         )}
       </Card>
@@ -199,7 +199,7 @@ function StrokeQ({ q, partner, partnerStage, phase, onAnswer }: { q: Extract<Que
           <button
             onClick={() => { if (phase === 'ask' || phase === 'hint') { setSel(null); onAnswer(false); } }}
             className="press min-h-12 rounded-xl border-[3px] border-ink bg-card px-4 text-[17px] shadow-hard-4"
-          >{hint ? 'こたえを みる' : 'わからない'}</button>
+          ><Mk>{hint ? '答えを 見る' : 'わからない'}</Mk></button>
           <div className="text-right text-xs text-frame">{KANJIVG_CREDIT}</div>
         </div>
       </div>

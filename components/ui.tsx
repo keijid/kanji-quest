@@ -4,12 +4,14 @@ import Link from 'next/link';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
 import { parseTokens } from '@/lib/markup';
 import { sfx } from '@/lib/sfx';
+import { autoRuby } from '@/lib/furi';
 
-/** 記法つき文字列（{漢字:よみ}）を ruby 付きで表示する */
+/** 記法つき文字列（{漢字:よみ}）を ruby 付きで表示する。記法のない かん字には lib/furi.ts の よみを つける */
 export function Mk({ children }: { children: string }) {
+  const tokens = parseTokens(children).flatMap((t) => (t.t === 'text' && !t.raw ? autoRuby(t.s) : [t]));
   return (
     <>
-      {parseTokens(children).map((t, i) =>
+      {tokens.map((t, i) =>
         t.t === 'text' ? <span key={i}>{t.s}</span> : (
           <ruby key={i}>{t.base}<rt>{t.rt}</rt></ruby>
         ),

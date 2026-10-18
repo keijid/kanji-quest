@@ -47,14 +47,14 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
     }, 30);
   };
 
-  const prompt = q.kind === 'read' ? '――せんの かんじの よみを ひらがなで かこう' : q.kind === 'write' ? '――せんの ひらがなを かんじで かこう' : '――せんを かんじと おくりがなで かこう';
+  const prompt = q.kind === 'read' ? '――線の かん字の 読みを ひらがなで 書こう' : q.kind === 'write' ? '――線の ひらがなを かん字で 書こう' : '――線を かん字と おくりがなで 書こう';
   const n = expected.length;
   const cols = Math.max(n, 4);
 
   return (
     <div className="flex flex-1 flex-wrap items-stretch gap-5">
       <Card className="flex flex-[1_1_340px] flex-col justify-center gap-[18px] rounded-[18px] p-6">
-        <div className="text-[17px] text-frame">{prompt}</div>
+        <div className="text-[17px] text-frame"><Mk>{prompt}</Mk></div>
         <Sentence src={q.sentence} />
         {hint && partner && <HintBubble partner={partner} stage={partnerStage}><Mk>{hintFor(q)}</Mk></HintBubble>}
       </Card>
@@ -78,7 +78,7 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
         {q.kind === 'okuri' && (
           <div className="flex w-[min(100%,460px)] items-end gap-3">
             <div className="flex flex-[2] flex-col items-center gap-1.5">
-              <div className="text-[15px] text-frame">かんじ</div>
+              <div className="text-[15px] text-frame"><Mk>かん字</Mk></div>
               <HandwritingPad ref={(h) => { pads.current[0] = h; }} onChange={onChange} className="aspect-square w-full rounded-2xl border-4 border-ink bg-cell" />
             </div>
             <div className="flex flex-col items-center gap-1.5" style={{ flex: Math.max(1, n - 1) }}>
@@ -100,11 +100,11 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
         <div className={`flex gap-3 ${q.kind === 'read' ? 'w-full' : 'w-[min(100%,460px)]'}`}>
           {/* わからないとき：1回目はヒント、ヒントのあとは こたえを みる（＝まちがえたのと同じあつかい） */}
           <Btn className="min-h-[68px] flex-1 px-1 text-[17px] leading-tight" onClick={() => { clear(); onAnswer(false); }} disabled={busy}>
-            {hint ? 'こたえを みる' : 'わからない'}
+            <Mk>{hint ? '答えを 見る' : 'わからない'}</Mk>
           </Btn>
           <Btn className="min-h-[68px] flex-1 text-xl" onClick={clear}>けす</Btn>
           <Btn tone="green" className="min-h-[68px] flex-[2] font-yusei text-[26px]" onClick={check} disabled={!filled || busy}>
-            {busy ? 'みているよ…' : submitLabel ?? (hint ? 'もう いちど' : 'こたえあわせ')}
+            <Mk>{busy ? '見ているよ…' : submitLabel ?? (hint ? 'もう一回' : '答え合わせ')}</Mk>
           </Btn>
         </div>
       </div>

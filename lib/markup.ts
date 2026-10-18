@@ -4,7 +4,7 @@
 //   (る)         … 対象の中のおくりがな（おくりがな問題）
 
 export type Token =
-  | { t: 'text'; s: string }
+  | { t: 'text'; s: string; /** {a:} で書いた、ふりがなを つけない字 */ raw?: true }
   | { t: 'ruby'; base: string; rt: string };
 
 export type Segment = { target: boolean; tokens: Token[] };
@@ -14,14 +14,14 @@ export const isKanji = (c: string) => KANJI_RE.test(c);
 export const isHiragana = (s: string) => /^[ぁ-ゖー]+$/.test(s);
 export const kataToHira = (s: string) => s.replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
 
-/** {a:b} を含む文字列を Token の並びにする */
+/** {a:b} を含む文字列を Token の並びにする。{a:} は ふりがなを つけない a */
 export function parseTokens(src: string): Token[] {
   const out: Token[] = [];
-  const re = /\{([^:}]+):([^}]+)\}/g;
+  const re = /\{([^:}]+):([^}]*)\}/g;
   let last = 0;
   for (const m of src.matchAll(re)) {
     if (m.index! > last) out.push({ t: 'text', s: src.slice(last, m.index) });
-    out.push({ t: 'ruby', base: m[1], rt: m[2] });
+    out.push(m[2] ? { t: 'ruby', base: m[1], rt: m[2] } : { t: 'text', s: m[1], raw: true });
     last = m.index! + m[0].length;
   }
   if (last < src.length) out.push({ t: 'text', s: src.slice(last) });

@@ -9,7 +9,7 @@ import { STAGE_NAMES, stageKanji } from '@/lib/data';
 import { evolution, PARTNERS } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
 
-const KIND_TITLE = { read: 'よみ', write: 'かき', stroke: 'かきじゅん・かくすう', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' } as const;
+const KIND_TITLE = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' } as const;
 
 export default function Result() {
   const router = useRouter();
@@ -32,13 +32,13 @@ export default function Result() {
   const correct = r.logs.filter((l) => l.outcome > 0).length;
   const total = r.set.questions.length;
   const wrong = [...new Set(r.logs.filter((l) => l.outcome === 0).map((l) => l.char))];
-  const kindTitle = r.set.kind === 'lesson' ? `「${r.set.char}」の れんしゅう` : KIND_TITLE[r.set.kind];
+  const kindTitle = r.set.kind === 'lesson' ? `「{${r.set.char}:}」の れんしゅう` : KIND_TITLE[r.set.kind];
   const where = r.set.stage ? `${STAGE_NAMES[r.set.stage - 1]} ・ ${kindTitle}` : kindTitle;
   // 1字ずつの練習のあと：同じステージで、まだ練習していない つぎの字（なければボスせん）
   const nextChar = r.set.kind === 'lesson' && r.set.stage ? stageKanji(r.set.stage).map((k) => k.char).find((c) => !d.practicedSet.has(c)) : undefined;
   const goNext = r.set.kind === 'lesson' && r.set.stage
     ? nextChar
-      ? { label: `つぎの字「${nextChar}」へ`, go: () => { startLesson(nextChar); router.push('/lesson/'); } }
+      ? { label: `つぎの字「{${nextChar}:}」へ`, go: () => { startLesson(nextChar); router.push('/lesson/'); } }
       : { label: 'ボスせんへ', go: () => router.push(`/stage/${r.set.stage}/`) }
     : null;
 
@@ -55,11 +55,11 @@ export default function Result() {
           <PartnerAvatar id={d.profile.partner} size={84} stage={after.stage} mood={r.stars >= 2 ? 'happy' : 'cheer'} fontSize={12} />
           <div className="flex flex-1 flex-col gap-1.5">
             <div className="text-base">
-              {r.newlyLearned.length ? <>{p.name}が よろこんでる！ ＋{r.newlyLearned.length}<Mk>{'{字:じ}'}</Mk> おぼえた</> : <>{p.name}も おうえん してるよ！</>}
+              {r.newlyLearned.length ? <>{p.name}が よろこんでる！ ＋{r.newlyLearned.length}<Mk>字</Mk> おぼえた</> : <>{p.name}も おうえん してるよ！</>}
             </div>
             <ProgressBar value={after.ratio} color={p.color} />
             <div className="text-[13px] text-frame">
-              {after.final ? (after.remaining ? <>ぜんぶ まで あと {after.remaining}<Mk>{'{字:じ}'}</Mk></> : 'ぜんぶ おぼえた！') : <>しんか {after.stage + 1}まで あと {after.remaining}<Mk>{'{字:じ}'}</Mk></>}
+              {after.final ? (after.remaining ? <>ぜんぶ まで あと {after.remaining}<Mk>字</Mk></> : 'ぜんぶ おぼえた！') : <>しんか {after.stage + 1}まで あと {after.remaining}<Mk>字</Mk></>}
             </div>
           </div>
         </div>
@@ -68,23 +68,23 @@ export default function Result() {
       <div className="flex flex-[1_1_320px] flex-col gap-4">
         {wrong.length > 0 ? (
           <Card shadow={6} className="flex flex-col gap-[14px] rounded-[22px] p-[22px]">
-            <div className="text-xl">まちがえた かんじ</div>
+            <div className="text-xl"><Mk>まちがえた かん字</Mk></div>
             <div className="flex flex-wrap gap-3">
               {wrong.map((c) => (
                 <div key={c} className="flex h-[92px] w-[92px] items-center justify-center rounded-[14px] border-[3px] border-primary bg-cell font-klee text-[58px]">{c}</div>
               ))}
             </div>
-            <div className="text-base leading-[1.6] text-frame">おてほんを みて 5かいずつ かいて おぼえよう</div>
-            <Btn tone="red" className="min-h-[72px] font-yusei text-[26px]" onClick={() => { startPractice(wrong, '/result/'); router.push('/practice/'); }}>5かい れんしゅう</Btn>
+            <div className="text-base leading-[1.6] text-frame"><Mk>お手本を 見て 5回ずつ 書いて おぼえよう</Mk></div>
+            <Btn tone="red" className="min-h-[72px] font-yusei text-[26px]" onClick={() => { startPractice(wrong, '/result/'); router.push('/practice/'); }}><Mk>5回 れんしゅう</Mk></Btn>
           </Card>
         ) : (
           <Card shadow={6} className="flex flex-col items-center gap-2 rounded-[22px] p-[22px]">
             <div className="font-yusei text-[32px] text-success">ぜんもん せいかい！</div>
-            <div className="text-base text-frame">まちがえた かんじは ないよ</div>
+            <div className="text-base text-frame"><Mk>まちがえた かん字は ないよ</Mk></div>
           </Card>
         )}
-        {goNext && <Btn tone={wrong.length ? 'card' : 'red'} className="min-h-[64px] font-yusei text-[24px]" onClick={goNext.go}>{goNext.label}</Btn>}
-        <Btn className="min-h-[60px] text-lg" onClick={() => router.push('/home/')}>ちずに もどる</Btn>
+        {goNext && <Btn tone={wrong.length ? 'card' : 'red'} className="min-h-[64px] font-yusei text-[24px]" onClick={goNext.go}><Mk>{goNext.label}</Mk></Btn>}
+        <Btn className="min-h-[60px] text-lg" onClick={() => router.push('/home/')}><Mk>地図に もどる</Mk></Btn>
       </div>
 
       {showEvolve && (

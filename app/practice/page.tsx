@@ -50,16 +50,16 @@ export default function Practice() {
     <div data-screen-label="07 5かいれんしゅう" className="flex flex-1 flex-col gap-4 px-[clamp(16px,2.4vw,28px)] pb-20 pt-4">
       <div className="flex items-center gap-[14px]">
         <BackBtn onClick={back} />
-        <div className="font-yusei text-2xl">5かい れんしゅう</div>
+        <div className="font-yusei text-2xl"><Mk>5回 れんしゅう</Mk></div>
         <div className="flex-1" />
-        <div className="text-lg">{ci + 1} / {chars.length} もじ</div>
+        <div className="text-lg">{ci + 1} / {chars.length} <Mk>文字</Mk></div>
       </div>
       <div className="flex flex-1 flex-wrap items-center gap-5">
         <Card className="mx-auto flex flex-[0_1_300px] flex-col items-center gap-2.5 rounded-[20px] p-[18px]">
-          <div className="text-base text-frame">おてほん</div>
+          <div className="text-base text-frame"><Mk>お手本</Mk></div>
           <div className="flex h-[220px] w-[220px] items-center justify-center rounded-xl border-[3px] border-ink bg-cell font-klee text-[170px] leading-none">{k.char}</div>
           <div className="text-base">{rd.on} ／ {rd.kun}</div>
-          <div className="text-[15px] text-frame">{k.strokes}かく ・ <Mk>{k.words.slice(0, 2).join('、')}</Mk></div>
+          <div className="text-[15px] text-frame">{k.strokes}<Mk>画</Mk> ・ <Mk>{k.words.slice(0, 2).join('、')}</Mk></div>
         </Card>
         <div className="flex flex-[1_1_460px] flex-col gap-[14px]">
           <div className="grid grid-cols-5 gap-2.5">
@@ -82,7 +82,7 @@ export default function Practice() {
           </div>
           <div className="flex gap-3">
             <Btn className="min-h-[68px] flex-1 text-xl" onClick={clear}>けす</Btn>
-            <Btn tone="green" className="min-h-[68px] flex-[2] font-yusei text-[26px]" onClick={wrote} disabled={!filled}>かけた！</Btn>
+            <Btn tone="green" className="min-h-[68px] flex-[2] font-yusei text-[26px]" onClick={wrote} disabled={!filled}><Mk>書けた！</Mk></Btn>
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function Practice() {
         <Modal>
           <div className="font-yusei text-5xl text-success">できた！</div>
           <div className="font-klee text-[56px] leading-none">{chars.join('')}</div>
-          <div className="text-[17px] text-frame">ぜんぶ 5かい かけたね ＋{XP.practice * chars.length} けいけんち</div>
+          <div className="text-[17px] text-frame"><Mk>ぜんぶ 5回 書けたね</Mk> ＋{XP.practice * chars.length} けいけんち</div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={back}>もどる</Btn>
         </Modal>
       )}

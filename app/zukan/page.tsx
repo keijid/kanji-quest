@@ -22,7 +22,7 @@ export default function Zukan() {
   const k = kanjiOf(sel);
   const rd = kanjiReadingText(k);
   const weakSet = new Set(d.weak);
-  const tabs: [Tab, string][] = [[2, `2ねん ${TOTAL}`], [3, `にがて ${d.weak.length}`]];
+  const tabs: [Tab, string][] = [[2, `2年 ${TOTAL}`], [3, `にがて ${d.weak.length}`]];
 
   const pickTab = (t: Tab) => {
     sfx('tap');
@@ -35,7 +35,7 @@ export default function Zukan() {
     <div data-screen-label="08 かんじずかん" className="flex flex-1 flex-col gap-4 px-[clamp(16px,2.4vw,28px)] pb-20 pt-4">
       <div className="flex flex-wrap items-center gap-[14px]">
         <BackBtn href="/home/" />
-        <div className="font-yusei text-[clamp(24px,3vw,32px)]">かんじずかん</div>
+        <div className="font-yusei text-[clamp(24px,3vw,32px)]"><Mk>かん字ずかん</Mk></div>
         <div className="text-base text-frame">あつめた {d.learned} / {TOTAL}</div>
         <div className="flex-1" />
         <div className="flex gap-2">
@@ -45,13 +45,13 @@ export default function Zukan() {
               onClick={() => pickTab(t)}
               className="min-h-12 rounded-xl border-[3px] border-ink px-[18px] text-[17px]"
               style={{ background: tab === t ? '#3a2614' : '#fff7e2', color: tab === t ? '#fbf0d4' : '#3a2614' }}
-            >{label}</button>
+            ><Mk>{label}</Mk></button>
           ))}
         </div>
       </div>
       <div className="flex flex-1 flex-wrap items-start gap-5">
         <div className="grid flex-[1_1_460px] gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(60px,1fr))' }}>
-          {list.length === 0 && <div className="col-span-full py-10 text-center text-lg text-frame">にがてな かんじは ないよ！</div>}
+          {list.length === 0 && <div className="col-span-full py-10 text-center text-lg text-frame"><Mk>にがてな かん字は ないよ！</Mk></div>}
           {list.map((c) => {
             const on = sel === c, l = d.learnedSet.has(c);
             return (
@@ -75,17 +75,17 @@ export default function Zukan() {
           <div className="flex items-center gap-4">
             <div className="flex h-[130px] w-[130px] flex-none items-center justify-center rounded-[14px] border-[3px] border-ink bg-cell font-klee text-[100px] leading-none">{k.char}</div>
             <div className="flex flex-col gap-1.5">
-              <div className="text-sm text-frame">{k.grade}ねんせい の かんじ</div>
-              <div className="text-[22px]">{k.strokes}かく</div>
+              <div className="text-sm text-frame"><Mk>{`${k.grade}年生の かん字`}</Mk></div>
+              <div className="text-[22px]"><Mk>{`${k.strokes}画`}</Mk></div>
               <div className="text-base">ぶしゅ：{k.radical}</div>
             </div>
           </div>
           <div className="grid gap-x-[14px] gap-y-2 border-t-[3px] border-dashed border-dash pt-[14px] text-lg" style={{ gridTemplateColumns: 'auto 1fr' }}>
-            <div className="text-frame">おん</div><div>{rd.on}</div>
-            <div className="text-frame">くん</div><div>{rd.kun}</div>
+            <div className="text-frame"><Mk>音読み</Mk></div><div>{rd.on}</div>
+            <div className="text-frame"><Mk>くん読み</Mk></div><div>{rd.kun}</div>
             <div className="text-frame">ことば</div><div><Mk>{k.words.join('・')}</Mk></div>
           </div>
-          <Btn tone="green" className="min-h-[60px] rounded-[14px] text-xl" onClick={() => { startPractice([k.char], '/zukan/'); router.push('/practice/'); }}>かいて れんしゅう</Btn>
+          <Btn tone="green" className="min-h-[60px] rounded-[14px] text-xl" onClick={() => { startPractice([k.char], '/zukan/'); router.push('/practice/'); }}><Mk>書いて れんしゅう</Mk></Btn>
         </Card>
       </div>
     </div>

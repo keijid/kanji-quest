@@ -30,7 +30,7 @@ export default function Onboard() {
         <div className="text-lg text-frame">いっしょに たびをする あいぼうを えらんでね</div>
       </div>
       <label className="flex w-full max-w-[420px] flex-col items-center gap-2">
-        <span className="text-base">きみの なまえ</span>
+        <span className="text-base"><Mk>きみの 名前</Mk></span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}

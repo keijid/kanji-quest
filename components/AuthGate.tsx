@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { getRedirectResult, onAuthStateChanged } from 'firebase/auth';
 import { create } from 'zustand';
-import { Btn } from '@/components/ui';
+import { Btn, Mk } from '@/components/ui';
 import { PartnerAvatar } from '@/components/Partner';
 import { firebaseEnabled, getFirebase, signInWithGoogle } from '@/lib/cloud/firebase';
 import { startSync } from '@/lib/cloud/sync';
@@ -56,7 +56,7 @@ function Gate({ children }: { children: ReactNode }) {
   if (status === 'out' || status === 'error') return <LoginScreen message={message} onError={setMessage} />;
   return (
     <div className="flex flex-1 items-center justify-center text-xl text-frame" role="status">
-      {status === 'syncing' ? 'きろくを よみこんでいるよ…' : 'じゅんびちゅう…'}
+      <Mk>{status === 'syncing' ? 'きろくを 読みこんでいるよ…' : 'じゅんびちゅう…'}</Mk>
     </div>
   );
 }
@@ -86,7 +86,7 @@ function LoginScreen({ message, onError }: { message: string; onError: (m: strin
       <div className="flex items-end gap-4">
         {PARTNER_IDS.map((id) => <PartnerAvatar key={id} id={id} size={110} />)}
       </div>
-      <div className="font-yusei text-[clamp(22px,3vw,30px)]">おうちの人と いっしょに ログインしてね</div>
+      <div className="font-yusei text-[clamp(22px,3vw,30px)]"><Mk>おうちの人と いっしょに ログインしてね</Mk></div>
       <Btn tone="red" shadow={5} onClick={login} disabled={busy} className="flex h-[72px] min-w-[300px] items-center justify-center gap-3 px-6 font-yusei text-2xl">
         <GoogleMark />
         {busy ? 'まってね…' : 'Google で ログイン'}

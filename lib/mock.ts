@@ -6,7 +6,7 @@ import { makeQuestion, shuffle, type Question } from './quiz';
 export type MockSection = { field: MockField; questions: Question[] };
 export type MockTest = { kind: 'full' | 'mini'; minutes: number; points: number; sections: MockSection[] };
 
-export const FIELD_TITLE: Record<MockField, string> = { read: 'よみ', write: 'かき', stroke: 'かきじゅん・かくすう' };
+export const FIELD_TITLE: Record<MockField, string> = { read: '読み', write: '書き', stroke: '書きじゅん・画数' };
 export const FULL = { read: 30, write: 30, stroke: 15, points: 2, minutes: 40, pass: 120 };
 export const MINI = { count: 20, weakMax: 12, minutes: 10 };
 

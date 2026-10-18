@@ -138,7 +138,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`${BASE}/bosses/stage-${n.stage}.png`} alt="" style={{ width: size, height: size, filter: open ? undefined : 'saturate(.6) opacity(.75)' }} />
                   <span className="-mt-1 rounded-md border-2 border-ink px-2 text-xs text-paper" style={{ background: cleared ? '#5a8a3a' : '#3a5a8a' }}>{cleared ? 'クリア' : 'ボス'}</span>
-                  {n.i === here.i && <span className="mt-1 w-20 rounded-lg border-2 border-ink bg-primary text-center text-sm text-paper">いまここ</span>}
+                  {n.i === here.i && <span className="mt-1 w-20 rounded-lg border-2 border-ink bg-primary text-center text-sm text-paper"><Mk>今ここ</Mk></span>}
                 </>
               );
               return open ? (
@@ -155,7 +155,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
                     aria-label={`いまここ：「${n.char}」を れんしゅう`}
                     className="press flex h-[84px] w-[84px] items-center justify-center rounded-full border-4 border-ink bg-primary font-klee text-[44px] text-paper shadow-hard-6"
                   >{n.char}</button>
-                  <div className="absolute left-1/2 top-[92px] w-20 -translate-x-1/2 rounded-lg border-2 border-ink bg-paper text-center text-sm">いまここ</div>
+                  <div className="absolute left-1/2 top-[92px] w-20 -translate-x-1/2 rounded-lg border-2 border-ink bg-paper text-center text-sm"><Mk>今ここ</Mk></div>
                 </div>
               );
             }
@@ -201,7 +201,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
         <button
           onClick={() => { sfx('tap'); scrollToHere(true); }}
           className="press absolute bottom-3 right-3 z-[1] rounded-xl border-2 border-ink bg-primary px-3 py-1.5 text-[15px] text-paper shadow-hard-4"
-        >いまここへ</button>
+        ><Mk>今ここへ</Mk></button>
       )}
     </>
   );
