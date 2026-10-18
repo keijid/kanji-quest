@@ -5,11 +5,21 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 import { addStudySeconds } from '@/lib/progress';
 import { setSfxEnabled, unlockSfx } from '@/lib/sfx';
+import { AuthGate } from './AuthGate';
 
 const TICK = 15; // 秒
 const NO_PROFILE_OK = ['/onboard', '/credits'];
 
 export function AppShell({ children }: { children: ReactNode }) {
+  // Firebase の設定があるときはログイン必須。ログインして記録を読みこむまで、画面は出さない
+  return (
+    <AuthGate>
+      <Shell>{children}</Shell>
+    </AuthGate>
+  );
+}
+
+function Shell({ children }: { children: ReactNode }) {
   const lastInput = useRef(0);
   const router = useRouter();
   const path = usePathname();
@@ -20,7 +30,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // 名前・相棒がまだなければ「はじめて」へ
   useEffect(() => {
-    if (profile === null && !NO_PROFILE_OK.some((p) => path.startsWith(p))) router.replace('/onboard/');
+    // 「/」は app/page.tsx が振り分けるので、ここでは何もしない（2か所から同時に移動しないように）
+    if (profile === null && path !== '/' && !NO_PROFILE_OK.some((p) => path.startsWith(p))) router.replace('/onboard/');
   }, [profile, path, router]);
 
   useEffect(() => {

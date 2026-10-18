@@ -11,6 +11,9 @@ import { db, today, type Mode, type Settings } from '@/lib/db';
 import { resetAll } from '@/lib/progress';
 import { shuffle } from '@/lib/quiz';
 import { sfx } from '@/lib/sfx';
+import { useAuthUser } from '@/components/AuthGate';
+import { firebaseEnabled, signOut } from '@/lib/cloud/firebase';
+import { stopSync } from '@/lib/cloud/sync';
 
 const FIELDS: [Mode, string][] = [['read', '読み'], ['write', '書き取り'], ['okuri', '送りがな'], ['stroke', '筆順・画数']];
 const DOW = ['月', '火', '水', '木', '金', '土', '日'];
@@ -29,6 +32,7 @@ const fmtMin = (min: number) => (min >= 60 ? `${Math.floor(min / 60)}時間${min
 export default function Parent() {
   const router = useRouter();
   const d = useAppData();
+  const email = useAuthUser((x) => x.email);
   const [ok, setOk] = useState(false);
   const gate = useMemo(() => {
     const a = 11 + Math.floor(Math.random() * 9), b = 3 + Math.floor(Math.random() * 7);
@@ -150,7 +154,7 @@ export default function Parent() {
                 <button
                   className="min-h-10 rounded-[10px] border-2 border-primary bg-cell px-[14px] py-1.5 text-primary"
                   onClick={async () => {
-                    if (!confirm('この端末の学習記録をすべて消します。元に戻せません。よろしいですか？')) return;
+                    if (!confirm(firebaseEnabled ? 'この端末とクラウドの学習記録をすべて消します。元に戻せません。よろしいですか？' : 'この端末の学習記録をすべて消します。元に戻せません。よろしいですか？')) return;
                     await resetAll();
                     sessionStorage.clear();
                     router.replace('/onboard/');
@@ -158,6 +162,21 @@ export default function Parent() {
                 >記録を消す</button>
               </div>
               <div className="text-xs text-frame">利用上限をこえると、ホームに休憩をすすめる表示が出ます（使えなくはなりません）。</div>
+              {firebaseEnabled && (
+                <div className="flex min-h-11 flex-wrap items-center justify-between gap-3 border-t border-dashed border-dash pt-2 text-[15px]">
+                  <span className="break-all">ログイン中：{email ?? '—'}</span>
+                  <button
+                    className="min-h-10 rounded-[10px] border-2 border-ink bg-cell px-[14px] py-1.5"
+                    onClick={async () => {
+                      if (!confirm('ログアウトしますか？ 学習の記録はクラウドに保存されているので、もう一度ログインすれば続きから使えます。')) return;
+                      await stopSync();
+                      await signOut();
+                      sessionStorage.clear();
+                      router.replace('/');
+                    }}
+                  >ログアウト</button>
+                </div>
+              )}
             </div>
           </div>
         </>

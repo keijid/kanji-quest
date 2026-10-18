@@ -32,7 +32,9 @@ export default function Mock() {
     });
     const score = answers.filter(Boolean).length * r.test.points;
     const max = maxScore(r.test);
-    await db.mocks.add({ kind: r.test.kind, score, max, byField, at: Date.now() });
+    const at = Date.now();
+    // id は時刻にする（端末をまたいでクラウドに保存しても重ならないように）
+    await db.mocks.put({ id: at, kind: r.test.kind, score, max, byField, at });
     // 答えた問題は学習の記録にも入れる（まちがえた字は苦手へ）
     const logs: AnswerLog[] = all.slice(0, answers.length).map(({ q }, i) => ({ char: q.char, mode: q.kind, outcome: answers[i] ? 2 : 0 }));
     await recordAnswers(logs);

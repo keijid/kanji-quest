@@ -1,6 +1,7 @@
 // 進み具合のルール（PLAN.md「ルールの決め方」）
 import { db, DEFAULT_META, emptyHist, emptyStars, getMeta, today, MODES, type Mode, type Outcome, type MockResult } from './db';
 import { STAGE_COUNT, stageKanji, TOTAL } from './data';
+import { wipeCloud } from './cloud/sync';
 
 const HIST_LEN = 10;
 
@@ -144,9 +145,12 @@ export function fieldRatesOf(progress: { hist: Record<Mode, Outcome[]> }[]): Rec
   return out;
 }
 
+/** 「記録を消す」：端末とクラウド（ログインしていれば）の記録をすべて消す */
 export async function resetAll() {
-  await db.delete();
-  await db.open();
+  await wipeCloud();
+  await db.transaction('rw', db.tables, async () => {
+    for (const t of db.tables) await t.clear();
+  });
   await db.meta.put(DEFAULT_META);
 }
 

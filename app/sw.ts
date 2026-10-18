@@ -2,7 +2,7 @@
 // Service Worker：一度開けばオフラインでも動くように、ビルドしたファイルと全画面の HTML を先に保存しておく
 import { defaultCache } from '@serwist/next/worker';
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { Serwist } from 'serwist';
+import { NetworkOnly, Serwist } from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -16,7 +16,11 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: false,
-  runtimeCaching: defaultCache,
+  runtimeCaching: [
+    // Firebase のログイン画面（/__/auth/…）は Service Worker を通さない
+    { matcher: ({ url }) => url.pathname.startsWith('/__/'), handler: new NetworkOnly() },
+    ...defaultCache,
+  ],
   precacheOptions: { ignoreURLParametersMatching: [/.*/] },
 });
 
