@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { KANA_POOL, KANJI_POOL, judge, judgeKana, judgeKanji } from '@/lib/recognize';
+import { KANA_POOL, KANJI_POOL, judge, judgeCopy, judgeKana, judgeKanji } from '@/lib/recognize';
 import { fakeHand, rng } from './fake-hand';
 
 // 子どもが書いたような線（ゆがみ・書き順ちがい・つづけ書き）で、合格率と誤合格率を確かめる
@@ -57,5 +57,24 @@ describe('手書き判定', () => {
 
   it('画数がぴったり合う、にた字のほうが近ければ不合格（二 と 三）', () => {
     expect(judgeKanji(fakeHand('二', 5, { mess: 0.3 }), '三').ok).toBe(false);
+  });
+});
+
+describe('5回れんしゅう の判定', () => {
+  it('ふつうに写した字は できた', () => {
+    let ok = 0, n = 0;
+    KANJI_POOL.forEach((c, i) => {
+      if (i % 4) return;
+      n++;
+      if (judgeCopy(fakeHand(c, i * 13 + 1, { mess: 1, shuffle: true, joinProb: 0.15 }), c)) ok++;
+    });
+    expect(ok / n).toBeGreaterThanOrEqual(0.85);
+  });
+
+  it('画が 大きく足りない字は できた に しない', () => {
+    for (const c of ['雲', '曜', '親', '顔']) {
+      const hand = fakeHand(c, 7, { mess: 0.5 });
+      expect(judgeCopy(hand.slice(0, Math.floor(hand.length / 2)), c)).toBe(false);
+    }
   });
 });

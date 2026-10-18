@@ -1,5 +1,6 @@
 'use client';
-// 07 5かい れんしゅう：書きじゅんの お手本（アニメ）を「見て写す」。なぞりはなし、判定もなし（何も書いていないときは進めない）
+// 07 5かい れんしゅう：書きじゅんの お手本（アニメ）を「見て写す」。なぞりはなし。
+// 1回ずつ 手書き判定する（字の形が お手本の字と みとめられ、画数も ほぼ足りているときだけ「できた」）
 // 1字ずつの練習では、おぼえよう → ここで5回 → その字の もんだい の じゅんに進む
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,6 +12,7 @@ import { StrokeSvg, KANJIVG_CREDIT } from '@/components/StrokeSvg';
 import { lessonSet } from '@/lib/quiz';
 import { addXp, XP } from '@/lib/progress';
 import { sfx } from '@/lib/sfx';
+import { judgeCopy } from '@/lib/recognize';
 
 const TIMES = 5;
 
@@ -23,6 +25,9 @@ export default function Practice() {
   const [done, setDone] = useState(0);
   const [filled, setFilled] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [busy, setBusy] = useState(false);
+  /** いま書いたものが お手本と ちがったとき */
+  const [retry, setRetry] = useState(false);
   const pads = useRef<(PadHandle | null)[]>([]);
   const [play, setPlay] = useState(1);
 
@@ -56,6 +61,19 @@ export default function Practice() {
   };
 
   const wrote = async () => {
+    const s = pads.current[done]?.strokes() ?? [];
+    setBusy(true);
+    // 判定は少し重いので、ボタンの見た目が変わってから行う
+    await new Promise((r) => setTimeout(r, 30));
+    const ok = judgeCopy(s, k.char);
+    setBusy(false);
+    if (!ok) {
+      sfx('hint');
+      setRetry(true);
+      clear();
+      return;
+    }
+    setRetry(false);
     sfx('correct');
     setFilled(false);
     if (done + 1 < TIMES) { setDone(done + 1); return; }
@@ -113,9 +131,14 @@ export default function Practice() {
               );
             })}
           </div>
+          {retry && (
+            <div className="animate-pop-in rounded-[14px] border-2 border-dashed border-gold bg-hint px-4 py-2.5 text-[17px]">
+              <Mk>{`おしい！ お手本の 書きじゅんを よく 見て、もう一回 書こう（${k.strokes}画）`}</Mk>
+            </div>
+          )}
           <div className="flex gap-3">
             <Btn className="min-h-[68px] flex-1 text-xl" onClick={clear}>けす</Btn>
-            <Btn tone="green" className="min-h-[68px] flex-[2] font-yusei text-[26px]" onClick={wrote} disabled={!filled}><Mk>書けた！</Mk></Btn>
+            <Btn tone="green" className="min-h-[68px] flex-[2] font-yusei text-[26px]" onClick={wrote} disabled={!filled || busy}><Mk>{busy ? '見ているよ…' : '書けた！'}</Mk></Btn>
           </div>
         </div>
       </div>

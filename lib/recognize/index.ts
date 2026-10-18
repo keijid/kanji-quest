@@ -143,3 +143,12 @@ export const kanaBase = (c: string) => SMALL[c] ?? c;
 export const judgeKana = (strokes: Stroke[], expected: string) => judge(strokes, kanaBase(expected), KANA_POOL);
 /** 漢字1字の判定 */
 export const judgeKanji = (strokes: Stroke[], expected: string) => judge(strokes, expected, KANJI_POOL);
+
+/**
+ * お手本を見て 写す 5回れんしゅう の判定。形が その字と みとめられ、画数も ほぼ足りていること
+ * （写して書くので、画数が 大きく足りないものは だめ。つなげて書く分は 1/4 まで ゆるす）
+ */
+export function judgeCopy(strokes: Stroke[], expected: string) {
+  const total = STROKES[expected]?.length ?? 0;
+  return strokes.length >= total - Math.ceil(total / 4) && judgeKanji(strokes, expected).ok;
+}
