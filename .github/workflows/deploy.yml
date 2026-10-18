@@ -23,6 +23,8 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      # package-lock.json を作った npm と同じ版にそろえる（新しい npm は wasm 用の同梱パッケージを別扱いして ci が失敗する）
+      - run: npm install -g npm@11.6.2
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
