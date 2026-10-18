@@ -1,7 +1,10 @@
-// 効果音。public/sfx/<name>.mp3 を置き、public/sfx/sounds.json に名前を書けば鳴る（public/sfx/README.md）。
+// 効果音。ふだんは lib/sfx-synth.ts でその場で合成して鳴らす。
+// public/sfx/<name>.mp3 を置き、public/sfx/sounds.json に名前を書けば、その音に差しかわる（public/sfx/README.md）。
 // iOS は最初のタップまで音を出せないので、unlockSfx() を最初のタップで呼ぶ（AppShell）。
-export type SfxName = 'tap' | 'correct' | 'wrong' | 'hint' | 'evolve' | 'stageClear';
-export const SFX_NAMES: SfxName[] = ['tap', 'correct', 'wrong', 'hint', 'evolve', 'stageClear'];
+import { playSynth } from './sfx-synth';
+
+export type SfxName = 'tap' | 'correct' | 'wrong' | 'hint' | 'finish' | 'evolve' | 'stageClear';
+export const SFX_NAMES: SfxName[] = ['tap', 'correct', 'wrong', 'hint', 'finish', 'evolve', 'stageClear'];
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 let enabled = true;
@@ -38,8 +41,9 @@ export function unlockSfx() {
 
 export function sfx(name: SfxName) {
   if (!enabled || !ctx) return;
+  if (ctx.state === 'suspended') void ctx.resume();
   const buf = buffers.get(name);
-  if (!buf) return;
+  if (!buf) return playSynth(ctx, name);
   const src = ctx.createBufferSource();
   src.buffer = buf;
   src.connect(ctx.destination);

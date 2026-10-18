@@ -77,7 +77,7 @@ export default function Play() {
     // 1字ずつの練習は、さいごまでやれば練習ずみ（まちがえた字は 5かい れんしゅう と ふくしゅう で身につける）
     if (set.kind === 'lesson' && set.char) await markPracticed(set.char);
     if (set.stage && set.kind === 'boss' && stars >= 2) { await clearBoss(set.stage); bossCleared = true; }
-    if (bossCleared) sfx('stageClear');
+    sfx(bossCleared ? 'stageClear' : 'finish');
     finishing.current = true;
     finishSet({ set, logs, stars, newlyLearned, learnedBefore, learnedAfter: learnedBefore + newlyLearned.length, bossCleared });
     router.replace('/result/');
