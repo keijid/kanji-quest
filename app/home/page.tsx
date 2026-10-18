@@ -21,12 +21,7 @@ const SLOTS = [
   { x: 50, y: 62 },
   { x: 70, y: 36 },
 ];
-const LINES = [
-  { x: 10, y: 72, w: 22, r: -38 },
-  { x: 30, y: 46, w: 20, r: 30 },
-  { x: 50, y: 62, w: 22, r: -40 },
-  { x: 70, y: 36, w: 18, r: 36 },
-];
+const BOSS = { x: 86, y: 56 };
 
 export default function Home() {
   const d = useAppData();
@@ -73,18 +68,27 @@ export default function Home() {
           <div className="absolute left-4 top-3 z-[1] rounded-lg border-2 border-ink bg-paper px-3 py-0.5 text-[19px]">
             ステージ {cur} / {STAGE_COUNT} ・ <Mk>{STAGE_NAMES[cur - 1]}</Mk>
           </div>
-          {LINES.map((l, i) => {
-            // 線 i は スロット i → i+1（最後はボスへ）
-            const from = stages[i];
-            if (from < 1 || (i < 3 && stages[i + 1] > STAGE_COUNT) || from > STAGE_COUNT) return null;
-            return (
-              <div
-                key={i}
-                className="absolute"
-                style={{ left: `${l.x}%`, top: `${l.y}%`, width: `${l.w}%`, borderTop: `4px dashed ${i < 2 ? '#8a5a34' : '#c9a46a'}`, transform: `rotate(${l.r}deg)`, transformOrigin: 'left' }}
-              />
-            );
-          })}
+          {/* ノードの中心どうしを点線でつなぐ（ノードの下に描く）。今いるステージまでは濃い色、その先はうすい色 */}
+          <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+            {(() => {
+              const pts = stages
+                .map((st, i) => ({ st, ...SLOTS[i] }))
+                .filter((p) => p.st >= 1 && p.st <= STAGE_COUNT);
+              const path = [...pts, { st: Infinity, ...BOSS }];
+              return path.slice(1).map((p, i) => (
+                <line
+                  key={i}
+                  x1={`${path[i].x}%`}
+                  y1={`${path[i].y}%`}
+                  x2={`${p.x}%`}
+                  y2={`${p.y}%`}
+                  stroke={p.st <= cur ? '#8a5a34' : '#c9a46a'}
+                  strokeWidth={4}
+                  strokeDasharray="10 8"
+                />
+              ));
+            })()}
+          </svg>
           {stages.map((s, i) => {
             if (s < 1 || s > STAGE_COUNT) return null;
             const { x, y } = SLOTS[i];
@@ -105,7 +109,7 @@ export default function Home() {
             }
             if (s > cur) {
               return (
-                <div key={s} className="absolute flex h-[66px] w-[66px] items-center justify-center rounded-full border-[3px] border-dashed border-frame text-2xl text-frame" style={{ left: `calc(${x}% - 33px)`, top: `calc(${y}% - 33px)`, background: 'rgba(251,240,212,.6)' }}>？</div>
+                <div key={s} className="absolute flex h-[66px] w-[66px] items-center justify-center rounded-full border-[3px] border-dashed border-frame text-2xl text-frame" style={{ left: `calc(${x}% - 33px)`, top: `calc(${y}% - 33px)`, background: '#f8ebc6' }}>？</div>
               );
             }
             return (
@@ -119,7 +123,7 @@ export default function Home() {
               >{first}</Link>
             );
           })}
-          <div className="absolute flex h-[84px] w-[84px] items-center justify-center border-[3px] border-ink bg-boss text-lg text-paper shadow-hard-5" style={{ left: 'calc(86% - 42px)', top: 'calc(56% - 42px)', transform: 'rotate(-4deg)' }}>ボス</div>
+          <div className="absolute flex h-[84px] w-[84px] items-center justify-center border-[3px] border-ink bg-boss text-lg text-paper shadow-hard-5" style={{ left: `calc(${BOSS.x}% - 42px)`, top: `calc(${BOSS.y}% - 42px)`, transform: 'rotate(-4deg)' }}>ボス</div>
         </main>
 
         <aside className="flex max-w-full flex-[1_1_280px] flex-col gap-[14px]">
