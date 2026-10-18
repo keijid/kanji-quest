@@ -71,6 +71,8 @@
     -webkit-touch-callout: none;
   }
   input, textarea { -webkit-user-select: text; user-select: text; }
+  /* 行の高さを 1 にして、ふりがなと かん字の あいだを つめる（Safari は 1.5 を受けつぐと 上下に すき間が でき、離れて見える） */
+  ruby, rt { line-height: 1; }
   rt { font-size: 0.5em; }
   button { font-family: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
   button:disabled { cursor: default; }
