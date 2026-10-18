@@ -1,0 +1,12 @@
+Create a BACKGROUND illustration for the adventure map screen of the app. It is seen from a gentle bird's-eye view, like a page of an illustrated storybook map.
+IMPORTANT for usability: the app will place round stage icons, a dotted path and a boss icon ON TOP of this picture, so:
+- keep colors soft, light and low-contrast (pastel, slightly faded like old paper), with a warm cream paper tone overall;
+- keep the central area (the middle 70%) mostly open and calm (grass, ground, sand, snow) with no big objects, buildings or characters there;
+- put the scenery details (trees, houses, mountains, water) mainly near the edges and corners;
+- do NOT draw any path, road, dotted line, arrows, characters, animals or icons.
+Fill the whole image edge to edge (no border, no frame, no vignette).
+
+SCENE: the land of the king. A gentle rocky hill with a small friendly volcano puffing a little smoke at the top-left edge, a calm lake reflecting a crescent moon at the bottom-left, a glowing small crystal palace at the bottom-right, and a cute storybook castle with red flags on a hill at the top-right edge.
+
+STYLE: warm Japanese picture-book style for a children's kanji-learning adventure app (ages 7-9), matching the attached reference images: thick slightly hand-drawn dark brown outlines (#3a2614), flat warm colors with minimal soft shading, cute and friendly, never scary. Palette: brick red #b8321f, leaf green #5a8a3a, gold #c48a12, navy blue #3a5a8a, cream #fbf0d4.
+Do NOT include any text, letters, kanji, numbers, logos or watermarks.

@@ -1,0 +1,14 @@
+Create a set of SIX rank BADGES for a Japanese children's kanji-learning adventure app. Each badge is a small emblem/medal the child earns as their level goes up, so they must look clearly more splendid from left to right. They will be shown small (about 32 px), so use bold, simple shapes.
+
+Draw them in ONE horizontal row, left to right, all about the same size, with WIDE empty white gaps between them:
+1. Beginner traveler: a simple round wooden badge with a small green leaf and a tiny walking boot.
+2. Apprentice swordsman: a small bronze shield with one little wooden practice sword.
+3. Kanji swordsman: a silver shield with a sword and a calligraphy brush crossed.
+4. Kanji knight: a gold shield with small white wings on both sides and a red gem.
+5. Kanji professor: a round gold medal with a navy blue ribbon, showing an open book and a scholar's cap.
+6. Kanji master: a grand gold star-shaped medal with a small crown on top, red and navy ribbons, and tiny sparkles.
+
+BACKGROUND: pure flat white (#ffffff), completely plain – no shadows, no texture, no border.
+
+STYLE: warm Japanese picture-book style for a children's kanji-learning adventure app (ages 7-9), matching the attached reference images: thick slightly hand-drawn dark brown outlines (#3a2614), flat warm colors with minimal soft shading, cute and friendly, never scary. Palette: brick red #b8321f, leaf green #5a8a3a, gold #c48a12, navy blue #3a5a8a, cream #fbf0d4.
+Do NOT include any text, letters, kanji, numbers, logos or watermarks.

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Kiwi_Maru, Klee_One, Yusei_Magic } from 'next/font/google';
 import { AppShell } from '@/components/AppShell';
+import splash from '@/data/splash.json';
 import './globals.css';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -13,7 +14,13 @@ export const metadata: Metadata = {
   title: 'カンジクエスト',
   description: '小学2年生の漢字160字を冒険しながら覚える学習アプリ（漢検9級）',
   applicationName: 'カンジクエスト',
-  appleWebApp: { capable: true, title: 'カンジクエスト', statusBarStyle: 'black-translucent' },
+  appleWebApp: {
+    capable: true,
+    title: 'カンジクエスト',
+    statusBarStyle: 'black-translucent',
+    // iPad のホーム画面から開いたときの起動画面（scripts/make-splash.ts で作る）
+    startupImage: splash.map((s) => ({ url: `${BASE}${s.url}`, media: s.media })),
+  },
   formatDetection: { telephone: false },
   icons: {
     icon: [{ url: `${BASE}/icons/favicon-32.png`, sizes: '32x32', type: 'image/png' }],

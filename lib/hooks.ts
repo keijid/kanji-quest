@@ -2,7 +2,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, DEFAULT_META, emptyStars, type KanjiProgress, type Mode, type StageProgress } from './db';
 import { TARGET_SET } from './data';
-import { currentStage, currentStreak, fieldRatesOf, levelOf, passPrediction, titleOf } from './progress';
+import { currentStage, currentStreak, fieldRatesOf, levelOf, passPrediction, titleOf, titleRank } from './progress';
 import { evolution } from './partners';
 
 /** アプリ全体でよく使う値。読み込み中は undefined */
@@ -37,6 +37,7 @@ export function useAppData() {
       current: currentStage(cleared),
       level,
       title: titleOf(level),
+      titleRank: titleRank(level),
       streak: currentStreak(m.streak),
       evo: evolution(learnedSet.size),
       rates,

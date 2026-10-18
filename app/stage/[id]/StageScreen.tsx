@@ -2,18 +2,21 @@
 import { useRouter } from 'next/navigation';
 import { BackBtn, Card, Mk, Screen, Stars } from '@/components/ui';
 import { useAppData } from '@/lib/hooks';
-import { STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
+import { areaOf, STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
 import { MODES, type Mode } from '@/lib/db';
 import { bossUnlocked } from '@/lib/progress';
 import { bossSet, stageSet } from '@/lib/quiz';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
 
-const MODE_CARDS: Record<Mode, { title: string; glyph: string; desc: string }> = {
-  read: { title: 'よみ', glyph: '読', desc: 'かんじの よみかたを ひらがなで かこう' },
-  write: { title: 'かき', glyph: '書', desc: 'ひらがなを かんじで かこう' },
-  stroke: { title: 'かきじゅん・かくすう', glyph: '画', desc: 'なんばんめに かく？ ぜんぶで なんかく？' },
-  okuri: { title: 'おくりがな', glyph: 'る', desc: 'かんじの あとに つづく ひらがな' },
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
+// アイコンは public/modes/<モード>.png（Gemini で作った絵を scripts/cut-sheets.ts で切り出し）
+const MODE_CARDS: Record<Mode, { title: string; desc: string }> = {
+  read: { title: 'よみ', desc: 'かんじの よみかたを ひらがなで かこう' },
+  write: { title: 'かき', desc: 'ひらがなを かんじで かこう' },
+  stroke: { title: 'かきじゅん・かくすう', desc: 'なんばんめに かく？ ぜんぶで なんかく？' },
+  okuri: { title: 'おくりがな', desc: 'かんじの あとに つづく ひらがな' },
 };
 
 export function StageScreen({ stage }: { stage: number }) {
@@ -67,7 +70,8 @@ export function StageScreen({ stage }: { stage: number }) {
             <button key={m} className={`${cardCls} bg-card text-ink`} onClick={() => go(m)}>
               <div className="flex w-full items-center justify-between gap-2">
                 <div className="font-yusei text-[28px]">{c.title}</div>
-                <div className="font-klee text-[40px] leading-none">{c.glyph}</div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`${BASE}/modes/${m}.png`} alt="" className="-my-2 h-14 w-14 flex-none" />
               </div>
               <div className="text-[15px] opacity-90">{c.desc}</div>
               <div className="flex-1" />
@@ -78,7 +82,9 @@ export function StageScreen({ stage }: { stage: number }) {
         <button className={`${cardCls} bg-boss text-paper disabled:cursor-default`} onClick={() => go('boss')} disabled={!unlocked}>
           <div className="flex w-full items-center justify-between gap-2">
             <div className="font-yusei text-[28px]">ボスせん</div>
-            <div className="font-klee text-[40px] leading-none">王</div>
+            {/* このエリアのボス */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${BASE}/bosses/boss-${areaOf(stage) + 1}.png`} alt="" className="-my-3 h-[72px] w-[72px]" />
           </div>
           <div className="text-[15px] opacity-90">ぜんぶの もんだいが まざって でるよ</div>
           <div className="flex-1" />

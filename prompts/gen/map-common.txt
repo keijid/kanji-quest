@@ -1,0 +1,7 @@
+Create a BACKGROUND illustration for the adventure map screen of the app. It is seen from a gentle bird's-eye view, like a page of an illustrated storybook map.
+IMPORTANT for usability: the app will place round stage icons, a dotted path and a boss icon ON TOP of this picture, so:
+- keep colors soft, light and low-contrast (pastel, slightly faded like old paper), with a warm cream paper tone overall;
+- keep the central area (the middle 70%) mostly open and calm (grass, ground, sand, snow) with no big objects, buildings or characters there;
+- put the scenery details (trees, houses, mountains, water) mainly near the edges and corners;
+- do NOT draw any path, road, dotted line, arrows, characters, animals or icons.
+Fill the whole image edge to edge (no border, no frame, no vignette).

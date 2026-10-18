@@ -1,0 +1,12 @@
+Create a character sheet of FOUR boss characters for a Japanese children's kanji-learning adventure app. The children battle these bosses with kanji quizzes, so the bosses are mischievous and funny, NOT scary (big expressive eyes, round shapes, a cheeky grin). Each boss holds a big Japanese calligraphy brush (fude) as its "weapon".
+
+Draw them in ONE horizontal row, left to right, all at about the same size, full body, front 3/4 view, with WIDE empty white gaps between them so they do not touch or overlap:
+1. "Meadow boss": a chubby grumpy mole wearing a straw hat and a red bandana, standing on a little dirt mound.
+2. "Forest boss": a big round horned owl tree-spirit with leafy feathers and an acorn crown.
+3. "Snow boss": a fluffy white yeti bear with a long blue scarf and frosty breath.
+4. "Final boss": the Ink King – a cute round ink-black shadow creature with a golden crown, a navy blue cape and glowing friendly yellow eyes (clearly the strongest, slightly bigger than the others).
+
+BACKGROUND: pure flat white (#ffffff), completely plain – no ground, no shadows on the background, no texture, no border.
+
+STYLE: warm Japanese picture-book style for a children's kanji-learning adventure app (ages 7-9), matching the attached reference images: thick slightly hand-drawn dark brown outlines (#3a2614), flat warm colors with minimal soft shading, cute and friendly, never scary. Palette: brick red #b8321f, leaf green #5a8a3a, gold #c48a12, navy blue #3a5a8a, cream #fbf0d4.
+Do NOT include any text, letters, kanji, numbers, logos or watermarks.

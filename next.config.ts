@@ -1,6 +1,6 @@
 import type { NextConfig } from 'next';
 import withSerwistInit from '@serwist/next';
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 
 // GitHub Pages（https://keijid.github.io/kanji-quest/）では /kanji-quest 配下に置く。
 // ビルド時に NEXT_PUBLIC_BASE_PATH=/kanji-quest を渡す（.github/workflows/deploy.yml）。ローカルでは空。
@@ -9,8 +9,10 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 // 静的に書き出す全画面。Service Worker が先に保存して、オフラインでも開けるようにする
 const ROUTES = ['', 'onboard', 'home', 'play', 'result', 'practice', 'zukan', 'mock', 'parent', 'credits', ...Array.from({ length: 16 }, (_, i) => `stage/${i + 1}`)];
 const revision = process.env.GITHUB_SHA ?? String(Date.now());
-// public/ の画像（相棒の絵・アイコン）も先に保存する
-const PUBLIC_FILES = ['partners', 'icons'].flatMap((dir) => readdirSync(`public/${dir}`).filter((f) => f.endsWith('.png')).map((f) => `${dir}/${f}`));
+// public/ の画像（相棒の絵・アイコン・マップの背景・ボス・モードのアイコン・称号のバッジ）も先に保存する
+const PUBLIC_FILES = ['partners', 'icons', 'maps', 'bosses', 'modes', 'badges']
+  .filter((dir) => existsSync(`public/${dir}`))
+  .flatMap((dir) => readdirSync(`public/${dir}`).filter((f) => /\.(png|jpg|webp)$/.test(f)).map((f) => `${dir}/${f}`));
 
 const withSerwist = withSerwistInit({
   swSrc: 'app/sw.ts',

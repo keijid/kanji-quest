@@ -1,0 +1,12 @@
+Create a set of FOUR simple, bold ICONS for the quiz modes of a Japanese children's kanji-learning app. They will be shown small (about 48 px), so each must be a single clear object with a bold silhouette and very few details.
+
+Draw them in ONE horizontal row, left to right, all the same size, with WIDE empty white gaps between them:
+1. READING mode: an open picture book with a small magnifying glass resting on it.
+2. WRITING mode: a big yellow pencil writing a short squiggly line on a small sheet of paper.
+3. STROKE ORDER mode: a Japanese calligraphy brush drawing a curved red arrow that shows the direction of a stroke.
+4. OKURIGANA mode (okuri = "sending"): a cute paper airplane made of cream paper with a red stripe, flying with a small motion trail.
+
+BACKGROUND: pure flat white (#ffffff), completely plain – no shadows, no circles or badges behind the icons, no texture, no border.
+
+STYLE: warm Japanese picture-book style for a children's kanji-learning adventure app (ages 7-9), matching the attached reference images: thick slightly hand-drawn dark brown outlines (#3a2614), flat warm colors with minimal soft shading, cute and friendly, never scary. Palette: brick red #b8321f, leaf green #5a8a3a, gold #c48a12, navy blue #3a5a8a, cream #fbf0d4.
+Do NOT include any text, letters, kanji, numbers, logos or watermarks.

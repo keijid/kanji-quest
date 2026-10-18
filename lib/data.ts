@@ -41,6 +41,10 @@ export const STAGE_NAMES = [
   '{王:おう}さまの おしろ',
 ];
 
+/** エリア（4ステージごと）：マップの背景とボス */
+export const MAP_ART = ['meadow', 'forest', 'snow', 'castle'] as const;
+export const areaOf = (stage: number) => Math.min(MAP_ART.length - 1, Math.floor((stage - 1) / 4));
+
 export const kanjiReadingText = (k: KanjiEntry) => ({
   on: k.on.join('・') || '―',
   kun: k.kun.map((x) => x.stem + (x.okuri ? `(${x.okuri})` : '')).join('・') || '―',

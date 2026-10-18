@@ -5,7 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Btn, Card, Mk } from '@/components/ui';
 import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
-import { STAGE_COUNT, STAGE_NAMES, stageKanji, TOTAL } from '@/lib/data';
+import { areaOf, MAP_ART, STAGE_COUNT, STAGE_NAMES, stageKanji, TOTAL } from '@/lib/data';
 import { db, today } from '@/lib/db';
 import { PARTNERS } from '@/lib/partners';
 import { reviewSet } from '@/lib/quiz';
@@ -22,6 +22,7 @@ const SLOTS = [
   { x: 70, y: 36 },
 ];
 const BOSS = { x: 86, y: 56 };
+
 
 export default function Home() {
   const d = useAppData();
@@ -50,7 +51,11 @@ export default function Home() {
           <div className="flex items-center gap-1.5 rounded-[10px] border-2 border-ink bg-card px-3.5 py-1.5">
             <span className="text-xl text-primary">{d.streak}</span>にち れんぞく
           </div>
-          <div className="rounded-[10px] border-2 border-ink bg-card px-3.5 py-1.5">Lv.{d.level} <Mk>{d.title}</Mk></div>
+          <div className="flex items-center gap-1.5 rounded-[10px] border-2 border-ink bg-card py-1 pl-2 pr-3.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${BASE}/badges/badge-${d.titleRank}.png`} alt="" className="-my-1 h-8 w-8" />
+            <span>Lv.{d.level} <Mk>{d.title}</Mk></span>
+          </div>
           <Link href="/parent/" onClick={() => sfx('tap')} className="flex min-h-11 items-center rounded-[10px] border-2 border-ink bg-card px-3 py-1.5 text-sm text-ink no-underline">
             <Mk>{'おうちの{人:ひと}'}</Mk>
           </Link>
@@ -64,7 +69,10 @@ export default function Home() {
       )}
 
       <div className="flex flex-1 flex-wrap gap-5 px-[clamp(16px,2.4vw,28px)] pt-[18px]">
-        <main className="map-grid relative min-h-[380px] flex-[1_1_520px] overflow-hidden rounded-[18px] border-[3px] border-ink">
+        <main
+          className="relative min-h-[380px] flex-[1_1_520px] overflow-hidden rounded-[18px] border-[3px] border-ink bg-map bg-cover bg-center"
+          style={{ backgroundImage: `url(${BASE}/maps/${MAP_ART[areaOf(cur)]}.jpg)` }}
+        >
           <div className="absolute left-4 top-3 z-[1] rounded-lg border-2 border-ink bg-paper px-3 py-0.5 text-[19px]">
             ステージ {cur} / {STAGE_COUNT} ・ <Mk>{STAGE_NAMES[cur - 1]}</Mk>
           </div>
@@ -123,7 +131,12 @@ export default function Home() {
               >{first}</Link>
             );
           })}
-          <div className="absolute flex h-[84px] w-[84px] items-center justify-center border-[3px] border-ink bg-boss text-lg text-paper shadow-hard-5" style={{ left: `calc(${BOSS.x}% - 42px)`, top: `calc(${BOSS.y}% - 42px)`, transform: 'rotate(-4deg)' }}>ボス</div>
+          {/* このエリア（4ステージ）のボス */}
+          <div className="absolute flex w-[110px] flex-col items-center" style={{ left: `calc(${BOSS.x}% - 55px)`, top: `calc(${BOSS.y}% - 58px)` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${BASE}/bosses/boss-${areaOf(cur) + 1}.png`} alt="ボス" className="h-[96px] w-[96px] drop-shadow-[3px_3px_0_rgba(58,38,20,.35)]" />
+            <div className="-mt-1 rounded-lg border-2 border-ink bg-boss px-2.5 text-sm text-paper" style={{ transform: 'rotate(-4deg)' }}>ボス</div>
+          </div>
         </main>
 
         <aside className="flex max-w-full flex-[1_1_280px] flex-col gap-[14px]">

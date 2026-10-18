@@ -24,6 +24,8 @@ const TITLES: [number, string][] = [
   [50, 'かんじ マスター'],
 ];
 export const titleOf = (level: number) => [...TITLES].reverse().find(([l]) => level >= l)![1];
+/** 称号の段階 1〜6（バッジの絵 public/badges/badge-<段階>.png） */
+export const titleRank = (level: number) => TITLES.filter(([l]) => level >= l).length;
 
 // ---- 星 ----
 export function starsFor(correct: number, total: number) {
