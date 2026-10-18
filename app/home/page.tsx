@@ -5,7 +5,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Btn, Card, Mk } from '@/components/ui';
 import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
-import { areaOf, MAP_ART, STAGE_COUNT, STAGE_NAMES, stageKanji, TOTAL } from '@/lib/data';
+import { TOTAL } from '@/lib/data';
+import { AdventureMap } from '@/components/AdventureMap';
 import { db, today } from '@/lib/db';
 import { PARTNERS } from '@/lib/partners';
 import { reviewSet } from '@/lib/quiz';
@@ -13,16 +14,6 @@ import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
-
-// マップ上の位置（見本どおり）。cur-2, cur-1, cur, cur+1, ボス
-const SLOTS = [
-  { x: 10, y: 72 },
-  { x: 30, y: 46 },
-  { x: 50, y: 62 },
-  { x: 70, y: 36 },
-];
-const BOSS = { x: 86, y: 56 };
-
 
 export default function Home() {
   const d = useAppData();
@@ -32,7 +23,6 @@ export default function Home() {
   if (!d?.profile) return null;
   const p = PARTNERS[d.profile.partner];
   const cur = d.current;
-  const stages = [cur - 2, cur - 1, cur, cur + 1];
   const overLimit = todaySec !== undefined && todaySec >= d.meta.settings.limitMin * 60;
 
   return (
@@ -69,74 +59,8 @@ export default function Home() {
       )}
 
       <div className="flex flex-1 flex-wrap gap-5 px-[clamp(16px,2.4vw,28px)] pt-[18px]">
-        <main
-          className="relative min-h-[380px] flex-[1_1_520px] overflow-hidden rounded-[18px] border-[3px] border-ink bg-map bg-cover bg-center"
-          style={{ backgroundImage: `url(${BASE}/maps/${MAP_ART[areaOf(cur)]}.jpg)` }}
-        >
-          <div className="absolute left-4 top-3 z-[1] rounded-lg border-2 border-ink bg-paper px-3 py-0.5 text-[19px]">
-            ステージ {cur} / {STAGE_COUNT} ・ <Mk>{STAGE_NAMES[cur - 1]}</Mk>
-          </div>
-          {/* ノードの中心どうしを点線でつなぐ（ノードの下に描く）。今いるステージまでは濃い色、その先はうすい色 */}
-          <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
-            {(() => {
-              const pts = stages
-                .map((st, i) => ({ st, ...SLOTS[i] }))
-                .filter((p) => p.st >= 1 && p.st <= STAGE_COUNT);
-              const path = [...pts, { st: Infinity, ...BOSS }];
-              return path.slice(1).map((p, i) => (
-                <line
-                  key={i}
-                  x1={`${path[i].x}%`}
-                  y1={`${path[i].y}%`}
-                  x2={`${p.x}%`}
-                  y2={`${p.y}%`}
-                  stroke={p.st <= cur ? '#8a5a34' : '#c9a46a'}
-                  strokeWidth={4}
-                  strokeDasharray="10 8"
-                />
-              ));
-            })()}
-          </svg>
-          {stages.map((s, i) => {
-            if (s < 1 || s > STAGE_COUNT) return null;
-            const { x, y } = SLOTS[i];
-            const first = stageKanji(s)[0].char;
-            if (s === cur) {
-              return (
-                <div key={s}>
-                  <Link
-                    href={`/stage/${s}/`}
-                    onClick={() => sfx('tap')}
-                    aria-label={`ステージ ${s}`}
-                    className="press absolute flex h-[100px] w-[100px] items-center justify-center rounded-full border-4 border-ink bg-primary font-klee text-[50px] text-paper no-underline shadow-hard-6"
-                    style={{ left: `calc(${x}% - 50px)`, top: `calc(${y}% - 50px)` }}
-                  >{first}</Link>
-                  <div className="absolute w-20 rounded-lg border-2 border-ink bg-paper text-center text-sm" style={{ left: `calc(${x}% - 40px)`, top: `calc(${y}% + 58px)` }}>いまここ</div>
-                </div>
-              );
-            }
-            if (s > cur) {
-              return (
-                <div key={s} className="absolute flex h-[66px] w-[66px] items-center justify-center rounded-full border-[3px] border-dashed border-frame text-2xl text-frame" style={{ left: `calc(${x}% - 33px)`, top: `calc(${y}% - 33px)`, background: '#f8ebc6' }}>？</div>
-              );
-            }
-            return (
-              <Link
-                key={s}
-                href={`/stage/${s}/`}
-                onClick={() => sfx('tap')}
-                aria-label={`ステージ ${s}`}
-                className="absolute flex h-[66px] w-[66px] items-center justify-center rounded-full border-[3px] border-ink bg-card font-klee text-[34px] text-ink no-underline"
-                style={{ left: `calc(${x}% - 33px)`, top: `calc(${y}% - 33px)` }}
-              >{first}</Link>
-            );
-          })}
-          {/* このエリア（4ステージ）のボス */}
-          <div className="absolute flex w-[110px] flex-col items-center" style={{ left: `calc(${BOSS.x}% - 55px)`, top: `calc(${BOSS.y}% - 58px)` }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${BASE}/bosses/boss-${areaOf(cur) + 1}.png`} alt="ボス" className="h-[96px] w-[96px] drop-shadow-[3px_3px_0_rgba(58,38,20,.35)]" />
-            <div className="-mt-1 rounded-lg border-2 border-ink bg-boss px-2.5 text-sm text-paper" style={{ transform: 'rotate(-4deg)' }}>ボス</div>
-          </div>
+        <main className="relative min-h-[380px] flex-[1_1_520px] overflow-hidden rounded-[18px] border-[3px] border-ink bg-map">
+          <AdventureMap current={cur} learned={d.learnedSet} bossCleared={d.bossCleared} />
         </main>
 
         <aside className="flex max-w-full flex-[1_1_280px] flex-col gap-[14px]">
