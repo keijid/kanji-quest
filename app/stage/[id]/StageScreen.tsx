@@ -77,17 +77,17 @@ export function StageScreen({ stage }: { stage: number }) {
       </Card>
 
       <button className={`${cardCls} min-h-[120px] bg-boss text-paper disabled:cursor-default disabled:opacity-80`} onClick={boss} disabled={!unlocked}>
-        <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex flex-col gap-1">
+        {/* 左に 説明、右に このステージの ボスを 大きく */}
+        <div className="flex w-full items-center justify-between gap-3">
+          <div className="flex flex-col gap-2">
             <div className="font-yusei text-[28px]">ボスせん</div>
             <div className="text-[15px] opacity-90"><Mk>{`10字の 読み（おくりがな）・書き・書きじゅんを ぜんぶ ためすよ（${bossCount}もん）`}</Mk></div>
+            <div className="text-[20px]">
+              <Mk>{cleared ? 'クリア！ もう一回 ちょうせん できるよ' : unlocked ? 'ちょうせん できる！ 8わり せいかいで クリア' : `あと ${remaining}字 れんしゅう すると ちょうせん できる`}</Mk>
+            </div>
           </div>
-          {/* このステージのボス */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${BASE}/bosses/stage-${stage}.png`} alt="" className="-my-3 h-[88px] w-[88px] flex-none" />
-        </div>
-        <div className="text-[20px]">
-          <Mk>{cleared ? 'クリア！ もう一回 ちょうせん できるよ' : unlocked ? 'ちょうせん できる！ 8わり せいかいで クリア' : `あと ${remaining}字 れんしゅう すると ちょうせん できる`}</Mk>
+          <img src={`${BASE}/bosses/stage-${stage}.png`} alt="" className="-my-2 h-[150px] w-[150px] flex-none" />
         </div>
       </button>
 
