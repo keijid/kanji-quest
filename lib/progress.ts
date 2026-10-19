@@ -8,8 +8,8 @@ const HIST_LEN = 10;
 export const XP = { first: 10, hint: 5, practice: 2 } as const;
 
 // ---- 経験値・レベル・称号 ----
-/** レベル n になるのに必要な経験値の累計 = 5·n·(n−1)（160字を 練習と ボスせんで やり切ると Lv.50 くらい） */
-export const xpForLevel = (n: number) => 5 * n * (n - 1);
+/** レベル n になるのに必要な経験値の累計 = 3.5·n·(n−1)（160字を 練習と ボスせんで 7わりくらい せいかいして やり切ると Lv.50） */
+export const xpForLevel = (n: number) => 7 * n * (n - 1) / 2;
 export function levelOf(xp: number) {
   let n = 1;
   while (xpForLevel(n + 1) <= xp) n++;
