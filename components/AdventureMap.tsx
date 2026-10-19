@@ -22,7 +22,7 @@ const PER_STAGE = 11; // 10字＋ボス
 const STAGES_PER_AREA = 4;
 
 /** マップの ボスの 絵の 大きさ（px）。さいごの ボスは ひとまわり 大きい */
-const bossSize = (stage: number) => (stage === STAGE_COUNT ? 120 : 96);
+const bossSize = (stage: number) => (stage === STAGE_COUNT ? 150 : 120);
 
 type Node = { i: number; stage: number; kind: 'kanji' | 'boss'; char?: string; x: number; y: number };
 

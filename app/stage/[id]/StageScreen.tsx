@@ -87,7 +87,7 @@ export function StageScreen({ stage }: { stage: number }) {
             </div>
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${BASE}/bosses/stage-${stage}.png`} alt="" className="-my-2 h-[150px] w-[150px] flex-none" />
+          <img src={`${BASE}/bosses/stage-${stage}.png`} alt="" className="-my-4 h-[190px] w-[190px] flex-none" />
         </div>
       </button>
 
