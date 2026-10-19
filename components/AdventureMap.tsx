@@ -191,11 +191,11 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
           {/* 勇者と 相棒：いまここ の上に ならんで立つ（上が足りないときは上はしに合わせる） */}
           <div
             className="pointer-events-none absolute z-[1] flex -translate-x-1/2 items-end"
-            style={{ left: here.x, top: `max(2px, calc(${here.y}% - ${here.kind === 'boss' ? 140 + (bossSize(here.stage) - 72) / 2 : 112}px))` }}
+            style={{ left: here.x, top: `max(2px, calc(${here.y}% - ${here.kind === 'boss' ? 164 + (bossSize(here.stage) - 72) / 2 : 136}px))` }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${BASE}/heroes/hero-${heroRank}.png`} alt="" draggable={false} className="h-[76px] w-[76px] select-none object-contain drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]" />
-            <div className="-ml-3 animate-bob drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]">
+            <img src={`${BASE}/heroes/hero-${heroRank}.png`} alt="" draggable={false} className="h-[100px] w-[100px] select-none object-contain drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]" />
+            <div className="-ml-4 animate-bob drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]">
               <PartnerAvatar id={partner} size={64} stage={partnerStage} mood={here.kind === 'boss' ? 'cheer' : undefined} />
             </div>
           </div>
