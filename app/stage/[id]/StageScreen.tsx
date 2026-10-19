@@ -79,7 +79,7 @@ export function StageScreen({ stage }: { stage: number }) {
               >
                 {c}
                 {done && <span className="absolute -right-1 -top-1 text-[18px] leading-none text-gold drop-shadow-[1px_1px_0_#3a2614]">★</span>}
-                {isNext && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-md bg-primary px-1.5 font-kiwi text-[11px] leading-[18px] text-paper">つぎ</span>}
+                {isNext && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-primary px-1.5 font-kiwi text-[11px] leading-[18px] text-paper">つぎ</span>}
               </button>
             );
           })}

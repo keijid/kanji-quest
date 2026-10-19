@@ -69,6 +69,10 @@
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
+    /* 文は ことばの くぎりに スペースを 入れて 書いているので、改行は スペースの ところだけに する
+       （「出てく／るよ」のように ことばの とちゅうで 切れないように）。1行に 入りきらない ことばだけ とちゅうで 切る */
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
   input, textarea { -webkit-user-select: text; user-select: text; }
   /* 行の高さを 1 にして、ふりがなと かん字の あいだを つめる（Safari は 1.5 を受けつぐと 上下に すき間が でき、離れて見える） */

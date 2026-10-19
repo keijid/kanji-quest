@@ -30,4 +30,5 @@ export function StrokeSvg({ char, highlight, play = 0, className }: Props) {
   );
 }
 
-export const KANJIVG_CREDIT = 'かきじゅんデータ：KanjiVG（CC BY-SA 3.0）';
+// ライセンス名の とちゅうで 改行しないように、スペースは \u00a0、ハイフンの あとに \u2060（改行させない しるし）
+export const KANJIVG_CREDIT = 'かきじゅんデータ：KanjiVG（CC\u00a0BY-\u2060SA\u00a03.0）';
