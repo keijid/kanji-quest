@@ -81,7 +81,7 @@ export default function Zukan() {
               <div className="text-base">ぶしゅ：{k.radical}</div>
             </div>
           </div>
-          <div className="grid gap-x-[14px] gap-y-2 border-t-[3px] border-dashed border-dash pt-[14px] text-lg" style={{ gridTemplateColumns: 'auto 1fr' }}>
+          <div className="grid items-baseline gap-x-[14px] gap-y-2 border-t-[3px] border-dashed border-dash pt-[14px] text-lg" style={{ gridTemplateColumns: 'auto 1fr' }}>
             <div className="text-frame"><Mk>音読み</Mk></div><div>{rd.on}</div>
             <div className="text-frame"><Mk>くん読み</Mk></div><div>{rd.kun}</div>
             <div className="text-frame">ことば</div><div><Mk>{k.words.join('・')}</Mk></div>

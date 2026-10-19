@@ -55,7 +55,7 @@ export default function Lesson() {
         </Card>
         <div className="flex max-w-[460px] flex-[1_1_340px] flex-col gap-4">
           <Card className="flex flex-col gap-3 rounded-[20px] p-[22px]">
-            <div className="grid gap-x-[14px] gap-y-2 text-lg" style={{ gridTemplateColumns: 'auto 1fr' }}>
+            <div className="grid items-baseline gap-x-[14px] gap-y-2 text-lg" style={{ gridTemplateColumns: 'auto 1fr' }}>
               <div className="text-frame"><Mk>音読み</Mk></div><div>{rd.on}</div>
               <div className="text-frame"><Mk>くん読み</Mk></div><div>{rd.kun}</div>
               <div className="text-frame">ことば</div><div><Mk>{k.words.join('・')}</Mk></div>
