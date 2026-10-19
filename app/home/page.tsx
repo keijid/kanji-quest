@@ -67,7 +67,18 @@ export default function Home() {
 
         <aside className="flex max-w-full flex-[1_1_280px] flex-col gap-[14px]">
           <Card className="flex flex-col items-center gap-2.5 rounded-[18px] p-4">
-            <PartnerAvatar id={d.profile.partner} size={140} stage={d.evo.stage} label={`${p.kind}\nしんか ${d.evo.stage}`} />
+            {d.evo.final ? (
+              <PartnerAvatar id={d.profile.partner} size={140} stage={d.evo.stage} label={`${p.kind}\nしんか ${d.evo.stage}`} />
+            ) : (
+              // 今の すがた → つぎに しんかした すがた（黒い シルエットで、どんな すがたか わからなくする）
+              <div className="flex items-center gap-2">
+                <PartnerAvatar id={d.profile.partner} size={120} stage={d.evo.stage} label={`${p.kind}\nしんか ${d.evo.stage}`} />
+                <div className="font-yusei text-[28px] text-frame" aria-hidden>▶</div>
+                <div style={{ filter: 'brightness(0) opacity(.8)' }} aria-label="つぎの すがたは ひみつ">
+                  <PartnerAvatar id={d.profile.partner} size={120} stage={d.evo.stage + 1} label={`${p.kind}\nしんか ${d.evo.stage + 1}`} />
+                </div>
+              </div>
+            )}
             <div className="font-yusei text-[26px]">{p.name}</div>
             <div className="flex gap-1.5">
               {[1, 2, 3, 4, 5].map((i) => (
