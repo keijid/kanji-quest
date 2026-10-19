@@ -124,19 +124,19 @@ export default function Home() {
           onClick={() => { startSet(reviewSet(d.weak)); router.push('/play/'); }}
         >
           ふくしゅう
-          <div className="text-[13px] text-primary">{d.weak.length ? <>にがて {d.weak.length}<Mk>字</Mk></> : 'にがて なし'}</div>
+          <div className="text-[13px] leading-[1.4] text-primary">{d.weak.length ? <>にがて {d.weak.length}<Mk>字</Mk></> : 'にがて なし'}</div>
         </Btn>
         <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/zukan/')}>
-          <Mk>かん字ずかん</Mk><div className="text-[13px] text-frame">{TOTAL}<Mk>字</Mk></div>
+          <Mk>かん字ずかん</Mk><div className="text-[13px] leading-[1.4] text-frame">{TOTAL}<Mk>字</Mk></div>
         </Btn>
         {/* もぎテストは ぜんぶの ステージを クリアしてから */}
         {d.bossCleared(STAGE_COUNT) ? (
           <Btn shadow={5} className="min-h-[76px] text-lg" onClick={() => router.push('/mock/')}>
-            もぎテスト<div className="text-[13px] text-frame">ほんばん・ミニ</div>
+            もぎテスト<div className="text-[13px] leading-[1.4] text-frame">ほんばん・ミニ</div>
           </Btn>
         ) : (
           <Btn shadow={5} className="min-h-[76px] text-lg" disabled>
-            ？？？<div className="text-[13px] text-frame"><Mk>ぜんぶの ステージを クリアすると 出てくるよ</Mk></div>
+            ？？？<div className="text-[13px] leading-[1.4] text-frame"><Mk>ぜんぶの ステージを クリアすると 出てくるよ</Mk></div>
           </Btn>
         )}
       </footer>
