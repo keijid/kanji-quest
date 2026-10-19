@@ -10,6 +10,8 @@ import { evolution, PARTNERS } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 const KIND_TITLE = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' } as const;
 
 export default function Result() {
@@ -46,6 +48,9 @@ export default function Result() {
       <Card shadow={6} className="flex flex-[1_1_380px] flex-col items-center gap-[14px] rounded-[22px] p-7">
         <div className="text-lg text-frame"><Mk>{where}</Mk></div>
         <div className="font-yusei text-[44px]">{r.bossCleared ? 'ステージ クリア！' : r.set.kind === 'lesson' ? `「${r.set.char}」 れんしゅう できた！` : 'よく がんばった！'}</div>
+        {/* ボスに かったら、ボス（お父さん・お母さん）が ニッコリ */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {r.bossCleared && r.set.stage && <img src={`${BASE}/bosses/stage-${r.set.stage}-happy.png`} alt="" className="animate-poyon -my-2 h-[180px] w-[180px]" />}
         <div className="flex gap-2.5 text-[56px] leading-none text-gold">
           {[0, 1, 2].map((i) => <span key={i} className="animate-poyon" style={{ color: i < r.stars ? '#c48a12' : '#d9c49a', animationDelay: `${i * 0.15}s` }}>★</span>)}
         </div>

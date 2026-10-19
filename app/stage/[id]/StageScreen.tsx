@@ -86,8 +86,9 @@ export function StageScreen({ stage }: { stage: number }) {
               <Mk>{cleared ? 'クリア！ もう一回 ちょうせん できるよ' : unlocked ? 'ちょうせん できる！ 8わり せいかいで クリア' : `あと ${remaining}字 れんしゅう すると ちょうせん できる`}</Mk>
             </div>
           </div>
+          {/* たおしたら ニッコリ顔 */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${BASE}/bosses/stage-${stage}.png`} alt="" className="-my-4 h-[190px] w-[190px] flex-none" />
+          <img src={`${BASE}/bosses/stage-${stage}${cleared ? '-happy' : ''}.png`} alt="" className="-my-4 h-[190px] w-[190px] flex-none" />
         </div>
       </button>
 

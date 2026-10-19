@@ -138,12 +138,12 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
             if (n.kind === 'boss') {
               const cleared = bossCleared(n.stage);
               const size = bossSize(n.stage);
-              // まだ たおしていない ボスは 黒い シルエットに して、どんな ボスか わからなくする（先の ステージは うすく）
+              // まだ たおしていない ボスは 黒い シルエットに して、どんな ボスか わからなくする（先の ステージは うすく）。たおしたら ニッコリ顔
               const filter = cleared ? undefined : open ? 'brightness(0) opacity(.85)' : 'brightness(0) opacity(.45)';
               const body = (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`${BASE}/bosses/stage-${n.stage}.png`} alt="" style={{ width: size, height: size, filter }} />
+                  <img src={`${BASE}/bosses/stage-${n.stage}${cleared ? '-happy' : ''}.png`} alt="" style={{ width: size, height: size, filter }} />
                   <span className="-mt-1 rounded-md border-2 border-ink px-2 text-xs text-paper" style={{ background: cleared ? '#5a8a3a' : '#3a5a8a' }}>{cleared ? 'クリア' : 'ボス'}</span>
                   {n.i === here.i && <span className="mt-1 w-20 rounded-lg border-2 border-ink bg-primary text-center text-sm text-paper"><Mk>今ここ</Mk></span>}
                 </>

@@ -17,6 +17,12 @@ const SHEETS: Record<string, Job> = {
   'bosses-family-2': { by: 'components', o: { src: gen('bosses-family-2-sheet.jpg'), outFiles: [5, 6, 7, 8].map(boss), boundaries: [0.27, 0.51, 0.75], bgTol: 14 } },
   'bosses-family-3': { by: 'components', o: { src: gen('bosses-family-3-sheet.jpg'), outFiles: [9, 10, 11, 12].map(boss), boundaries: [0.255, 0.5, 0.75], bgTol: 14 } },
   'bosses-family-4': { by: 'components', o: { src: gen('bosses-family-4-sheet.jpg'), outFiles: [13, 14, 15, 16].map(boss), boundaries: [0.26, 0.48, 0.71], bgTol: 14 } },
+  // たおしたあとの ニッコリ顔（public/bosses/stage-<ステージ>-happy.png）。おこった 絵を もとに 顔だけ 描きかえたので、切り分け方は 同じ
+  ...Object.fromEntries(([[1, [0.25, 0.49, 0.735]], [2, [0.27, 0.51, 0.75]], [3, [0.255, 0.5, 0.75]], [4, [0.26, 0.48, 0.71]]] as const).map(([n, boundaries]): [string, Job] => [
+    `bosses-family-${n}-happy`,
+    { by: 'components', o: { src: gen(`bosses-family-${n}-happy-sheet.jpg`), outFiles: [1, 2, 3, 4].map((k) => pub(`bosses/stage-${(n - 1) * 4 + k}-happy.png`)), boundaries: [...boundaries], bgTol: 14 } },
+  ])),
+  'bosses-family-14-happy': { by: 'components', o: { src: gen('bosses-family-14-happy.jpg'), outFiles: [pub('bosses/stage-14-happy.png')], boundaries: [], bgTol: 14 } },
   // 14（お母さんの 月のうさぎ）は 上の 絵では 笑っていたので、1体だけ 描き直した 絵で 上書きする（上の ジョブより 後に 置く）
   'bosses-family-14': { by: 'components', o: { src: gen('bosses-family-14.jpg'), outFiles: [boss(14)], boundaries: [], bgTol: 14 } },
   // モードのアイコン（左から よみ・かき・かきじゅん・おくりがな）。矢印や飛行機の線は別のかたまりなので、かたまりごとに振り分ける
