@@ -143,7 +143,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
               const body = (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`${BASE}/bosses/stage-${n.stage}${cleared ? '-happy' : ''}.png`} alt="" style={{ width: size, height: size, filter }} />
+                  <img src={`${BASE}/bosses/stage-${n.stage}${cleared ? '-happy' : ''}.png`} alt="" className="max-w-none object-contain" style={{ width: size, height: size, filter }} />
                   <span className="-mt-1 rounded-md border-2 border-ink px-2 text-xs text-paper" style={{ background: cleared ? '#5a8a3a' : '#3a5a8a' }}>{cleared ? 'クリア' : 'ボス'}</span>
                   {n.i === here.i && <span className="mt-1 w-20 rounded-lg border-2 border-ink bg-primary text-center text-sm text-paper"><Mk>今ここ</Mk></span>}
                 </>
@@ -194,7 +194,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
             style={{ left: here.x, top: `max(2px, calc(${here.y}% - ${here.kind === 'boss' ? 164 + (bossSize(here.stage) - 72) / 2 : 136}px))` }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${BASE}/heroes/hero-${heroRank}.png`} alt="" draggable={false} className="h-[100px] w-[100px] select-none object-contain drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]" />
+            <img src={`${BASE}/heroes/hero-${heroRank}.png`} alt="" draggable={false} className="h-[100px] w-[100px] max-w-none select-none object-contain drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]" />
             <div className="-ml-4 animate-bob drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]">
               <PartnerAvatar id={partner} size={64} stage={partnerStage} mood={here.kind === 'boss' ? 'cheer' : undefined} />
             </div>
