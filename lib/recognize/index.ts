@@ -144,11 +144,103 @@ export const judgeKana = (strokes: Stroke[], expected: string) => judge(strokes,
 /** 漢字1字の判定 */
 export const judgeKanji = (strokes: Stroke[], expected: string) => judge(strokes, expected, KANJI_POOL);
 
+// ---- 5回れんしゅう：お手本の 画が ぜんぶ 書けているか ----
+// 形が にているだけだと、画が 1本 ぬけても 合格に なってしまう（「家」の 一 が ない など）。
+// 書いた字を お手本に 重ねて、お手本の 画 1本ずつ、近くに 書いた線が あるかを 見る。
+
+/** お手本の 画1本の 点から、書いた線までの 平均距離が これを こえたら「その画が ない」（tests/recognize.test.ts で確認） */
+const MISS_MAX = 0.08;
+/** 重ねるときに 変形してよい はんい（ぬけた画を ごまかさない ように、のばしすぎ・かたむけすぎない） */
+const ALIGN_SCALE: [number, number] = [0.75, 1.3];
+const ALIGN_SHEAR = 0.3;
+const ALIGN_ITER = 6;
+
+/** 3元 連立1次方程式（ガウスの 消去法）。とけないときは null */
+function solve3(m: number[][], v: number[]): number[] | null {
+  const a = m.map((r, i) => [...r, v[i]]);
+  for (let i = 0; i < 3; i++) {
+    let piv = i;
+    for (let k = i + 1; k < 3; k++) if (Math.abs(a[k][i]) > Math.abs(a[piv][i])) piv = k;
+    [a[i], a[piv]] = [a[piv], a[i]];
+    if (Math.abs(a[i][i]) < 1e-12) return null;
+    for (let k = 0; k < 3; k++) {
+      if (k === i) continue;
+      const f = a[k][i] / a[i][i];
+      for (let j = i; j < 4; j++) a[k][j] -= f * a[i][j];
+    }
+  }
+  return [a[0][3] / a[0][0], a[1][3] / a[1][1], a[2][3] / a[2][2]];
+}
+
+const nearest = (p: Pt, pts: Pt[]) => {
+  let best = pts[0], bd = Infinity;
+  for (const q of pts) {
+    const d = (p.x - q.x) ** 2 + (p.y - q.y) ** 2;
+    if (d < bd) { bd = d; best = q; }
+  }
+  return best;
+};
+
+/** 書いた字の かたむき・ゆがみを、お手本に 合わせる（いちばん近い点どうしを 対応させて アフィン変換を くり返す） */
+function alignTo(user: Stroke[], tpl: Pt[]): Stroke[] {
+  const lim = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+  const tplHalf = tpl.filter((_, i) => i % 2 === 0);
+  let cur = user;
+  for (let it = 0; it < ALIGN_ITER; it++) {
+    const flat = cur.flat();
+    const pairs: [Pt, Pt][] = [
+      ...flat.filter((_, i) => i % 2 === 0).map((p): [Pt, Pt] => [p, nearest(p, tpl)]),
+      ...tplHalf.map((q): [Pt, Pt] => [nearest(q, flat), q]),
+    ];
+    let sxx = 0, sxy = 0, syy = 0, sx = 0, sy = 0, xx = 0, xy = 0, x1 = 0, yx = 0, yy = 0, y1 = 0;
+    for (const [p, q] of pairs) {
+      sxx += p.x * p.x; sxy += p.x * p.y; syy += p.y * p.y; sx += p.x; sy += p.y;
+      xx += q.x * p.x; xy += q.x * p.y; x1 += q.x;
+      yx += q.y * p.x; yy += q.y * p.y; y1 += q.y;
+    }
+    const m = [[sxx, sxy, sx], [sxy, syy, sy], [sx, sy, pairs.length]];
+    const rx = solve3(m, [xx, xy, x1]), ry = solve3(m, [yx, yy, y1]);
+    // 点が 1か所に かたまっている（点だけ など）ときは 合わせない
+    if (!rx || !ry) break;
+    const [a0, b0, c] = rx, [d0, e0, f] = ry;
+    const a = lim(a0, ...ALIGN_SCALE), e = lim(e0, ...ALIGN_SCALE);
+    const b = lim(b0, -ALIGN_SHEAR, ALIGN_SHEAR), d = lim(d0, -ALIGN_SHEAR, ALIGN_SHEAR);
+    cur = cur.map((s) => s.map((p) => ({ x: a * p.x + b * p.y + c, y: d * p.x + e * p.y + f })));
+  }
+  return cur;
+}
+
+/** お手本の 画ごとに、書いた線までの 平均距離を 出し、いちばん 遠い（書けていない）画の 値を かえす */
+function worstStroke(strokes: Stroke[], expected: string): number {
+  const usable = strokes.filter((s) => s.length > 0);
+  const tpl = normalize(STROKES[expected].map(pathToPoints)).map(resample);
+  const user = alignTo(normalize(usable), tpl.flat()).flatMap(resample);
+  let worst = 0;
+  for (const st of tpl) {
+    let sum = 0;
+    for (const p of st) {
+      let best = Infinity;
+      for (const q of user) {
+        const d = Math.hypot(p.x - q.x, p.y - q.y);
+        if (d >= best) continue;
+        const v = d + DIR_W * (1 - Math.abs(p.dx * q.dx + p.dy * q.dy));
+        if (v < best) best = v;
+      }
+      sum += best;
+    }
+    worst = Math.max(worst, sum / st.length);
+  }
+  return worst;
+}
+
 /**
- * お手本を見て 写す 5回れんしゅう の判定。形が その字と みとめられ、画数も ほぼ足りていること
+ * お手本を見て 写す 5回れんしゅう の判定。形が その字と みとめられ、画数も ほぼ足りていて、
+ * お手本の 画が 1本も ぬけていないこと
  * （写して書くので、画数が 大きく足りないものは だめ。つなげて書く分は 1/4 まで ゆるす）
  */
 export function judgeCopy(strokes: Stroke[], expected: string) {
   const total = STROKES[expected]?.length ?? 0;
-  return strokes.length >= total - Math.ceil(total / 4) && judgeKanji(strokes, expected).ok;
+  return strokes.length >= total - Math.ceil(total / 4)
+    && judgeKanji(strokes, expected).ok
+    && worstStroke(strokes, expected) <= MISS_MAX;
 }

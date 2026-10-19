@@ -71,6 +71,17 @@ describe('5回れんしゅう の判定', () => {
     expect(ok / n).toBeGreaterThanOrEqual(0.85);
   });
 
+  it('お手本の 画が 1本 ぬけた字は できた に しない（「家」の 一 が ない など）', () => {
+    let passed = 0, n = 0;
+    KANJI_POOL.forEach((c, i) => {
+      const hand = fakeHand(c, i * 13 + 2, { mess: 0.6 });
+      if (i % 4 || hand.length < 4) return;
+      n++;
+      if (judgeCopy(hand.filter((_, j) => j !== (i * 7) % hand.length), c)) passed++;
+    });
+    expect(passed / n).toBeLessThanOrEqual(0.05);
+  });
+
   it('画が 大きく足りない字は できた に しない', () => {
     for (const c of ['雲', '曜', '親', '顔']) {
       const hand = fakeHand(c, 7, { mess: 0.5 });
