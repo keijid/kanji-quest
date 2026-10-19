@@ -21,6 +21,9 @@ const PAD = 90; // 左右の余白（px）
 const PER_STAGE = 11; // 10字＋ボス
 const STAGES_PER_AREA = 4;
 
+/** マップの ボスの 絵の 大きさ（px）。さいごの ボスは ひとまわり 大きい */
+const bossSize = (stage: number) => (stage === STAGE_COUNT ? 120 : 96);
+
 type Node = { i: number; stage: number; kind: 'kanji' | 'boss'; char?: string; x: number; y: number };
 
 /** 道の高さ（%）。ゆるやかに上下する */
@@ -132,11 +135,13 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
             const pos = { left: n.x, top: `${n.y}%` };
             if (n.kind === 'boss') {
               const cleared = bossCleared(n.stage);
-              const size = n.stage === STAGE_COUNT ? 96 : 72;
+              const size = bossSize(n.stage);
+              // まだ たおしていない ボスは 黒い シルエットに して、どんな ボスか わからなくする（先の ステージは うすく）
+              const filter = cleared ? undefined : open ? 'brightness(0) opacity(.85)' : 'brightness(0) opacity(.45)';
               const body = (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`${BASE}/bosses/stage-${n.stage}.png`} alt="" style={{ width: size, height: size, filter: open ? undefined : 'saturate(.6) opacity(.75)' }} />
+                  <img src={`${BASE}/bosses/stage-${n.stage}.png`} alt="" style={{ width: size, height: size, filter }} />
                   <span className="-mt-1 rounded-md border-2 border-ink px-2 text-xs text-paper" style={{ background: cleared ? '#5a8a3a' : '#3a5a8a' }}>{cleared ? 'クリア' : 'ボス'}</span>
                   {n.i === here.i && <span className="mt-1 w-20 rounded-lg border-2 border-ink bg-primary text-center text-sm text-paper"><Mk>今ここ</Mk></span>}
                 </>
@@ -184,7 +189,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
           {/* 相棒：いまここ の上に立つ（上が足りないときは上はしに合わせる） */}
           <div
             className="pointer-events-none absolute z-[1] -translate-x-1/2"
-            style={{ left: here.x, top: `max(2px, calc(${here.y}% - ${here.kind === 'boss' ? 128 : 100}px))` }}
+            style={{ left: here.x, top: `max(2px, calc(${here.y}% - ${here.kind === 'boss' ? 128 + (bossSize(here.stage) - 72) / 2 : 100}px))` }}
           >
             <div className="animate-bob drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]">
               <PartnerAvatar id={partner} size={64} stage={partnerStage} mood={here.kind === 'boss' ? 'cheer' : undefined} />
