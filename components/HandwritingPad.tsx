@@ -1,5 +1,5 @@
 'use client';
-// 手書きマス。Pointer Events（指・Apple Pencil）、touch-action:none、線幅はマス幅/28（最小6px）、devicePixelRatio 対応
+// 手書きマス。Pointer Events（指・Apple Pencil）、touch-action:none、線幅はマス幅/36（最小4.5px）、devicePixelRatio 対応
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import type { Stroke } from '@/lib/recognize';
 
@@ -36,7 +36,7 @@ export const HandwritingPad = forwardRef<PadHandle, Props>(function HandwritingP
     c.lineJoin = 'round';
     c.strokeStyle = '#3a2614';
     c.fillStyle = '#3a2614';
-    c.lineWidth = Math.max(6, r.width / 28);
+    c.lineWidth = Math.max(4.5, r.width / 36);
     for (const s of strokes.current) {
       if (s.length === 1) {
         c.beginPath();
