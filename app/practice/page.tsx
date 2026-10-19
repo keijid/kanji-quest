@@ -1,12 +1,12 @@
 'use client';
-// 07 5かい れんしゅう：書きじゅんの お手本（アニメ）を「見て写す」。なぞりはなし。
+// 07 書いて れんしゅう：書きじゅんの お手本（アニメ）を「見て写す」。なぞりはなし。
 // 1回ずつ 手書き判定する（字の形が お手本の字と みとめられ、画数も ほぼ足りているときだけ「できた」）
-// 1字ずつの練習では、おぼえよう → ここで5回 → その字の もんだい の じゅんに進む
+// 1字ずつの練習では、おぼえよう → ここで3回 → その字の もんだい の じゅんに進む。かん字ずかんからの ふくしゅうは 5回
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BackBtn, Btn, Card, Mk, Modal } from '@/components/ui';
 import { HandwritingPad, type PadHandle } from '@/components/HandwritingPad';
-import { useGame } from '@/lib/game';
+import { LESSON_TIMES, REVIEW_TIMES, useGame } from '@/lib/game';
 import { kanjiOf, kanjiReadingText } from '@/lib/data';
 import { StrokeSvg, KANJIVG_CREDIT } from '@/components/StrokeSvg';
 import { lessonSet } from '@/lib/quiz';
@@ -14,7 +14,6 @@ import { addXp, XP } from '@/lib/progress';
 import { sfx } from '@/lib/sfx';
 import { judgeCopy } from '@/lib/recognize';
 
-const TIMES = 5;
 
 export default function Practice() {
   const router = useRouter();
@@ -31,6 +30,7 @@ export default function Practice() {
   const pads = useRef<(PadHandle | null)[]>([]);
   const [play, setPlay] = useState(1);
 
+  const TIMES = practice?.then === 'lesson' ? LESSON_TIMES : REVIEW_TIMES;
   const total = practice ? kanjiOf(practice.chars[ci]).strokes : 0;
   // 書きじゅんアニメ（800ms/画で くり返す。さいごは 少し長めに止める）
   useEffect(() => {
@@ -91,10 +91,10 @@ export default function Practice() {
   const clear = () => { pads.current[done]?.clear(); setFilled(false); };
 
   return (
-    <div data-screen-label="07 5かいれんしゅう" className="flex flex-1 flex-col gap-4 px-[clamp(16px,2.4vw,28px)] pb-20 pt-4">
+    <div data-screen-label="07 かいて れんしゅう" className="flex flex-1 flex-col gap-4 px-[clamp(16px,2.4vw,28px)] pb-20 pt-4">
       <div className="flex items-center gap-[14px]">
         <BackBtn onClick={back} />
-        <div className="font-yusei text-2xl"><Mk>5回 れんしゅう</Mk></div>
+        <div className="font-yusei text-2xl"><Mk>{`${TIMES}回 れんしゅう`}</Mk></div>
         <div className="flex-1" />
         {/* 何字か まとめて 練習する ときだけ、いま 何字目かを 出す */}
         {chars.length > 1 && <div className="text-lg">{ci + 1} / {chars.length} <Mk>文字</Mk></div>}
@@ -114,7 +114,7 @@ export default function Practice() {
           <div className="text-xs text-frame">{KANJIVG_CREDIT}</div>
         </Card>
         <div className="flex flex-[1_1_460px] flex-col gap-[14px]">
-          <div className="grid grid-cols-5 gap-2.5">
+          <div className="grid gap-2.5" style={{ gridTemplateColumns: `repeat(${TIMES}, minmax(0, 1fr))` }}>
             {Array.from({ length: TIMES }, (_, j) => {
               const st = j < done ? 'done' : j === done ? 'here' : 'todo';
               const border = st === 'done' ? '#5a8a3a' : st === 'here' ? '#b8321f' : '#3a2614';
@@ -147,7 +147,7 @@ export default function Practice() {
         <Modal>
           <div className="font-yusei text-5xl text-success">できた！</div>
           <div className="font-klee text-[56px] leading-none">{chars.join('')}</div>
-          <div className="text-[17px] text-frame"><Mk>ぜんぶ 5回 書けたね</Mk> ＋{XP.practice * chars.length} けいけんち</div>
+          <div className="text-[17px] text-frame"><Mk>{`ぜんぶ ${TIMES}回 書けたね`}</Mk> ＋{XP.practice * chars.length} けいけんち</div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={next}>{toLesson ? 'もんだいへ' : 'もどる'}</Btn>
         </Modal>
       )}

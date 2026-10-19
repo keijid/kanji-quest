@@ -74,7 +74,7 @@ export default function Play() {
     const { newlyLearned } = await recordAnswers(logs, { addWeak: set.kind === 'boss' });
     let bossCleared = false;
     if (set.stage && set.kind !== 'boss' && set.kind !== 'review' && set.kind !== 'lesson') await saveStageStars(set.stage, set.kind, stars);
-    // 1字ずつの練習は、さいごまでやれば練習ずみ（まちがえた字は 5かい れんしゅう と ふくしゅう で身につける）
+    // 1字ずつの練習は、さいごまでやれば練習ずみ（まちがえた字は ふくしゅう で身につける）
     if (set.kind === 'lesson' && set.char) await markPracticed(set.char);
     if (set.stage && set.kind === 'boss' && stars >= 2) { await clearBoss(set.stage); bossCleared = true; }
     sfx(bossCleared ? 'stageClear' : 'finish');
@@ -114,7 +114,7 @@ export default function Play() {
           {/* せいかいの ときは 答えを出さない（自分で書いたので） */}
           {phase === 'reveal' && <AnswerView q={q} />}
           <div className="text-center text-[17px] text-frame">
-            {phase === 'reveal' ? <Mk>{set.kind === 'boss' ? 'にがての かん字に 入れたよ。後で 5回 書こう！' : '後で 5回 書いて おぼえよう！'}</Mk>
+            {phase === 'reveal' ? <Mk>{set.kind === 'boss' ? 'にがての かん字に 入れたよ。ふくしゅうで もう一回！' : '答えを よく 見て おぼえよう！'}</Mk>
               : outcome === 1 ? `ヒントで せいかい ＋${XP.hint} けいけんち` : `＋${XP.first} けいけんち`}
           </div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={next} disabled={saving}>

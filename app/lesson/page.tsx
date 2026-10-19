@@ -6,7 +6,7 @@ import { BackBtn, Btn, Card, Mk } from '@/components/ui';
 import { StrokeSvg, KANJIVG_CREDIT } from '@/components/StrokeSvg';
 import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
-import { useGame } from '@/lib/game';
+import { LESSON_TIMES, useGame } from '@/lib/game';
 import { kanjiOf, kanjiReadingText, STAGE_NAMES } from '@/lib/data';
 
 export default function Lesson() {
@@ -63,7 +63,7 @@ export default function Lesson() {
           </Card>
           <div className="flex items-center gap-3">
             <PartnerAvatar id={d.profile.partner} stage={d.evo.stage} mood="cheer" size={72} />
-            <div className="text-[17px] leading-relaxed"><Mk>書きじゅんを よく 見てから、5回 書いて みよう！ そのあと もんだいに ちょうせん！</Mk></div>
+            <div className="text-[17px] leading-relaxed"><Mk>{`書きじゅんを よく 見てから、${LESSON_TIMES}回 書いて みよう！ そのあと もんだいに ちょうせん！`}</Mk></div>
           </div>
           <Btn tone="red" shadow={5} className="min-h-[72px] font-yusei text-[28px]" onClick={() => { startPractice([char], '/lesson/', 'lesson'); router.push('/practice/'); }}>はじめる</Btn>
         </div>

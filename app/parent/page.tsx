@@ -131,7 +131,7 @@ export default function Parent() {
 
           <div className="flex flex-wrap gap-4">
             <div className={`${box} flex flex-[1_1_300px] flex-col gap-3`}>
-              <div className="text-[17px]">苦手な漢字（5回書き練習の対象）</div>
+              <div className="text-[17px]">苦手な漢字（ふくしゅうの対象）</div>
               <div className="flex flex-wrap gap-2">
                 {d.weak.length === 0 && <div className="text-[15px] text-frame">今は苦手な漢字はありません</div>}
                 {d.weak.map((c) => <div key={c} className="flex h-14 w-14 items-center justify-center rounded-[10px] border-2 border-primary bg-cell font-klee text-[32px]">{c}</div>)}
