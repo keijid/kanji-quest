@@ -1,0 +1,15 @@
+Create a character sheet of the SAME hero boy shown at SIX rank stages for a Japanese children's kanji-learning adventure app. The child plays as this boy, and he becomes a cooler and cooler hero as his rank goes up – like the hero of a classic Japanese fantasy RPG (Dragon Quest style), drawn with slightly taller, sporty, ACTION-HERO proportions (about 4 heads tall, not super-deformed). Boys aged 7-9 should think "WOW, so cool!". He is the SAME boy in every stage: about 10 years old, spiky blue-black hair, sharp determined eyes, fearless grin, same face in all six. Each stage shows a more dynamic pose and more impressive gear than the one before.
+
+1. Beginner traveler: a simple tunic with a blue scarf, a wooden sword, ready stance.
+2. Apprentice swordsman: leather armor, a bronze sword, a round shield, a fighting stance stepping forward.
+3. Kanji swordsman: silver armor and blue cape, swinging a steel sword with a white slash effect.
+4. Kanji knight: gold-trimmed armor, a winged helmet, a long red cape flowing, holding a longsword crackling with small lightning.
+5. Kanji sage-warrior: a magic swordsman in navy-and-gold armor, his sword glowing blue, magic circles and floating kanji-like light symbols (abstract shapes only, no real letters) around him, a dramatic jumping pose.
+6. Kanji master – the legendary hero: legendary gold-and-white armor, a crown-like helmet, a huge flowing gold cape, raising a giant shining legendary sword to the sky with a beam of light and a golden aura. Clearly the most splendid and powerful.
+
+Draw them in ONE horizontal row, left to right, full body, all about the same height, with WIDE empty white gaps between them so they do not touch or overlap. Do NOT write any labels or captions under them.
+
+BACKGROUND: pure flat white (#ffffff), completely plain – no ground, no shadows on the background, no texture, no border.
+
+STYLE: warm Japanese picture-book style for a children's kanji-learning adventure app (ages 7-9), matching the attached reference images: thick slightly hand-drawn dark brown outlines (#3a2614), flat warm colors with minimal soft shading, cute and friendly but cool and heroic, never scary. Palette: brick red #b8321f, leaf green #5a8a3a, gold #c48a12, navy blue #3a5a8a, cream #fbf0d4.
+Do NOT include any text, letters, kanji, numbers, logos or watermarks.
