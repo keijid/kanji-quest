@@ -1,0 +1,14 @@
+Create a character sheet of the SAME hero boy shown at SIX rank stages for a Japanese children's kanji-learning adventure app. The child plays as this boy, and his gear gets cooler and more heroic as his rank goes up – like the hero of a classic Japanese fantasy RPG (Dragon Quest style hero journey). Boys aged 7-9 should think "WOW, I want to become that!". He is the SAME boy in every stage: about 8 years old, spiky dark brown hair, big bright determined eyes, confident brave smile, same face and hair in all six. Each stage must look clearly stronger and more splendid than the one before.
+
+Draw them in ONE horizontal row, left to right, full body, standing in a brave heroic pose facing slightly to the right (front 3/4 view), all about the same height, with WIDE empty white gaps between them so they do not touch or overlap:
+1. Beginner traveler: simple cream cloth tunic, worn brown short cape, leather belt with a small pouch, simple boots, holding a plain wooden stick, a small travel backpack.
+2. Apprentice swordsman: brown leather armor over the tunic, a red headband, a small round wooden shield, holding a short bronze sword.
+3. Kanji swordsman: shiny silver iron armor with shoulder guards, a navy blue cape, holding a steel sword raised confidently, a sturdy iron shield.
+4. Kanji knight: gold-trimmed knight armor, a helmet with small white wings, a long red cape, a shield with a golden dragon crest, holding a fine longsword.
+5. Kanji sage-warrior: magic swordsman – armor layered with a navy blue mage robe with gold embroidery, a sword on his back, holding a glowing staff shaped like a giant calligraphy brush, a floating glowing spell book beside him.
+6. Kanji master – the legendary hero: brilliant gold-and-white legendary armor, a golden crown-like helmet, a flowing gold-and-navy cape, raising a shining legendary sword high, surrounded by a soft golden glowing aura and sparkles. Clearly the most splendid and powerful.
+
+BACKGROUND: pure flat white (#ffffff), completely plain – no ground, no shadows on the background, no texture, no border.
+
+STYLE: warm Japanese picture-book style for a children's kanji-learning adventure app (ages 7-9), matching the attached reference images: thick slightly hand-drawn dark brown outlines (#3a2614), flat warm colors with minimal soft shading, cute and friendly but cool and heroic, never scary. Palette: brick red #b8321f, leaf green #5a8a3a, gold #c48a12, navy blue #3a5a8a, cream #fbf0d4.
+Do NOT include any text, letters, kanji, numbers, logos or watermarks.

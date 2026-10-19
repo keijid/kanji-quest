@@ -1,17 +1,17 @@
-// Gemini API で画像を作る（キーは .env.local の GEMINI_API_KEY。画面には出さない）
+// Gemini API で画像を作る（キーは .env.local の GEMINI_API_KEY。画面には出さない。キーを 自動で つける プロキシ ごしなら なくてよい）
 // 使い方:
 //   npx tsx scripts/gen-image.ts --prompt-file prompts/x.txt --ref public/partners/fire-1.png --out assets/gen/x.png
 //   オプション: --model gemini-3.1-flash-image（既定） / --aspect 1:1（既定） / --size 1K|2K|4K（既定 1K） / --prompt "…"（ファイルの代わり）
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, extname, join } from 'node:path';
 
 const ROOT = join(__dirname, '..');
 
-function apiKey() {
-  const env = readFileSync(join(ROOT, '.env.local'), 'utf8');
-  const m = env.match(/^GEMINI_API_KEY=(.+)$/m);
-  if (!m) throw new Error('.env.local に GEMINI_API_KEY がない');
-  return m[1].trim();
+/** .env.local の キー。ない ときは null（キーを 自動で つける プロキシ ごしの 環境など） */
+function apiKey(): string | null {
+  if (!existsSync(join(ROOT, '.env.local'))) return null;
+  const m = readFileSync(join(ROOT, '.env.local'), 'utf8').match(/^GEMINI_API_KEY=(.+)$/m);
+  return m ? m[1].trim() : null;
 }
 
 function args() {
@@ -38,13 +38,14 @@ const MIME: Record<string, string> = { '.png': 'image/png', '.jpg': 'image/jpeg'
 
 async function main() {
   const o = args();
+  const key = apiKey();
   const parts: unknown[] = [
     ...o.refs.map((f) => ({ inlineData: { mimeType: MIME[extname(f).toLowerCase()] ?? 'image/png', data: readFileSync(f).toString('base64') } })),
     { text: o.prompt },
   ];
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${o.model}:generateContent`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey() },
+    headers: { 'content-type': 'application/json', ...(key ? { 'x-goog-api-key': key } : {}) },
     body: JSON.stringify({
       contents: [{ role: 'user', parts }],
       generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: o.aspect, imageSize: o.size } },
