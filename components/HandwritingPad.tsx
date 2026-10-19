@@ -60,6 +60,26 @@ export const HandwritingPad = forwardRef<PadHandle, Props>(function HandwritingP
     return () => { window.removeEventListener('blur', reset); document.removeEventListener('visibilitychange', onVis); };
   }, []);
 
+  // ペンの 動きは 1秒に 何百回も くるので、かきなおしは 画面の 更新 1回に 1度に まとめる
+  const frame = useRef(0);
+  const scheduleRedraw = useCallback(() => {
+    if (frame.current) return;
+    frame.current = requestAnimationFrame(() => { frame.current = 0; redraw(); });
+  }, [redraw]);
+  useEffect(() => () => cancelAnimationFrame(frame.current), []);
+
+  // iPad の Safari は touch-action:none でも、Apple Pencil の 線を スクリブル（手書き入力）や ジェスチャーに
+  // 横取りして とちゅうで pointercancel に することが ある。タッチ自体を 止めて、さいごまで マスに 書けるように する
+  // （React の onTouchStart は passive なので preventDefault が きかない）
+  useEffect(() => {
+    const el = canvas.current;
+    if (!el) return;
+    const stop = (e: TouchEvent) => { if (e.cancelable) e.preventDefault(); };
+    el.addEventListener('touchstart', stop, { passive: false });
+    el.addEventListener('touchmove', stop, { passive: false });
+    return () => { el.removeEventListener('touchstart', stop); el.removeEventListener('touchmove', stop); };
+  }, []);
+
   useEffect(() => {
     redraw();
     const ro = new ResizeObserver(() => {
@@ -110,11 +130,12 @@ export const HandwritingPad = forwardRef<PadHandle, Props>(function HandwritingP
           const r = canvas.current!.getBoundingClientRect();
           const s = strokes.current[strokes.current.length - 1];
           for (const ev of events) s.push({ x: ev.clientX - r.left, y: ev.clientY - r.top });
-          redraw();
+          scheduleRedraw();
         }}
         onPointerUp={(e) => {
           if (drawing.current?.id !== e.pointerId) return;
           drawing.current = null;
+          redraw();
           onChange?.(false);
         }}
         onPointerCancel={(e) => {
