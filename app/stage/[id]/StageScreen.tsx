@@ -1,25 +1,16 @@
 'use client';
-// 03 ステージ：10字を1字ずつ順番に練習 → 全部おわったらボスせん。下に「まとめて れんしゅう」（モード別・じゆう）
+// 03 ステージ：10字を1字ずつ順番に練習 → 全部おわったらボスせん
 import { useRouter } from 'next/navigation';
-import { BackBtn, Card, Mk, Screen, Stars } from '@/components/ui';
+import { BackBtn, Card, Mk, Screen } from '@/components/ui';
 import { useAppData } from '@/lib/hooks';
 import { STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
-import { MODES, type Mode } from '@/lib/db';
 import { bossUnlocked } from '@/lib/progress';
-import { bossSet, stageSet } from '@/lib/quiz';
+import { bossSet } from '@/lib/quiz';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
-
-// アイコンは public/modes/<モード>.png（Gemini で作った絵を scripts/cut-sheets.ts で切り出し）
-const MODE_CARDS: Record<Mode, { title: string; desc: string }> = {
-  read: { title: '読み', desc: 'かん字の 読み方を ひらがなで 書こう' },
-  write: { title: '書き', desc: 'ひらがなを かん字で 書こう' },
-  stroke: { title: '書きじゅん・画数', desc: '何番目に 書く？ ぜんぶで 何画？' },
-  okuri: { title: 'おくりがな', desc: 'かん字の 後に つづく ひらがな' },
-};
 
 export function StageScreen({ stage }: { stage: number }) {
   const d = useAppData();
@@ -35,13 +26,12 @@ export function StageScreen({ stage }: { stage: number }) {
   const remaining = chars.filter((c) => !d.practicedSet.has(c)).length;
   const unlocked = open && bossUnlocked(stage, d.practicedSet);
   const cleared = d.bossCleared(stage);
-  const stars = d.stageStars(stage);
   const bossCount = bossSet(stage).questions.length;
 
   const lesson = (c: string) => { sfx('tap'); startLesson(c); router.push('/lesson/'); };
-  const go = (mode: Mode | 'boss') => {
+  const boss = () => {
     sfx('tap');
-    startSet(mode === 'boss' ? bossSet(stage) : stageSet(stage, mode));
+    startSet(bossSet(stage));
     router.push('/play/');
   };
 
@@ -86,7 +76,7 @@ export function StageScreen({ stage }: { stage: number }) {
         </div>
       </Card>
 
-      <button className={`${cardCls} min-h-[120px] bg-boss text-paper disabled:cursor-default disabled:opacity-80`} onClick={() => go('boss')} disabled={!unlocked}>
+      <button className={`${cardCls} min-h-[120px] bg-boss text-paper disabled:cursor-default disabled:opacity-80`} onClick={boss} disabled={!unlocked}>
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex flex-col gap-1">
             <div className="font-yusei text-[28px]">ボスせん</div>
@@ -101,28 +91,6 @@ export function StageScreen({ stage }: { stage: number }) {
         </div>
       </button>
 
-      {open && (
-        <div className="flex flex-col gap-2.5">
-          <div className="text-base text-frame"><Mk>まとめて れんしゅう（すきな 時に）</Mk></div>
-          <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))' }}>
-            {MODES.map((m) => {
-              const c = MODE_CARDS[m];
-              return (
-                <button key={m} className={`${cardCls} min-h-[110px] bg-card text-ink`} onClick={() => go(m)}>
-                  <div className="flex w-full items-center justify-between gap-2">
-                    <div className="font-yusei text-[22px]"><Mk>{c.title}</Mk></div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`${BASE}/modes/${m}.png`} alt="" className="-my-2 h-12 w-12 flex-none" />
-                  </div>
-                  <div className="text-[14px] opacity-90"><Mk>{c.desc}</Mk></div>
-                  <div className="flex-1" />
-                  <Stars n={stars[m]} size={18} />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
       <LevelUp />
     </Screen>
   );
