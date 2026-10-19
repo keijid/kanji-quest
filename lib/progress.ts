@@ -15,16 +15,17 @@ export function levelOf(xp: number) {
   while (xpForLevel(n + 1) <= xp) n++;
   return n;
 }
+// 竜の 力を うけつぐ 勇者の 出世（段階ごとに 勇者の 絵が かわる）
 const TITLES: [number, string][] = [
-  [1, 'かけだし たびびと'],
-  [6, '{見習:みなら}いけんし'],
-  [15, 'かん字 けんし'],
-  [25, 'かん字 きし'],
-  [35, 'かん字 はかせ'],
-  [50, 'かん字 マスター'],
+  [1, 'かけだし ゆうしゃ'],
+  [6, 'りゅうの みならい'],
+  [15, 'りゅうの けんし'],
+  [25, 'ドラゴン ナイト'],
+  [35, 'ほのおの まけんし'],
+  [50, 'でんせつの ドラゴンゆうしゃ'],
 ];
 export const titleOf = (level: number) => [...TITLES].reverse().find(([l]) => level >= l)![1];
-/** 称号の段階 1〜6（バッジの絵 public/badges/badge-<段階>.png） */
+/** 称号の段階 1〜6（勇者の絵 public/heroes/hero-<段階>.png・顔 face-<段階>.png） */
 export const titleRank = (level: number) => TITLES.filter(([l]) => level >= l).length;
 
 // ---- 星 ----

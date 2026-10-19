@@ -1,5 +1,5 @@
 // Gemini で作った絵（横に並んだもの）を切り分けて public/ に置く
-// 使い方: npx tsx scripts/cut-sheets.ts [bosses|modes|badges]
+// 使い方: npx tsx scripts/cut-sheets.ts [bosses|modes|heroes]
 import { join } from 'node:path';
 import { cutByComponents, cutSheet, type ComponentCutOptions, type CutOptions } from './lib/sheet';
 
@@ -19,8 +19,8 @@ const SHEETS: Record<string, Job> = {
   'bosses-c': { by: 'components', o: { src: gen('bosses-c-sheet.jpg'), outFiles: [11, 13, 14, 15].map(boss), boundaries: [0.26, 0.5125, 0.7575], bgTol: 14 } },
   // モードのアイコン（左から よみ・かき・かきじゅん・おくりがな）。矢印や飛行機の線は別のかたまりなので、かたまりごとに振り分ける
   modes: { by: 'components', o: { src: gen('modes-sheet.jpg'), outFiles: ['read', 'write', 'stroke', 'okuri'].map((m) => pub(`modes/${m}.png`)), boundaries: [0.27, 0.496, 0.734], bgTol: 14, size: 192 } },
-  // 称号のバッジ（左から かけだし たびびと → かんじ マスター）。下に勝手に付いた英語の文字は捨てる
-  badges: { by: 'components', o: { src: gen('badges-sheet.jpg'), outFiles: [1, 2, 3, 4, 5, 6].map((n) => pub(`badges/badge-${n}.png`)), boundaries: [0.17, 0.321, 0.481, 0.6475, 0.81], bgTol: 14, maxCenterY: 0.69, size: 192 } },
+  // 勇者（自分の分身）：称号の 段階ごとに 1まい（public/heroes/hero-<段階>.png、左から かけだし → マスター）。下に 勝手に 付いた 英語の 文字は 捨てる
+  heroes: { by: 'components', o: { src: gen('heroes-c-sheet.jpg'), outFiles: [1, 2, 3, 4, 5, 6].map((n) => pub(`heroes/hero-${n}.png`)), boundaries: [0.15, 0.305, 0.468, 0.632, 0.79], bgTol: 14, maxCenterY: 0.9, size: 384 } },
   // 相棒の表情（よろこぶ・はげます・おどろく）。5段階を横に並べた絵から public/partners/<相棒>-<段階>-<表情>.png
   ...Object.fromEntries((['fire', 'wood', 'light'] as const).flatMap((id) => (['happy', 'cheer', 'surprised'] as const).map((m): [string, Job] => [
     `${id}-${m}`,

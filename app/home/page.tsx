@@ -45,7 +45,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-1.5 rounded-[10px] border-2 border-ink bg-card py-1 pl-2 pr-3.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${BASE}/badges/badge-${d.titleRank}.png`} alt="" className="-my-1 h-8 w-8" />
+            <img src={`${BASE}/heroes/face-${d.titleRank}.png`} alt="" className="-my-2 h-11 w-11" />
             <span>Lv.{d.level} <Mk>{d.title}</Mk></span>
           </div>
           <Link href="/parent/" onClick={() => sfx('tap')} className="flex min-h-11 items-center rounded-[10px] border-2 border-ink bg-card px-3 py-1.5 text-sm text-ink no-underline">

@@ -39,8 +39,11 @@ export function LevelUp({ blocked = false }: { blocked?: boolean }) {
       {newTitle ? (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${BASE}/badges/badge-${titleRank(level)}.png`} alt="" className="animate-poyon h-28 w-28" />
-          <div className="text-center text-lg"><Mk>{`あたらしい しょうごう「${titleOf(level)}」を もらったよ！`}</Mk></div>
+          <img src={`${BASE}/heroes/hero-${titleRank(level)}.png`} alt="" className="animate-poyon h-44 w-44" />
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-lg">あたらしい しょうごう</div>
+            <div className="text-center font-yusei text-[30px] text-primary"><Mk>{titleOf(level)}</Mk></div>
+          </div>
         </>
       ) : (
         <>
