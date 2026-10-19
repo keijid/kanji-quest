@@ -96,7 +96,8 @@ export default function Practice() {
         <BackBtn onClick={back} />
         <div className="font-yusei text-2xl"><Mk>5回 れんしゅう</Mk></div>
         <div className="flex-1" />
-        <div className="text-lg">{ci + 1} / {chars.length} <Mk>文字</Mk></div>
+        {/* 何字か まとめて 練習する ときだけ、いま 何字目かを 出す */}
+        {chars.length > 1 && <div className="text-lg">{ci + 1} / {chars.length} <Mk>文字</Mk></div>}
       </div>
       <div className="flex flex-1 flex-wrap items-center gap-5">
         <Card className="mx-auto flex flex-[0_1_300px] flex-col items-center gap-2.5 rounded-[20px] p-[18px]">
