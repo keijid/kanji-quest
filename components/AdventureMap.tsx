@@ -53,9 +53,11 @@ type Props = {
   /** いまここ に立つ相棒 */
   partner: PartnerId;
   partnerStage: number;
+  /** 称号の 段階（勇者の 絵 public/heroes/hero-<段階>.png） */
+  heroRank: number;
 };
 
-export function AdventureMap({ current, practiced, bossCleared, partner, partnerStage }: Props) {
+export function AdventureMap({ current, practiced, bossCleared, partner, partnerStage, heroRank }: Props) {
   const router = useRouter();
   const startLesson = useGame((s) => s.startLesson);
   const nodes = useMemo(buildNodes, []);
@@ -186,12 +188,14 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
             );
           })}
 
-          {/* 相棒：いまここ の上に立つ（上が足りないときは上はしに合わせる） */}
+          {/* 勇者と 相棒：いまここ の上に ならんで立つ（上が足りないときは上はしに合わせる） */}
           <div
-            className="pointer-events-none absolute z-[1] -translate-x-1/2"
-            style={{ left: here.x, top: `max(2px, calc(${here.y}% - ${here.kind === 'boss' ? 128 + (bossSize(here.stage) - 72) / 2 : 100}px))` }}
+            className="pointer-events-none absolute z-[1] flex -translate-x-1/2 items-end"
+            style={{ left: here.x, top: `max(2px, calc(${here.y}% - ${here.kind === 'boss' ? 140 + (bossSize(here.stage) - 72) / 2 : 112}px))` }}
           >
-            <div className="animate-bob drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${BASE}/heroes/hero-${heroRank}.png`} alt="" draggable={false} className="h-[76px] w-[76px] select-none object-contain drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]" />
+            <div className="-ml-3 animate-bob drop-shadow-[2px_3px_0_rgba(58,38,20,.35)]">
               <PartnerAvatar id={partner} size={64} stage={partnerStage} mood={here.kind === 'boss' ? 'cheer' : undefined} />
             </div>
           </div>
