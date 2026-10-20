@@ -141,8 +141,9 @@ export const kanaBase = (c: string) => SMALL[c] ?? c;
 
 /** ひらがなは 漢字より 少し ゆるめに（にた字（あ・お など）を とりちがえない はんいで） */
 const KANA_THRESH: typeof THRESH = { absMax: 0.14, rank: 8, margin: 0.5 };
-/** ひらがな1字の判定 */
-export const judgeKana = (strokes: Stroke[], expected: string) => judge(strokes, kanaBase(expected), KANA_POOL, KANA_THRESH);
+/** ひらがな1字の判定。loose なら もっと ゆるめに（長い 答えで 1字だけ 落ちた ときの 見直し用） */
+const KANA_LOOSE: typeof THRESH = { absMax: 0.16, rank: 12, margin: 0.8 };
+export const judgeKana = (strokes: Stroke[], expected: string, loose = false) => judge(strokes, kanaBase(expected), KANA_POOL, loose ? KANA_LOOSE : KANA_THRESH);
 /** 漢字1字の判定 */
 export const judgeKanji = (strokes: Stroke[], expected: string) => judge(strokes, expected, KANJI_POOL);
 

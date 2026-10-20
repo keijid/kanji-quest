@@ -49,10 +49,11 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
     setBusy(true);
     // 判定は少し重いので、ボタンの見た目が変わってから行う
     setTimeout(() => {
-      const bad = expected.flatMap((e, j) => {
-        const s = pads.current[j]?.strokes() ?? [];
-        return (e.kanji ? judgeKanji(s, e.ch) : judgeKana(s, e.ch)).ok ? [] : [j];
-      });
+      const strokesOf = (j: number) => pads.current[j]?.strokes() ?? [];
+      let bad = expected.flatMap((e, j) => ((e.kanji ? judgeKanji(strokesOf(j), e.ch) : judgeKana(strokesOf(j), e.ch)).ok ? [] : [j]));
+      // 3文字以上の 読みは、1文字ずつ 合っていても ぜんぶ そろう のが むずかしい（6文字なら 1字 97% でも 83%）。
+      // ほかが ぜんぶ 合っていて 1文字だけ 落ちたら、その字は ゆるめに 見直す
+      if (q.kind === 'read' && expected.length >= 3 && bad.length === 1 && judgeKana(strokesOf(bad[0]), expected[bad[0]].ch, true).ok) bad = [];
       setBusy(false);
       // 合っていた マスは のこし、ちがう マスだけ 消して 赤くする
       bad.forEach((j) => pads.current[j]?.clear());
