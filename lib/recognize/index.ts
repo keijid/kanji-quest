@@ -110,7 +110,7 @@ const coarse = (sh: Shape): Shape => ({ pts: sh.pts.filter((_, i) => i % 3 === 0
  * 甘めに：1位でなくても、上位で1位との差が小さければ正解。
  * ただし「画数がぴったり合う別の字」のほうが近いとき（二と三、日と田 など）は不正解。
  */
-export function judge(strokes: Stroke[], expected: string, pool: readonly string[]): Judge {
+export function judge(strokes: Stroke[], expected: string, pool: readonly string[], th: typeof THRESH = THRESH): Judge {
   const usable = strokes.filter((s) => s.length > 0);
   if (!usable.length) return { ok: false, rank: Infinity, score: Infinity, best: '', bestScore: Infinity };
   const user = toShape(usable);
@@ -127,7 +127,7 @@ export function judge(strokes: Stroke[], expected: string, pool: readonly string
   const best = scored[0];
   const exp = templateOf(expected);
   const confusable = best.c !== expected && templateOf(best.c).strokes === user.strokes && exp.strokes !== user.strokes;
-  const ok = score <= THRESH.absMax && !confusable && (rank === 0 || (rank < THRESH.rank && score <= best.s * (1 + THRESH.margin)));
+  const ok = score <= th.absMax && !confusable && (rank === 0 || (rank < th.rank && score <= best.s * (1 + th.margin)));
   return { ok, rank, score, best: best.c, bestScore: best.s };
 }
 
@@ -149,7 +149,9 @@ export const judgeKanji = (strokes: Stroke[], expected: string) => judge(strokes
 // 書いた字を お手本に 重ねて、お手本の 画 1本ずつ、近くに 書いた線が あるかを 見る。
 
 /** お手本の 画1本の 点から、書いた線までの 平均距離が これを こえたら「その画が ない」（tests/recognize.test.ts で確認） */
-const MISS_MAX = 0.08;
+const MISS_MAX = 0.10;
+/** 写して 書く ときの 形の 判定は、問題（THRESH）より ゆるめに（お手本を 見ながら ていねいに 書くので、ちがう字には まず ならない） */
+const COPY_THRESH: typeof THRESH = { absMax: 0.14, rank: 12, margin: 0.5 };
 /** 重ねるときに 変形してよい はんい（ぬけた画を ごまかさない ように、のばしすぎ・かたむけすぎない） */
 const ALIGN_SCALE: [number, number] = [0.75, 1.3];
 const ALIGN_SHEAR = 0.3;
@@ -241,6 +243,6 @@ function worstStroke(strokes: Stroke[], expected: string): number {
 export function judgeCopy(strokes: Stroke[], expected: string) {
   const total = STROKES[expected]?.length ?? 0;
   return strokes.length >= total - Math.ceil(total / 4)
-    && judgeKanji(strokes, expected).ok
+    && judge(strokes, expected, KANJI_POOL, COPY_THRESH).ok
     && worstStroke(strokes, expected) <= MISS_MAX;
 }
