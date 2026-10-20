@@ -139,8 +139,10 @@ const SMALL: Record<string, string> = { ぁ: 'あ', ぃ: 'い', ぅ: 'う', ぇ:
 export const KANA_POOL: readonly string[] = Object.keys(STROKES).filter((c) => /[ぁ-ゖー]/.test(c) && !SMALL[c]);
 export const kanaBase = (c: string) => SMALL[c] ?? c;
 
+/** ひらがなは 漢字より 少し ゆるめに（にた字（あ・お など）を とりちがえない はんいで） */
+const KANA_THRESH: typeof THRESH = { absMax: 0.14, rank: 8, margin: 0.5 };
 /** ひらがな1字の判定 */
-export const judgeKana = (strokes: Stroke[], expected: string) => judge(strokes, kanaBase(expected), KANA_POOL);
+export const judgeKana = (strokes: Stroke[], expected: string) => judge(strokes, kanaBase(expected), KANA_POOL, KANA_THRESH);
 /** 漢字1字の判定 */
 export const judgeKanji = (strokes: Stroke[], expected: string) => judge(strokes, expected, KANJI_POOL);
 
@@ -215,13 +217,12 @@ function alignTo(user: Stroke[], tpl: Pt[]): Stroke[] {
   return cur;
 }
 
-/** お手本の 画ごとに、書いた線までの 平均距離を 出し、いちばん 遠い（書けていない）画の 値を かえす */
-function worstStroke(strokes: Stroke[], expected: string): number {
+/** お手本の 画ごとに、書いた線までの 平均距離を かえす（大きい 画ほど 書けていない） */
+function strokeGaps(strokes: Stroke[], expected: string): number[] {
   const usable = strokes.filter((s) => s.length > 0);
   const tpl = normalize(STROKES[expected].map(pathToPoints)).map(resample);
   const user = alignTo(normalize(usable), tpl.flat()).flatMap(resample);
-  let worst = 0;
-  for (const st of tpl) {
+  return tpl.map((st) => {
     let sum = 0;
     for (const p of st) {
       let best = Infinity;
@@ -233,19 +234,32 @@ function worstStroke(strokes: Stroke[], expected: string): number {
       }
       sum += best;
     }
-    worst = Math.max(worst, sum / st.length);
-  }
-  return worst;
+    return sum / st.length;
+  });
 }
 
+export type CopyResult = {
+  ok: boolean;
+  /** 書けていない（近くに 線が ない）お手本の 画（0始まり） */
+  missing: number[];
+  /** だめだった わけ：画数が 足りない・画が ぬけている・形が ちがう */
+  reason?: 'few' | 'missing' | 'shape';
+};
+
 /**
- * お手本を見て 写す 5回れんしゅう の判定。形が その字と みとめられ、画数も ほぼ足りていて、
+ * お手本を見て 写す れんしゅう の判定。形が その字と みとめられ、画数も ほぼ足りていて、
  * お手本の 画が 1本も ぬけていないこと
  * （写して書くので、画数が 大きく足りないものは だめ。つなげて書く分は 1/4 まで ゆるす）
  */
-export function judgeCopy(strokes: Stroke[], expected: string) {
+export function checkCopy(strokes: Stroke[], expected: string): CopyResult {
   const total = STROKES[expected]?.length ?? 0;
-  return strokes.length >= total - Math.ceil(total / 4)
-    && judge(strokes, expected, KANJI_POOL, COPY_THRESH).ok
-    && worstStroke(strokes, expected) <= MISS_MAX;
+  const usable = strokes.filter((s) => s.length > 0);
+  if (!usable.length) return { ok: false, missing: [], reason: 'few' };
+  const missing = strokeGaps(usable, expected).flatMap((g, i) => (g > MISS_MAX ? [i] : []));
+  if (usable.length < total - Math.ceil(total / 4)) return { ok: false, missing, reason: 'few' };
+  if (missing.length) return { ok: false, missing, reason: 'missing' };
+  if (!judge(usable, expected, KANJI_POOL, COPY_THRESH).ok) return { ok: false, missing, reason: 'shape' };
+  return { ok: true, missing };
 }
+
+export const judgeCopy = (strokes: Stroke[], expected: string) => checkCopy(strokes, expected).ok;

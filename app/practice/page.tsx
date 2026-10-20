@@ -12,7 +12,7 @@ import { StrokeSvg, KANJIVG_CREDIT } from '@/components/StrokeSvg';
 import { lessonSet } from '@/lib/quiz';
 import { addXp, XP } from '@/lib/progress';
 import { sfx } from '@/lib/sfx';
-import { judgeCopy } from '@/lib/recognize';
+import { checkCopy, type CopyResult } from '@/lib/recognize';
 
 
 export default function Practice() {
@@ -25,8 +25,8 @@ export default function Practice() {
   const [filled, setFilled] = useState(false);
   const [finished, setFinished] = useState(false);
   const [busy, setBusy] = useState(false);
-  /** いま書いたものが お手本と ちがったとき */
-  const [retry, setRetry] = useState(false);
+  /** いま書いたものが お手本と ちがったとき：どこが だめだったか */
+  const [retry, setRetry] = useState<CopyResult | null>(null);
   const pads = useRef<(PadHandle | null)[]>([]);
   const [play, setPlay] = useState(1);
 
@@ -65,15 +65,15 @@ export default function Practice() {
     setBusy(true);
     // 判定は少し重いので、ボタンの見た目が変わってから行う
     await new Promise((r) => setTimeout(r, 30));
-    const ok = judgeCopy(s, k.char);
+    const res = checkCopy(s, k.char);
     setBusy(false);
-    if (!ok) {
+    if (!res.ok) {
       sfx('hint');
-      setRetry(true);
+      setRetry(res);
       clear();
       return;
     }
-    setRetry(false);
+    setRetry(null);
     sfx('correct');
     setFilled(false);
     if (done + 1 < TIMES) { setDone(done + 1); return; }
@@ -104,10 +104,13 @@ export default function Practice() {
           <div className="text-base text-frame"><Mk>お手本（書きじゅん）</Mk></div>
           <div className="relative h-[220px] w-[220px] rounded-xl border-[3px] border-ink bg-cell p-3">
             <div className="cell-guide" style={{ ['--g' as string]: 'rgba(184,50,31,.18)' }} />
-            <StrokeSvg char={k.char} play={play > total ? 0 : play} />
+            {/* 画が ぬけていたら、アニメを 止めて その画を 赤く 光らせる */}
+            {retry?.reason === 'missing'
+              ? <StrokeSvg char={k.char} marks={retry.missing} className="animate-pulse" />
+              : <StrokeSvg char={k.char} play={play > total ? 0 : play} />}
           </div>
           <div className="text-base">
-            {play > total ? <>ぜんぶで <b className="text-primary">{total}</b> <Mk>画</Mk></> : <><Mk>今</Mk> <b className="text-primary">{Math.min(play, total)}</b> <Mk>画目</Mk></>}
+            {retry?.reason === 'missing' ? <span className="text-primary"><Mk>赤い 画が ないみたい</Mk></span> : play > total ? <>ぜんぶで <b className="text-primary">{total}</b> <Mk>画</Mk></> : <><Mk>今</Mk> <b className="text-primary">{Math.min(play, total)}</b> <Mk>画目</Mk></>}
           </div>
           <div className="text-base">{rd.on} ／ {rd.kun}</div>
           <div className="text-[15px] text-frame">{k.strokes}<Mk>画</Mk> ・ <Mk>{k.words.slice(0, 2).join('、')}</Mk></div>
@@ -134,7 +137,9 @@ export default function Practice() {
           </div>
           {retry && (
             <div className="animate-pop-in rounded-[14px] border-2 border-dashed border-gold bg-hint px-4 py-2.5 text-[17px]">
-              <Mk>{`おしい！ お手本の 書きじゅんを よく 見て、もう一回 書こう（${k.strokes}画）`}</Mk>
+              <Mk>{retry.reason === 'missing' ? 'おしい！ お手本の 赤い 画が 書けて いないみたい。そこに 気をつけて もう一回 書こう'
+                : retry.reason === 'few' ? `おしい！ 画が 足りないみたい。ぜんぶで ${k.strokes}画 あるよ。もう一回 書こう`
+                  : 'おしい！ かたちを お手本に よせて、もう一回 書こう'}</Mk>
             </div>
           )}
           <div className="flex gap-3">

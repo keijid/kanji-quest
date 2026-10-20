@@ -23,6 +23,8 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
   const pads = useRef<(PadHandle | null)[]>([]);
   const [filled, setFilled] = useState(false);
   const [busy, setBusy] = useState(false);
+  /** 答え合わせで ちがうと 出た マス（赤くして、そこだけ 書き直してもらう） */
+  const [wrong, setWrong] = useState<number[]>([]);
 
   // マスの中身：よみ＝答えのひらがな1字ずつ、かき＝漢字1字、おくりがな＝漢字＋おくりがな1字ずつ
   const expected: { ch: string; kanji: boolean }[] =
@@ -30,20 +32,33 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
       : q.kind === 'write' ? [{ ch: q.char, kanji: true }]
         : [{ ch: q.char, kanji: true }, ...[...q.okuri].map((ch) => ({ ch, kanji: false }))];
 
-  const onChange = () => setFilled(pads.current.some((p) => p && !p.isEmpty()));
-  const clear = () => { pads.current.forEach((p) => p?.clear()); setFilled(false); };
+  // ちがうと 出た マスが あるときは、その マスを ぜんぶ 書き直したら 答え合わせ できる
+  const updateFilled = (w: number[]) => setFilled(w.length
+    ? w.every((j) => pads.current[j] && !pads.current[j]!.isEmpty())
+    : pads.current.some((p) => p && !p.isEmpty()));
+  // 書くたびに 描き直して、書き直した 赤い マスの 色を もどす
+  const [, setTick] = useState(0);
+  const onChange = () => { updateFilled(wrong); setTick((t) => t + 1); };
+  const clear = () => { pads.current.forEach((p) => p?.clear()); setWrong([]); setFilled(false); };
+  /** まだ 書き直していない 赤い マス */
+  const isRed = (j: number) => wrong.includes(j) && (pads.current[j]?.isEmpty() ?? true);
+  /** 赤い マスと ふつうの マスの わく */
+  const frame = (j: number, normal: string) => (isRed(j) ? 'border-primary shadow-[0_0_0_4px_rgba(184,50,31,.25)]' : normal);
 
   const check = () => {
     setBusy(true);
     // 判定は少し重いので、ボタンの見た目が変わってから行う
     setTimeout(() => {
-      const ok = expected.every((e, j) => {
+      const bad = expected.flatMap((e, j) => {
         const s = pads.current[j]?.strokes() ?? [];
-        return (e.kanji ? judgeKanji(s, e.ch) : judgeKana(s, e.ch)).ok;
+        return (e.kanji ? judgeKanji(s, e.ch) : judgeKana(s, e.ch)).ok ? [] : [j];
       });
       setBusy(false);
-      if (!ok) clear();
-      onAnswer(ok);
+      // 合っていた マスは のこし、ちがう マスだけ 消して 赤くする
+      bad.forEach((j) => pads.current[j]?.clear());
+      setWrong(bad);
+      updateFilled(bad);
+      onAnswer(bad.length === 0);
     }, 30);
   };
 
@@ -66,20 +81,20 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
                 key={j}
                 ref={(h) => { pads.current[j] = h; }}
                 onChange={onChange}
-                className="aspect-square rounded-xl border-[3px] border-ink bg-cell"
+                className={`aspect-square rounded-xl border-[3px] bg-cell ${frame(j, 'border-ink')}`}
                 style={{ flex: `0 1 calc((100% - ${10 * (cols - 1)}px) / ${cols})` }}
               />
             ))}
           </div>
         )}
         {q.kind === 'write' && (
-          <HandwritingPad ref={(h) => { pads.current[0] = h; }} onChange={onChange} className="aspect-square w-[min(100%,440px)] rounded-2xl border-4 border-ink bg-cell" />
+          <HandwritingPad ref={(h) => { pads.current[0] = h; }} onChange={onChange} className={`aspect-square w-[min(100%,440px)] rounded-2xl border-4 bg-cell ${frame(0, 'border-ink')}`} />
         )}
         {q.kind === 'okuri' && (
           <div className="flex w-[min(100%,460px)] items-end gap-3">
             <div className="flex flex-[2] flex-col items-center gap-1.5">
               <div className="text-[15px] text-frame"><Mk>かん字</Mk></div>
-              <HandwritingPad ref={(h) => { pads.current[0] = h; }} onChange={onChange} className="aspect-square w-full rounded-2xl border-4 border-ink bg-cell" />
+              <HandwritingPad ref={(h) => { pads.current[0] = h; }} onChange={onChange} className={`aspect-square w-full rounded-2xl border-4 bg-cell ${frame(0, 'border-ink')}`} />
             </div>
             <div className="flex flex-col items-center gap-1.5" style={{ flex: Math.max(1, n - 1) }}>
               <div className="text-[15px] text-frame">おくりがな</div>
@@ -90,12 +105,15 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
                     ref={(h) => { pads.current[j + 1] = h; }}
                     onChange={onChange}
                     guide={false}
-                    className="aspect-square flex-1 rounded-2xl border-4 border-dashed border-primary bg-cell"
+                    className={`aspect-square flex-1 rounded-2xl border-4 bg-cell ${isRed(j + 1) ? 'border-solid border-primary shadow-[0_0_0_4px_rgba(184,50,31,.25)]' : 'border-dashed border-primary'}`}
                   />
                 ))}
               </div>
             </div>
           </div>
+        )}
+        {wrong.length > 0 && (
+          <div className="text-center text-[17px] text-primary"><Mk>{expected.length > 1 ? '赤い マスの 字が ちがうみたい。そこだけ もう一回 書こう' : 'もう一回 書いて みよう'}</Mk></div>
         )}
         <div className={`flex gap-3 ${q.kind === 'read' ? 'w-full' : 'w-[min(100%,460px)]'}`}>
           {/* わからないとき：1回目はヒント、ヒントのあとは こたえを みる（＝まちがえたのと同じあつかい） */}
