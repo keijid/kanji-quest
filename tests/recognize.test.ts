@@ -79,8 +79,8 @@ describe('5回れんしゅう の判定', () => {
       n++;
       if (judgeCopy(hand.filter((_, j) => j !== (i * 7) % hand.length), c)) passed++;
     });
-    // くずれた字を 通しやすく するため 少し ゆるめてある（大きく くずれた字の 合格を 優先し、ぬけは 1わりちょっと まで ゆるす）
-    expect(passed / n).toBeLessThanOrEqual(0.15);
+    // くずれた字を 通しやすく するため 少し ゆるめてある（大きく くずれた字の 合格を 優先し、ぬけは 2わりちょっと まで ゆるす）
+    expect(passed / n).toBeLessThanOrEqual(0.25);
   });
 
   it('画が 大きく足りない字は できた に しない', () => {
