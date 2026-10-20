@@ -149,9 +149,12 @@ export const judgeKanji = (strokes: Stroke[], expected: string) => judge(strokes
 // 書いた字を お手本に 重ねて、お手本の 画 1本ずつ、近くに 書いた線が あるかを 見る。
 
 /** お手本の 画1本の 点から、書いた線までの 平均距離が これを こえたら「その画が ない」（tests/recognize.test.ts で確認） */
-const MISS_MAX = 0.11;
-/** 写して 書く ときの 形の 判定は、問題（THRESH）より ゆるめに（お手本を 見ながら ていねいに 書くので、ちがう字には まず ならない） */
-const COPY_THRESH: typeof THRESH = { absMax: 0.15, rank: 16, margin: 0.6 };
+const MISS_MAX = 0.115;
+/**
+ * 写して 書く ときの 形の 判定は、問題（THRESH）より ずっと ゆるめに（お手本を 見ながら 書くので、ちがう字には まず ならない）。
+ * 「遠」の しんにょう など、画を つなげて 書くと 画数が へり、画数の 近い 別の字（通・東 など）が 上の 順位に 来るので、順位は 大きく ゆるす
+ */
+const COPY_THRESH: typeof THRESH = { absMax: 0.15, rank: 80, margin: 1.5 };
 /** 重ねるときに 変形してよい はんい（ぬけた画を ごまかさない ように、のばしすぎ・かたむけすぎない） */
 const ALIGN_SCALE: [number, number] = [0.75, 1.3];
 const ALIGN_SHEAR = 0.3;

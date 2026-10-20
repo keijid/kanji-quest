@@ -83,6 +83,12 @@ describe('5回れんしゅう の判定', () => {
     expect(passed / n).toBeLessThanOrEqual(0.25);
   });
 
+  it('「遠」の しんにょう など、画を つなげて 書いても できた に なる', () => {
+    let ok = 0;
+    for (let seed = 0; seed < 20; seed++) if (judgeCopy(fakeHand('遠', seed * 17 + 3, { mess: 1.3, shuffle: true, joinProb: 0.15 }), '遠')) ok++;
+    expect(ok / 20).toBeGreaterThanOrEqual(0.8);
+  });
+
   it('画が 大きく足りない字は できた に しない', () => {
     for (const c of ['雲', '曜', '親', '顔']) {
       const hand = fakeHand(c, 7, { mess: 0.5 });
