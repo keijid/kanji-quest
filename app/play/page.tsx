@@ -51,7 +51,8 @@ export default function Play() {
       sfx('correct');
       setLogs((l) => [...l, { char: q.char, mode: q.kind, outcome: (phase === 'hint' ? 1 : 2) as Outcome }]);
       setPhase('correct');
-    } else if (phase === 'ask') {
+    } else if (phase === 'ask' && q.kind !== 'stroke') {
+      // 書きじゅんは えらぶ 問題で 2回目は あてずっぽうでも 当たるので、1回 まちがえたら 答えを 見せる
       sfx('hint');
       setPhase('hint');
     } else {
@@ -115,7 +116,7 @@ export default function Play() {
           {phase === 'reveal' && <AnswerView q={q} />}
           <div className="text-center text-[17px] text-frame">
             {phase === 'reveal' ? <Mk>{set.kind === 'boss' ? 'にがての かん字に 入れたよ。ふくしゅうで もう一回！' : '答えを よく 見て おぼえよう！'}</Mk>
-              : outcome === 1 ? `ヒントで せいかい ＋${XP.hint} けいけんち` : `＋${XP.first} けいけんち`}
+              : outcome === 1 ? <Mk>{`ヒントで せいかい ＋${XP.hint} けいけんち${set.kind === 'boss' ? '。にがての かん字に 入れたよ' : ''}`}</Mk> : `＋${XP.first} けいけんち`}
           </div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={next} disabled={saving}>
             <Mk>{last ? 'けっかを 見る' : 'つぎへ'}</Mk>

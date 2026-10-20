@@ -19,13 +19,22 @@ describe('にがて', () => {
     expect(await weak()).toEqual(['光']);
   });
 
-  it('にがての字は 2回つづけて 正解すると はずれる。とちゅうで まちがえると やり直し', async () => {
+  it('ボスせんで 1回 まちがえて ヒントの あとに 正解しても にがてに 入れる', async () => {
+    await recordAnswers([{ char: '光', mode: 'write', outcome: 1 }, { char: '雲', mode: 'read', outcome: 2 }], { addWeak: true });
+    expect(await weak()).toEqual(['光']);
+  });
+
+  it('にがての字は 1回目で 2回つづけて 正解すると はずれる。とちゅうで まちがえると やり直し', async () => {
     await recordAnswers([{ char: '光', mode: 'write', outcome: 0 }], { addWeak: true });
     await recordAnswers([{ char: '光', mode: 'write', outcome: 2 }]);
     await recordAnswers([{ char: '光', mode: 'read', outcome: 0 }]);
     await recordAnswers([{ char: '光', mode: 'write', outcome: 2 }]);
     expect(await weak()).toEqual(['光']);
+    // ヒントの あとの 正解は まちがい あつかい（やり直し）
     await recordAnswers([{ char: '光', mode: 'write', outcome: 1 }]);
+    expect(await weak()).toEqual(['光']);
+    await recordAnswers([{ char: '光', mode: 'write', outcome: 2 }]);
+    await recordAnswers([{ char: '光', mode: 'write', outcome: 2 }]);
     expect(await weak()).toEqual([]);
   });
 });
