@@ -16,14 +16,16 @@ const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 type Tab = 2 | 3 | 'boss';
 
 /** ボスずかんの 1体：ステージの ボス（stage）か 中ボス（mid） */
-type BossEntry = { key: string; img: string; title: string; sub: string; cleared: (d: AppData) => boolean };
+type BossEntry = { key: string; img: string; title: string; sub: string; mid?: boolean; cleared: (d: AppData) => boolean };
 
 /** 出てくる じゅんに ならべる（ステージ5 の ボスの あとに 中ボス1、のように） */
 const BOSSES: BossEntry[] = Array.from({ length: STAGE_COUNT }, (_, i) => i + 1).flatMap((s) => {
   const stage: BossEntry = { key: `s${s}`, img: `stage-${s}`, title: STAGE_NAMES[s - 1], sub: `ステージ${s}の ボス`, cleared: (d) => d.bossCleared(s) };
-  const mids = MID_BOSSES.filter((m) => m.after === s).map((m): BossEntry => ({ key: `m${m.id}`, img: `mid-${m.id}`, title: m.name, sub: '{中:ちゅう}ボス', cleared: (d) => d.midCleared(m.id) }));
+  const mids = MID_BOSSES.filter((m) => m.after === s).map((m): BossEntry => ({ key: `m${m.id}`, img: `mid-${m.id}`, title: m.name, sub: '{中:ちゅう}ボス', mid: true, cleared: (d) => d.midCleared(m.id) }));
   return [stage, ...mids];
 });
+/** ずかんに のせる ボス：中ボスは いきなり あらわれるので、たおすまでは のせない（シルエットも 出さない） */
+const shownBosses = (d: AppData) => BOSSES.filter((b) => !b.mid || b.cleared(d));
 
 export default function Zukan() {
   const router = useRouter();
@@ -33,13 +35,14 @@ export default function Zukan() {
   const [sel, setSel] = useState<string>(KANJI[0].char);
   const [bossSel, setBossSel] = useState<string | null>(null);
   if (!d?.profile) return null;
-  const bossCount = BOSSES.filter((b) => b.cleared(d)).length;
+  const bosses = shownBosses(d);
+  const bossCount = bosses.filter((b) => b.cleared(d)).length;
 
   const list = tab === 3 ? d.weak : KANJI.map((k) => k.char);
   const k = kanjiOf(sel);
   const rd = kanjiReadingText(k);
   const weakSet = new Set(d.weak);
-  const tabs: [Tab, string][] = [[2, `2年 ${TOTAL}`], [3, `にがて ${d.weak.length}`], ['boss', `ボス ${bossCount}/${BOSSES.length}`]];
+  const tabs: [Tab, string][] = [[2, `2年 ${TOTAL}`], [3, `にがて ${d.weak.length}`], ['boss', `ボス ${bossCount}/${bosses.length}`]];
 
   const pickTab = (t: Tab) => {
     sfx('tap');
@@ -67,7 +70,7 @@ export default function Zukan() {
           ))}
         </div>
       </div>
-      {tab === 'boss' ? <BossZukan d={d} sel={bossSel ?? BOSSES.find((b) => b.cleared(d))?.key ?? BOSSES[0].key} onSel={(k) => { sfx('tap'); setBossSel(k); }} /> : (
+      {tab === 'boss' ? <BossZukan d={d} sel={bossSel ?? bosses.find((b) => b.cleared(d))?.key ?? bosses[0].key} onSel={(k) => { sfx('tap'); setBossSel(k); }} /> : (
       <div className="flex flex-1 flex-wrap items-start gap-5">
         <div className="grid flex-[1_1_460px] gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(60px,1fr))' }}>
           {list.length === 0 && <div className="col-span-full py-10 text-center text-lg text-frame"><Mk>にがてな かん字は ないよ！</Mk></div>}
@@ -120,7 +123,7 @@ function BossZukan({ d, sel, onSel }: { d: AppData; sel: string; onSel: (key: st
   return (
     <div className="flex flex-1 flex-wrap items-start gap-5">
       <div className="grid flex-[1_1_460px] gap-2.5" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(104px,1fr))' }}>
-        {BOSSES.map((x) => {
+        {shownBosses(d).map((x) => {
           const on = x.key === sel, c = x.cleared(d);
           return (
             <button
