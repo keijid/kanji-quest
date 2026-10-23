@@ -62,7 +62,7 @@ export default function Result() {
         {/* ボスに かったら、ボス（お父さん・お母さん）が ニッコリ */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {r.bossCleared && r.set.stage && <img src={`${BASE}/bosses/stage-${r.set.stage}-happy.png`} alt="" className="animate-poyon -my-2 h-[180px] w-[180px]" />}
-        {/* 中ボス：たおしたら おまわりさんは ニコッ、しろくまは 大わらい。まけたら おこった まま */}
+        {/* 中ボス：たおしたら おまわりさんは ニコッ、インフルエンサーは 大わらい。まけたら おこった まま */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {mid && <img src={`${BASE}/bosses/mid-${mid.id}${r.bossCleared ? '-happy' : ''}.png`} alt={mid.name} className="animate-poyon -my-2 h-[200px] w-[200px]" />}
         {mid && !r.bossCleared && <div className="text-[17px] text-frame"><Mk>8わり せいかいで たおせるよ。にがての 字を ふくしゅう してから でも いいよ</Mk></div>}

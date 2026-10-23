@@ -25,7 +25,7 @@ const SHEETS: Record<string, Job> = {
   'bosses-family-14-happy': { by: 'components', o: { src: gen('bosses-family-14-happy.jpg'), outFiles: [pub('bosses/stage-14-happy.png')], boundaries: [], bgTol: 14 } },
   // 14（お母さんの 月のうさぎ）は 上の 絵では 笑っていたので、1体だけ 描き直した 絵で 上書きする（上の ジョブより 後に 置く）
   'bosses-family-14': { by: 'components', o: { src: gen('bosses-family-14.jpg'), outFiles: [boss(14)], boundaries: [], bgTol: 14 } },
-  // 中ボス（public/bosses/mid-<番号>.png。1＝おまわりさん、2＝しろくまの 着ぐるみ）。たおしたあとは -happy。おまわりさんは 敬礼の うでと 顔の あいだの 白も 消す
+  // 中ボス（public/bosses/mid-<番号>.png。1＝おまわりさん、2＝インフルエンサー）。たおしたあとは -happy。おまわりさんは 敬礼の うでと 顔の あいだの 白も 消す
   ...Object.fromEntries([1, 2].flatMap((n) => ['', '-happy'].map((h): [string, Job] => [
     `midboss-${n}${h}`,
     { by: 'components', o: { src: gen(`midboss-${n}${h}.jpg`), outFiles: [pub(`bosses/mid-${n}${h}.png`)], boundaries: [], bgTol: 14, ...(n === 1 ? { enclosedTol: 10 } : {}) } },
