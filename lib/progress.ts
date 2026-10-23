@@ -32,7 +32,9 @@ export const titleRank = (level: number) => TITLES.filter(([l]) => level >= l).l
 export function starsFor(correct: number, total: number) {
   if (!total) return 0;
   const r = correct / total;
-  return r >= 1 ? 3 : r >= 0.8 ? 2 : r >= 0.5 ? 1 : 0;
+  // 1字ずつの 練習は 3〜4問なので、1問 まちがえただけで 8わりを 下回る。1問 まちがいは 2つ星に する
+  const twoStars = r >= 0.8 || (total - correct === 1 && r >= 0.5);
+  return r >= 1 ? 3 : twoStars ? 2 : r >= 0.5 ? 1 : 0;
 }
 
 // ---- 1問の結果を記録 ----

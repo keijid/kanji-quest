@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { canAsk, bossSet, lessonSet } from '@/lib/quiz';
-import { bossUnlocked } from '@/lib/progress';
+import { bossUnlocked, starsFor } from '@/lib/progress';
 import { stageKanji, STAGE_COUNT } from '@/lib/data';
 
 describe('1字ずつの練習', () => {
@@ -51,5 +51,17 @@ describe('ボスせん', () => {
     const chars = stageKanji(1).map((k) => k.char);
     expect(bossUnlocked(1, new Set(chars.slice(0, 9)))).toBe(false);
     expect(bossUnlocked(1, new Set(chars))).toBe(true);
+  });
+});
+
+describe('星', () => {
+  it('ぜんぶ 正解で 3つ、1問 まちがい なら 少ない 問題数でも 2つ', () => {
+    expect(starsFor(4, 4)).toBe(3);
+    expect(starsFor(3, 4)).toBe(2);
+    expect(starsFor(2, 3)).toBe(2);
+    expect(starsFor(8, 10)).toBe(2);
+    expect(starsFor(7, 10)).toBe(1);
+    expect(starsFor(2, 4)).toBe(1);
+    expect(starsFor(0, 1)).toBe(0);
   });
 });
