@@ -65,6 +65,12 @@ export function playSynth(ctx: AudioContext, name: SfxName) {
       [C5, E5, G5, C6].forEach((f) => note(ctx, out, f, 0.72, 1.1, 0.16, 'triangle'));
       bell(ctx, out, C7, 0.72, 1.2, 0.2);
       break;
+    case 'ambush': // 中ボスが あらわれた：ジャジャーン！（下から つきあげる 2回と、ひくい 和音）
+      note(ctx, out, 110, 0, 0.12, 0.4, 'sawtooth', 220);
+      note(ctx, out, 147, 0.14, 0.12, 0.4, 'sawtooth', 294);
+      [N(-12), N(-9), N(-6), N(0)].forEach((f) => note(ctx, out, f, 0.3, 0.9, 0.16, 'square'));
+      bell(ctx, out, E6, 0.3, 0.6, 0.15);
+      break;
     case 'evolve': // キラキラ上がっていく
       [C5, E5, G5, C6, E6, G6, C7].forEach((f, i) => bell(ctx, out, f, i * 0.08, 0.5, 0.25));
       [C6, E6, G6].forEach((f) => bell(ctx, out, f, 0.65, 1.4, 0.18));

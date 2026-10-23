@@ -13,5 +13,6 @@
 | levelUp | レベルが 上がったとき |
 | evolve | 相棒が進化したとき |
 | stageClear | ボスせんでステージクリア・もぎテスト終了 |
+| ambush | 中ボスが あらわれた（地図で 字を えらんだ とき） |
 
 例：`tap.mp3` と `correct.mp3` を置いたら `sounds.json` は `["tap", "correct"]`

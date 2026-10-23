@@ -1,5 +1,5 @@
 'use client';
-// 04 よみ / 05 かき / 05b かきじゅん / 05c おくりがな（ボスせん・ふくしゅう も同じ画面）
+// 04 よみ / 05 かき / 05b かきじゅん / 05c おくりがな（ボスせん・中ボスせん・ふくしゅう も同じ画面）
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BackBtn, Btn, Card, Mk, Modal, ProgressBar, Screen } from '@/components/ui';
@@ -12,12 +12,12 @@ import { useGame } from '@/lib/game';
 import { kanjiOf } from '@/lib/data';
 import type { Outcome } from '@/lib/db';
 import { hintFor } from '@/lib/hints';
-import { clearBoss, markPracticed, recordAnswers, saveStageStars, starsFor, XP, type AnswerLog } from '@/lib/progress';
+import { clearBoss, clearMidBoss, markPracticed, recordAnswers, saveStageStars, starsFor, XP, type AnswerLog } from '@/lib/progress';
 import type { Question, SetKind } from '@/lib/quiz';
 import type { PartnerId } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
 
-const TITLE: Record<SetKind, string> = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' };
+const TITLE: Record<SetKind, string> = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', midboss: '{中:ちゅう}ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' };
 /** ボスせんの中の分野（おくりがなは「よみ」に入れる） */
 const BOSS_PART: Record<Question['kind'], string> = { read: '読み', okuri: '読み', write: '書き', stroke: '書きじゅん' };
 const LABEL: Record<Question['kind'], string> = { read: '04 よみ', write: '05 かき', stroke: '05b かきじゅん', okuri: '05c おくりがな' };
@@ -42,8 +42,10 @@ export default function Play() {
   const total = set.questions.length;
   // 1字ずつの練習は、マップ（ホーム）から来るので、やめたらホームへ
   const backHref = set.kind === 'lesson' || !set.stage ? '/home/' : `/stage/${set.stage}/`;
-  const title = set.kind === 'lesson' ? `「{${set.char}:}」の れんしゅう` : set.kind === 'boss' ? `ボスせん ・ ${BOSS_PART[q.kind]}` : TITLE[set.kind];
+  const title = set.kind === 'lesson' ? `「{${set.char}:}」の れんしゅう` : set.kind === 'boss' || set.kind === 'midboss' ? `${TITLE[set.kind]} ・ ${BOSS_PART[q.kind]}` : TITLE[set.kind];
   const last = i === total - 1;
+  // ボスせん・中ボスせんでは、まちがえた字を にがてに 入れる
+  const addWeak = set.kind === 'boss' || set.kind === 'midboss';
 
   /** 答えを出したとき。ok＝正解か */
   const answer = (ok: boolean) => {
@@ -72,12 +74,13 @@ export default function Play() {
     const correct = logs.filter((l) => l.outcome > 0).length;
     const stars = starsFor(correct, total);
     const learnedBefore = d.learned;
-    const { newlyLearned } = await recordAnswers(logs, { addWeak: set.kind === 'boss' });
+    const { newlyLearned } = await recordAnswers(logs, { addWeak });
     let bossCleared = false;
-    if (set.stage && set.kind !== 'boss' && set.kind !== 'review' && set.kind !== 'lesson') await saveStageStars(set.stage, set.kind, stars);
+    if (set.stage && set.kind !== 'boss' && set.kind !== 'midboss' && set.kind !== 'review' && set.kind !== 'lesson') await saveStageStars(set.stage, set.kind, stars);
     // 1字ずつの練習は、さいごまでやれば練習ずみ（まちがえた字は ふくしゅう で身につける）
     if (set.kind === 'lesson' && set.char) await markPracticed(set.char);
     if (set.stage && set.kind === 'boss' && stars >= 2) { await clearBoss(set.stage); bossCleared = true; }
+    if (set.mid && set.kind === 'midboss' && stars >= 2) { await clearMidBoss(set.mid); bossCleared = true; }
     sfx(bossCleared ? 'stageClear' : 'finish');
     finishing.current = true;
     finishSet({ set, logs, stars, newlyLearned, learnedBefore, learnedAfter: learnedBefore + newlyLearned.length, bossCleared });
@@ -115,8 +118,8 @@ export default function Play() {
           {/* せいかいの ときは 答えを出さない（自分で書いたので） */}
           {phase === 'reveal' && <AnswerView q={q} />}
           <div className="text-center text-[17px] text-frame">
-            {phase === 'reveal' ? <Mk>{set.kind === 'boss' ? 'にがての かん字に 入れたよ。ふくしゅうで もう一回！' : '答えを よく 見て おぼえよう！'}</Mk>
-              : outcome === 1 ? <Mk>{`ヒントで せいかい ＋${XP.hint} けいけんち${set.kind === 'boss' ? '。にがての かん字に 入れたよ' : ''}`}</Mk> : `＋${XP.first} けいけんち`}
+            {phase === 'reveal' ? <Mk>{addWeak ? 'にがての かん字に 入れたよ。ふくしゅうで もう一回！' : '答えを よく 見て おぼえよう！'}</Mk>
+              : outcome === 1 ? <Mk>{`ヒントで せいかい ＋${XP.hint} けいけんち${addWeak ? '。にがての かん字に 入れたよ' : ''}`}</Mk> : `＋${XP.first} けいけんち`}
           </div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={next} disabled={saving}>
             <Mk>{last ? 'けっかを 見る' : 'つぎへ'}</Mk>

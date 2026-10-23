@@ -27,6 +27,7 @@ export function useAppData() {
     const fullMocks = mocks.filter((x) => x.kind === 'full');
     const bestFull = fullMocks.sort((a, b) => b.score - a.score)[0];
     const rates = fieldRatesOf(kanji);
+    const midCleared = new Set(m.midBossCleared ?? []);
     return {
       profile,
       meta: m,
@@ -37,6 +38,8 @@ export function useAppData() {
       weak: weak.map((w) => w.char).filter((c) => TARGET_SET.has(c)),
       stageStars: (id: number): Record<Mode, number> => stageMap.get(id)?.stars ?? emptyStars(),
       bossCleared: (id: number) => cleared.has(id),
+      /** 中ボス（lib/midboss.ts）を たおしたか */
+      midCleared: (id: number) => midCleared.has(id),
       current: currentStage(cleared),
       level,
       title: titleOf(level),

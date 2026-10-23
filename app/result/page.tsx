@@ -9,16 +9,18 @@ import { STAGE_NAMES, stageKanji } from '@/lib/data';
 import { evolution, PARTNERS } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
+import { midBossOf, midBossSet } from '@/lib/midboss';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
-const KIND_TITLE = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' } as const;
+const KIND_TITLE = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', midboss: '{中:ちゅう}ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' } as const;
 
 export default function Result() {
   const router = useRouter();
   const d = useAppData();
   const r = useGame((s) => s.result);
   const startLesson = useGame((s) => s.startLesson);
+  const startSet = useGame((s) => s.startSet);
   const [showEvolve, setShowEvolve] = useState(false);
 
   const before = r ? evolution(r.learnedBefore) : null;
@@ -37,20 +39,33 @@ export default function Result() {
   const where = r.set.stage ? `${STAGE_NAMES[r.set.stage - 1]} ・ ${kindTitle}` : kindTitle;
   // 1字ずつの練習のあと：同じステージで、まだ練習していない つぎの字（なければボスせん）
   const nextChar = r.set.kind === 'lesson' && r.set.stage ? stageKanji(r.set.stage).map((k) => k.char).find((c) => !d.practicedSet.has(c)) : undefined;
+  const mid = r.set.kind === 'midboss' && r.set.mid ? midBossOf(r.set.mid) : null;
+  // 中ボスせんの あと：たおしたら 今の ステージの つぎの字へ（ぼうけんの つづき）、まけたら もう一回
+  const curNext = stageKanji(d.current).map((k) => k.char).find((c) => !d.practicedSet.has(c));
   const goNext = r.set.kind === 'lesson' && r.set.stage
     ? nextChar
       ? { label: `つぎの字「{${nextChar}:}」へ`, go: () => { startLesson(nextChar); router.push('/lesson/'); } }
       : { label: 'ボスせんへ', go: () => router.push(`/stage/${r.set.stage}/`) }
-    : null;
+    : mid
+      ? r.bossCleared
+        ? curNext
+          ? { label: `ぼうけんの つづき「{${curNext}:}」へ`, go: () => { startLesson(curNext); router.push('/lesson/'); } }
+          : null
+        : { label: 'もう一回 ちょうせん', go: () => { startSet(midBossSet(mid, (c) => d.progress.get(c)?.hist, new Set(d.weak))); router.push('/play/'); } }
+      : null;
 
   return (
     <div data-screen-label="06 けっか" className="flex flex-1 flex-wrap content-center gap-5 px-[clamp(16px,2.4vw,28px)] pb-20 pt-6">
       <Card shadow={6} className="flex flex-[1_1_380px] flex-col items-center gap-[14px] rounded-[22px] p-7">
         <div className="text-lg text-frame"><Mk>{where}</Mk></div>
-        <div className="font-yusei text-[44px]">{r.bossCleared ? 'ステージ クリア！' : r.set.kind === 'lesson' ? `「${r.set.char}」 れんしゅう できた！` : 'よく がんばった！'}</div>
+        <div className="font-yusei text-[44px]">{mid ? (r.bossCleared ? <Mk>{'{中:ちゅう}ボスを たおした！'}</Mk> : 'おしい！') : r.bossCleared ? 'ステージ クリア！' : r.set.kind === 'lesson' ? `「${r.set.char}」 れんしゅう できた！` : 'よく がんばった！'}</div>
         {/* ボスに かったら、ボス（お父さん・お母さん）が ニッコリ */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {r.bossCleared && r.set.stage && <img src={`${BASE}/bosses/stage-${r.set.stage}-happy.png`} alt="" className="animate-poyon -my-2 h-[180px] w-[180px]" />}
+        {/* 中ボス：たおしたら おまわりさんは ニコッ、しろくまは 大わらい。まけたら おこった まま */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {mid && <img src={`${BASE}/bosses/mid-${mid.id}${r.bossCleared ? '-happy' : ''}.png`} alt={mid.name} className="animate-poyon -my-2 h-[200px] w-[200px]" />}
+        {mid && !r.bossCleared && <div className="text-[17px] text-frame"><Mk>8わり せいかいで たおせるよ。にがての 字を ふくしゅう してから でも いいよ</Mk></div>}
         <div className="flex gap-2.5 text-[56px] leading-none text-gold">
           {[0, 1, 2].map((i) => <span key={i} className="animate-poyon" style={{ color: i < r.stars ? '#c48a12' : '#d9c49a', animationDelay: `${i * 0.15}s` }}>★</span>)}
         </div>

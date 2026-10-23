@@ -131,6 +131,12 @@ export async function clearBoss(stage: number) {
   const s = (await db.stages.get(stage)) ?? { id: stage, stars: emptyStars(), bossCleared: false };
   await db.stages.put({ ...s, bossCleared: true });
 }
+/** 中ボスを たおした しるし */
+export async function clearMidBoss(id: number) {
+  const m = await getMeta();
+  const done = m.midBossCleared ?? [];
+  if (!done.includes(id)) await db.meta.put({ ...m, midBossCleared: [...done, id] });
+}
 /** ボスせん：そのステージの10字をすべて1字ずつ練習した */
 export const bossUnlocked = (stage: number, practiced: Set<string>) => stageKanji(stage).every((k) => practiced.has(k.char));
 

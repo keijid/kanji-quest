@@ -1,5 +1,5 @@
 // Gemini で作った絵（横に並んだもの）を切り分けて public/ に置く
-// 使い方: npx tsx scripts/cut-sheets.ts [bosses-family-1|…|modes|heroes]
+// 使い方: npx tsx scripts/cut-sheets.ts [bosses-family-1|…|midboss-1|modes|heroes]
 import { join } from 'node:path';
 import { cutByComponents, cutSheet, type ComponentCutOptions, type CutOptions } from './lib/sheet';
 
@@ -25,6 +25,11 @@ const SHEETS: Record<string, Job> = {
   'bosses-family-14-happy': { by: 'components', o: { src: gen('bosses-family-14-happy.jpg'), outFiles: [pub('bosses/stage-14-happy.png')], boundaries: [], bgTol: 14 } },
   // 14（お母さんの 月のうさぎ）は 上の 絵では 笑っていたので、1体だけ 描き直した 絵で 上書きする（上の ジョブより 後に 置く）
   'bosses-family-14': { by: 'components', o: { src: gen('bosses-family-14.jpg'), outFiles: [boss(14)], boundaries: [], bgTol: 14 } },
+  // 中ボス（public/bosses/mid-<番号>.png。1＝おまわりさん、2＝しろくまの 着ぐるみ）。たおしたあとは -happy。おまわりさんは 敬礼の うでと 顔の あいだの 白も 消す
+  ...Object.fromEntries([1, 2].flatMap((n) => ['', '-happy'].map((h): [string, Job] => [
+    `midboss-${n}${h}`,
+    { by: 'components', o: { src: gen(`midboss-${n}${h}.jpg`), outFiles: [pub(`bosses/mid-${n}${h}.png`)], boundaries: [], bgTol: 14, ...(n === 1 ? { enclosedTol: 10 } : {}) } },
+  ]))),
   // モードのアイコン（左から よみ・かき・かきじゅん・おくりがな）。矢印や飛行機の線は別のかたまりなので、かたまりごとに振り分ける
   modes: { by: 'components', o: { src: gen('modes-sheet.jpg'), outFiles: ['read', 'write', 'stroke', 'okuri'].map((m) => pub(`modes/${m}.png`)), boundaries: [0.27, 0.496, 0.734], bgTol: 14, size: 192 } },
   // 勇者（自分の分身）：称号の 段階ごとに 1まい（public/heroes/hero-<段階>.png、左から かけだし → マスター）。下に 勝手に 付いた 英語の 文字は 捨てる

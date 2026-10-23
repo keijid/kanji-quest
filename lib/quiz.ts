@@ -9,13 +9,15 @@ export type Question =
   | { kind: 'okuri'; char: string; sentence: string; stem: string; okuri: string }
   | { kind: 'stroke'; char: string; sub: 'nth' | 'total'; index: number };
 
-export type SetKind = Mode | 'boss' | 'review' | 'lesson';
+export type SetKind = Mode | 'boss' | 'midboss' | 'review' | 'lesson';
 
 export type QuizSet = {
   kind: SetKind;
   stage: number | null;
   /** 1字ずつの練習の字 */
   char?: string;
+  /** 中ボスせんの 中ボス（lib/midboss.ts） */
+  mid?: number;
   questions: Question[];
 };
 

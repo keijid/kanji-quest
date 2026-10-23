@@ -37,6 +37,9 @@
   --animate-poyon: poyon 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
   --animate-pop-in: pop-in 0.25s ease-out both;
   --animate-bob: bob 1.6s ease-in-out infinite;
+  --animate-shake: shake 0.5s ease-in-out both;
+  --animate-ambush: ambush 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) 0.25s both;
+  --animate-flash: flash 0.45s ease-out both;
 }
 
 @keyframes poyon {
@@ -54,8 +57,29 @@
   to { opacity: 1; }
 }
 
+/* 中ボスが あらわれる：画面が ゆれて、下から ドーンと とび出す */
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-10px, 4px); }
+  30% { transform: translate(9px, -5px); }
+  45% { transform: translate(-7px, 3px); }
+  60% { transform: translate(6px, -2px); }
+  80% { transform: translate(-3px, 1px); }
+}
+@keyframes ambush {
+  0% { opacity: 0; transform: translateY(70%) scale(0.3) rotate(-8deg); }
+  55% { opacity: 1; transform: translateY(-8%) scale(1.12) rotate(3deg); }
+  75% { transform: translateY(2%) scale(0.96) rotate(-1deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+@keyframes flash {
+  0% { background: rgba(255, 255, 255, 0.95); }
+  100% { background: rgba(58, 38, 20, 0.6); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-bob { animation: none; }
+  .animate-shake { animation: none; }
 }
 
 @layer base {

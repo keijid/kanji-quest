@@ -44,6 +44,8 @@ export type Meta = {
   settings: Settings;
   /** レベルアップを知らせた さいごの レベル（なければ まだ知らせていない＝今のレベルから始める） */
   seenLevel?: number;
+  /** たおした 中ボス（lib/midboss.ts の id） */
+  midBossCleared?: number[];
 };
 
 export const DEFAULT_META: Meta = {

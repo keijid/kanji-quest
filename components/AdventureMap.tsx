@@ -4,6 +4,7 @@
 // - 字は順番に開く：今のステージでは「いまここ」まで。先のステージは うすい点線の丸（まだ行けない）
 // - いまここ：今のステージで、まだ練習していない最初の字（全部練習していればボス）
 // - ボスをタップすると、そのステージ画面へ
+// - 中ボス（lib/midboss.ts）が 待っているときは、先の ステージの 字を タップすると いきなり あらわれる（gate）
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -55,9 +56,11 @@ type Props = {
   partnerStage: number;
   /** 称号の 段階（勇者の 絵 public/heroes/hero-<段階>.png） */
   heroRank: number;
+  /** 字を えらんだ ときの 関所（中ボス）。ふだんは go をそのまま よぶ */
+  gate: (stage: number, go: () => void) => void;
 };
 
-export function AdventureMap({ current, practiced, bossCleared, partner, partnerStage, heroRank }: Props) {
+export function AdventureMap({ current, practiced, bossCleared, partner, partnerStage, heroRank, gate }: Props) {
   const router = useRouter();
   const startLesson = useGame((s) => s.startLesson);
   const nodes = useMemo(buildNodes, []);
@@ -69,7 +72,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
     const inStage = nodes.filter((n) => n.stage === current);
     return inStage.find((n) => n.kind === 'kanji' && !practiced.has(n.char!)) ?? inStage[inStage.length - 1];
   }, [nodes, current, practiced]);
-  const lesson = (c: string) => { sfx('tap'); startLesson(c); router.push('/lesson/'); };
+  const lesson = (n: Node) => { sfx('tap'); gate(n.stage, () => { startLesson(n.char!); router.push('/lesson/'); }); };
 
   const scrollToHere = (smooth: boolean) => {
     const el = scroller.current;
@@ -158,7 +161,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
               return (
                 <div key={n.i} className="absolute -translate-x-1/2 -translate-y-1/2" style={pos}>
                   <button
-                    onClick={() => lesson(n.char!)}
+                    onClick={() => lesson(n)}
                     aria-label={`いまここ：「${n.char}」を れんしゅう`}
                     className="press flex h-[84px] w-[84px] items-center justify-center rounded-full border-4 border-ink bg-primary font-klee text-[44px] text-paper shadow-hard-6"
                   >{n.char}</button>
@@ -177,7 +180,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
             return (
               <button
                 key={n.i}
-                onClick={() => lesson(n.char!)}
+                onClick={() => lesson(n)}
                 aria-label={`「${n.char}」を れんしゅう（ステージ${n.stage}）${done ? '：れんしゅうずみ' : ''}`}
                 className="absolute flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] border-ink bg-card font-klee text-[30px] text-ink"
                 style={pos}

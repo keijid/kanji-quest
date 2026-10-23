@@ -9,6 +9,7 @@ import { bossSet } from '@/lib/quiz';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
+import { useMidBossGate } from '@/components/MidBossAmbush';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -17,6 +18,7 @@ export function StageScreen({ stage }: { stage: number }) {
   const router = useRouter();
   const startSet = useGame((s) => s.startSet);
   const startLesson = useGame((s) => s.startLesson);
+  const { gate, popup } = useMidBossGate(d);
   if (!d?.profile) return null;
 
   const chars = stageKanji(stage).map((k) => k.char);
@@ -28,11 +30,11 @@ export function StageScreen({ stage }: { stage: number }) {
   const cleared = d.bossCleared(stage);
   const bossCount = bossSet(stage).questions.length;
 
-  const lesson = (c: string) => { sfx('tap'); startLesson(c); router.push('/lesson/'); };
+  // 中ボスが 待っていれば、字や ボスせんを えらんだ ときに あらわれる
+  const lesson = (c: string) => { sfx('tap'); gate(stage, () => { startLesson(c); router.push('/lesson/'); }); };
   const boss = () => {
     sfx('tap');
-    startSet(bossSet(stage));
-    router.push('/play/');
+    gate(stage, () => { startSet(bossSet(stage)); router.push('/play/'); });
   };
 
   const cardCls = 'press flex flex-col gap-2 rounded-[18px] border-[3px] border-ink p-[18px] text-left shadow-hard-5';
@@ -93,6 +95,7 @@ export function StageScreen({ stage }: { stage: number }) {
       </button>
 
       <LevelUp />
+      {popup}
     </Screen>
   );
 }
