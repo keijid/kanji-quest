@@ -55,6 +55,12 @@ describe('手書き判定', () => {
     expect(judgeKana(fakeHand('よ', 3, { mess: 0.5 }), 'ょ').ok).toBe(true);
   });
 
+  it('小さい字は ゆるめに 見るが、ちがう字は 小さい字として 認めない', () => {
+    for (const c of ['ま', 'は', 'ほ', 'お', 'す', 'ふ']) {
+      for (let s = 1; s <= 5; s++) expect(judgeKana(fakeHand(c, s, { mess: 0.8, shuffle: true }), 'ょ').ok).toBe(false);
+    }
+  });
+
   it('画数がぴったり合う、にた字のほうが近ければ不合格（二 と 三）', () => {
     expect(judgeKanji(fakeHand('二', 5, { mess: 0.3 }), '三').ok).toBe(false);
   });

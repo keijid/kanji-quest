@@ -143,7 +143,10 @@ export const kanaBase = (c: string) => SMALL[c] ?? c;
 const KANA_THRESH: typeof THRESH = { absMax: 0.14, rank: 8, margin: 0.5 };
 /** ひらがな1字の判定。loose なら もっと ゆるめに（長い 答えで 1字だけ 落ちた ときの 見直し用） */
 const KANA_LOOSE: typeof THRESH = { absMax: 0.16, rank: 12, margin: 0.8 };
-export const judgeKana = (strokes: Stroke[], expected: string, loose = false) => judge(strokes, kanaBase(expected), KANA_POOL, loose ? KANA_LOOSE : KANA_THRESH);
+// 小さい字（ょ など）は マスの 中に 小さく 書くので 形が くずれやすく、いつも ゆるめに 見る
+// （「きょうかしょ」のように 小さい字が 2つ あると、1字だけの 見直しでは 助けられない）
+export const judgeKana = (strokes: Stroke[], expected: string, loose = false) =>
+  judge(strokes, kanaBase(expected), KANA_POOL, loose || SMALL[expected] ? KANA_LOOSE : KANA_THRESH);
 /** 漢字1字の判定 */
 export const judgeKanji = (strokes: Stroke[], expected: string) => judge(strokes, expected, KANJI_POOL);
 
