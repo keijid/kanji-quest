@@ -1,6 +1,6 @@
 // まちがえたときのヒント文（記法つき。<Mk> で表示する）
 import { kanjiOf } from './data';
-import { parseTokens, targetOf } from './markup';
+import { kataToHira, parseTokens, targetOf } from './markup';
 import type { Question } from './quiz';
 
 export function hintFor(q: Question): string {
@@ -12,8 +12,18 @@ export function hintFor(q: Question): string {
       if (other?.t === 'ruby') {
         return `おしい！ ヒント：「{${other.base}:${other.rt}}」は 「${other.rt}」と 読むよ。もう一回 書いてみよう！`;
       }
-      // 答えが みじかい（2文字まで）ときは、さいしょの 文字を 教えると 答えが ほぼ わかるので 文字数だけ
-      if (q.answer.length <= 2) return `おしい！ ヒント：ひらがな ${q.answer.length}文字 だよ。もう一回 書いてみよう！`;
+      // 答えが みじかい（2文字まで）ときは、さいしょの 文字を 教えると 答えが ほぼ わかる。
+      // 文字数は マスの 数で もう 見えているので、その字の ほかの 読み方を 見せて「それとは ちがう」と 教える
+      if (q.answer.length <= 2) {
+        // 「理科」の 科 など、ことばの 中の 1字の 読みは 分からないので、1字だけの ことばの ときだけ
+        const single = parseTokens(targetOf(q.sentence)).every((t) => t.t !== 'ruby' || t.base === q.char);
+        const others = !single ? [] : [...k.on.map((o) => [kataToHira(o), kataToHira(o)]), ...k.kun.map((u) => [u.stem, u.stem + u.okuri])]
+          .filter(([stem], i, a) => stem !== q.answer && a.findIndex((x) => x[0] === stem) === i).map(([, shown]) => shown).slice(0, 4);
+        if (others.length) return `おしい！ ヒント：「{${q.char}:}」は 「${others.join('」「')}」とも 読むけど、ここでは ちがう 読み方だよ。もう一回 書いてみよう！`;
+        // 1文字の 答えは さいしょの 文字が 答え そのものに なるので 文字数だけ
+        if (q.answer.length === 1) return 'おしい！ ヒント：ひらがな 1文字 だよ。もう一回 書いてみよう！';
+        return `おしい！ ヒント：さいしょの 文字は 「${q.answer[0]}」だよ。もう一回 書いてみよう！`;
+      }
       return `おしい！ ヒント：さいしょの 文字は 「${q.answer[0]}」。ぜんぶで ${q.answer.length}文字 だよ。もう一回 書いてみよう！`;
     }
     case 'write': {
