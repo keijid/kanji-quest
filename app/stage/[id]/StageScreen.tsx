@@ -10,6 +10,7 @@ import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 import { useMidBossGate } from '@/components/MidBossAmbush';
+import { BossBubble } from '@/components/BossBubble';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -80,7 +81,7 @@ export function StageScreen({ stage }: { stage: number }) {
 
       <button className={`${cardCls} min-h-[120px] bg-boss text-paper disabled:cursor-default disabled:opacity-80`} onClick={boss} disabled={!unlocked}>
         {/* 左に 説明、右に このステージの ボスを 大きく */}
-        <div className="flex w-full items-center justify-between gap-3">
+        <div className="flex w-full flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex flex-col gap-2">
             <div className="font-yusei text-[28px]">ボスせん</div>
             <div className="text-[15px] opacity-90"><Mk>{`10字の 読み（おくりがな）・書き・書きじゅんを ぜんぶ ためすよ（${bossCount}もん）`}</Mk></div>
@@ -88,9 +89,12 @@ export function StageScreen({ stage }: { stage: number }) {
               <Mk>{cleared ? 'クリア！ もう一回 ちょうせん できるよ' : unlocked ? 'ちょうせん できる！ 8わり せいかいで クリア' : `あと ${remaining}字 れんしゅう すると ちょうせん できる`}</Mk>
             </div>
           </div>
-          {/* たおしたら ニッコリ顔 */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${BASE}/bosses/stage-${stage}${cleared ? '-happy' : ''}.png`} alt="" className="-my-4 h-[190px] w-[190px] flex-none" />
+          {/* たおしたら ニッコリ顔。吹き出しも おこる せりふ → ほめる せりふに かわる */}
+          <div className="flex flex-none items-center gap-3 self-end sm:self-auto">
+            <BossBubble stage={stage} happy={cleared} className="max-w-[min(42vw,300px)]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${BASE}/bosses/stage-${stage}${cleared ? '-happy' : ''}.png`} alt="" className="-my-4 h-[190px] w-[190px] flex-none" />
+          </div>
         </div>
       </button>
 

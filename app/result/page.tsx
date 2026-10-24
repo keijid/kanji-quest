@@ -9,6 +9,7 @@ import { STAGE_NAMES, stageKanji } from '@/lib/data';
 import { evolution, PARTNERS } from '@/lib/partners';
 import { sfx } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
+import { BossBubble } from '@/components/BossBubble';
 import { midBossOf, midBossSet } from '@/lib/midboss';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -60,6 +61,7 @@ export default function Result() {
         <div className="text-lg text-frame"><Mk>{where}</Mk></div>
         <div className="font-yusei text-[44px]">{mid ? (r.bossCleared ? <Mk>{'{中:ちゅう}ボスを たおした！'}</Mk> : 'おしい！') : r.bossCleared ? 'ステージ クリア！' : r.set.kind === 'lesson' ? `「${r.set.char}」 れんしゅう できた！` : 'よく がんばった！'}</div>
         {/* ボスに かったら、ボス（お父さん・お母さん）が ニッコリ */}
+        {r.bossCleared && r.set.stage && <BossBubble stage={r.set.stage} happy tail="bottom" className="max-w-[360px]" />}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {r.bossCleared && r.set.stage && <img src={`${BASE}/bosses/stage-${r.set.stage}-happy.png`} alt="" className="animate-poyon -my-2 h-[180px] w-[180px]" />}
         {/* 中ボス：たおしたら おまわりさんは ニコッ、インフルエンサーは 大わらい。まけたら おこった まま */}
