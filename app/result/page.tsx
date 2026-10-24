@@ -23,8 +23,8 @@ export default function Result() {
   const startSet = useGame((s) => s.startSet);
   const [showEvolve, setShowEvolve] = useState(false);
 
-  const before = r ? evolution(r.learnedBefore) : null;
-  const after = r ? evolution(r.learnedAfter) : null;
+  const before = r ? evolution(r.practicedBefore ?? r.learnedBefore) : null;
+  const after = r ? evolution(r.practicedAfter ?? r.learnedAfter) : null;
   const evolved = !!before && !!after && after.stage > before.stage;
 
   // 最初の描画はサーバー側の初期値（null）なので、実際の値を見てから判断する
@@ -78,7 +78,7 @@ export default function Result() {
             </div>
             <ProgressBar value={after.ratio} color={p.color} />
             <div className="text-[13px] text-frame">
-              {after.final ? (after.remaining ? <>ぜんぶ まで あと {after.remaining}<Mk>字</Mk></> : 'ぜんぶ おぼえた！') : <>しんか {after.stage + 1}まで あと {after.remaining}<Mk>字</Mk></>}
+              {after.final ? (after.remaining ? <>ぜんぶ まで あと {after.remaining}<Mk>字</Mk></> : 'ぜんぶ れんしゅう した！') : <>しんか {after.stage + 1}まで あと {after.remaining}<Mk>字</Mk></>}
             </div>
           </div>
         </div>

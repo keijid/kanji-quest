@@ -9,7 +9,7 @@ import { PartnerAvatar } from '@/components/Partner';
 import { HintBubble } from '@/components/play/HintBubble';
 import { useAppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
-import { kanjiOf } from '@/lib/data';
+import { kanjiOf, TARGET_SET } from '@/lib/data';
 import type { Outcome } from '@/lib/db';
 import { hintFor } from '@/lib/hints';
 import { clearBoss, clearMidBoss, markPracticed, recordAnswers, saveStageStars, starsFor, XP, type AnswerLog } from '@/lib/progress';
@@ -83,7 +83,10 @@ export default function Play() {
     if (set.mid && set.kind === 'midboss' && stars >= 2) { await clearMidBoss(set.mid); bossCleared = true; }
     sfx(bossCleared ? 'stageClear' : 'finish');
     finishing.current = true;
-    finishSet({ set, logs, stars, newlyLearned, learnedBefore, learnedAfter: learnedBefore + newlyLearned.length, bossCleared });
+    // 相棒の しんかは 練習ずみの字で 数える（練習を さいごまで やった字と、おぼえた字）
+    const practicedAfter = new Set(d.practicedSet);
+    for (const c of [...newlyLearned, ...(set.kind === 'lesson' && set.char ? [set.char] : [])]) if (TARGET_SET.has(c)) practicedAfter.add(c);
+    finishSet({ set, logs, stars, newlyLearned, learnedBefore, learnedAfter: learnedBefore + newlyLearned.length, practicedBefore: d.practicedSet.size, practicedAfter: practicedAfter.size, bossCleared });
     router.replace('/result/');
   };
 

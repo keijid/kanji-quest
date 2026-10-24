@@ -9,20 +9,20 @@ export const PARTNERS: Record<PartnerId, { name: string; kind: string; elem: str
 };
 export const PARTNER_IDS: PartnerId[] = ['fire', 'wood', 'light'];
 
-/** 進化の境目（覚えた字数）。5段階。最後は全160字 */
+/** 進化の境目（練習ずみの字数＝地図の★の数）。5段階。最後は全160字 */
 export const EVOLVE_AT = [0, 15, 40, 80, 120];
 
-export function evolution(learned: number) {
+export function evolution(practiced: number) {
   let stage = 1;
-  EVOLVE_AT.forEach((t, i) => { if (learned >= t) stage = i + 1; });
+  EVOLVE_AT.forEach((t, i) => { if (practiced >= t) stage = i + 1; });
   const next = EVOLVE_AT[stage] ?? TOTAL;
   const prev = EVOLVE_AT[stage - 1];
   return {
     stage,
     /** 次の段階（最終段階なら全160字）まであと何字 */
-    remaining: Math.max(0, next - learned),
+    remaining: Math.max(0, next - practiced),
     /** 今の段階の中での進み具合 0〜1 */
-    ratio: Math.min(1, (learned - prev) / (next - prev)),
+    ratio: Math.min(1, (practiced - prev) / (next - prev)),
     final: stage === EVOLVE_AT.length,
   };
 }

@@ -45,7 +45,8 @@ export function useAppData() {
       title: titleOf(level),
       titleRank: titleRank(level),
       streak: currentStreak(m.streak),
-      evo: evolution(learnedSet.size),
+      /** 相棒の しんか：練習ずみの字（地図の★）で 数える。子どもが「やった字」と 同じ 数 */
+      evo: evolution(practicedSet.size),
       rates,
       prediction: passPrediction(kanji, TARGET_SET, bestFull),
       mocks,

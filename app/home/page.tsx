@@ -89,9 +89,9 @@ export default function Home() {
             </div>
             <div className="text-[15px]">
               {d.evo.final ? (
-                d.evo.remaining === 0 ? 'ぜんぶ おぼえた！ さいこうの あいぼう！' : <>ぜんぶまで あと <span className="text-[22px] text-primary">{d.evo.remaining}</span><Mk>字</Mk>！</>
+                d.evo.remaining === 0 ? 'ぜんぶ れんしゅう した！ さいこうの あいぼう！' : <>ぜんぶまで あと <span className="text-[22px] text-primary">{d.evo.remaining}</span><Mk>字</Mk>！</>
               ) : (
-                <>あと <span className="text-[22px] text-primary">{d.evo.remaining}</span><Mk>字 おぼえると しんか！</Mk></>
+                <>あと <span className="text-[22px] text-primary">{d.evo.remaining}</span><Mk>字 れんしゅう すると しんか！</Mk></>
               )}
             </div>
           </Card>

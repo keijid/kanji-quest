@@ -15,6 +15,9 @@ export type LastResult = {
   newlyLearned: string[];
   learnedBefore: number;
   learnedAfter: number;
+  /** 練習ずみの字数（相棒の しんか）。古い セーブには ないので ?? で learned に もどす */
+  practicedBefore?: number;
+  practicedAfter?: number;
   bossCleared: boolean;
 };
 
