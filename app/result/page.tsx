@@ -31,9 +31,11 @@ export default function Result() {
   // 最初の描画はサーバー側の初期値（null）なので、実際の値を見てから判断する
   useEffect(() => { if (!useGame.getState().result) router.replace('/home/'); }, [r, router]);
   useEffect(() => { if (evolved) { setShowEvolve(true); sfx('evolve'); } }, [evolved]);
-  // ボスに かったら、ファンファーレの あとで ボスが ほめる
-  const happyStage = r?.bossCleared && r.set.kind === 'boss' ? r.set.stage : undefined;
-  useEffect(() => { if (happyStage) voice(`stage-${happyStage}-happy`, 1.8); }, [happyStage]);
+  // ボス・中ボスに かったら、ファンファーレの あとで ボスが ほめる
+  const happyVoice = !r?.bossCleared ? undefined
+    : r.set.kind === 'boss' && r.set.stage ? `stage-${r.set.stage}-happy`
+      : r.set.kind === 'midboss' && r.set.mid ? `mid-${r.set.mid}-happy` : undefined;
+  useEffect(() => { if (happyVoice) voice(happyVoice, 1.8); }, [happyVoice]);
   if (!r || !d?.profile || !after) return null;
 
   const p = PARTNERS[d.profile.partner];
@@ -68,6 +70,7 @@ export default function Result() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {r.bossCleared && r.set.stage && <img src={`${BASE}/bosses/stage-${r.set.stage}-happy.png`} alt="" className="animate-poyon -my-2 h-[180px] w-[180px]" />}
         {/* 中ボス：たおしたら おまわりさんは ニコッ、インフルエンサーは 大わらい。まけたら おこった まま */}
+        {mid && r.bossCleared && <BossBubble line={mid.happyLine} happy tail="bottom" className="max-w-[360px]" />}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {mid && <img src={`${BASE}/bosses/mid-${mid.id}${r.bossCleared ? '-happy' : ''}.png`} alt={mid.name} className="animate-poyon -my-2 h-[200px] w-[200px]" />}
         {mid && !r.bossCleared && <div className="text-[17px] text-frame"><Mk>8わり せいかいで たおせるよ。にがての 字を ふくしゅう してから でも いいよ</Mk></div>}

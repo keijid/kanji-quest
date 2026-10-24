@@ -1,9 +1,9 @@
-// ボス（お父さん・お母さん）の 吹き出し。tail の 向きに ボスが いる
+// ボス（お父さん・お母さん）の 吹き出し。tail の 向きに ボスが いる。line を わたせば その せりふ（中ボス）
 import { Mk } from './ui';
 import { bossLine } from '@/lib/bossLines';
 
-export function BossBubble({ stage, happy, tail = 'right', className = '' }: { stage: number; happy: boolean; tail?: 'right' | 'bottom'; className?: string }) {
-  const line = bossLine(stage, happy);
+export function BossBubble({ stage = 0, line: given, happy, tail = 'right', className = '' }: { stage?: number; line?: string; happy: boolean; tail?: 'right' | 'bottom'; className?: string }) {
+  const line = given ?? bossLine(stage, happy);
   if (!line) return null;
   const tailCls = tail === 'right'
     ? '-right-[9px] top-1/2 -translate-y-1/2 border-r-[3px] border-t-[3px]'

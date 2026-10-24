@@ -1,5 +1,5 @@
 // ボスの せりふを Gemini の 音声合成で mp3 に する → public/voice/
-//   ステージボス（お父さん・お母さん）：stage-<n>-<angry|happy>.mp3 ／ 中ボス（あらわれた ときの せりふ）：mid-<id>.mp3
+//   ステージボス（お父さん・お母さん）：stage-<n>-<angry|happy>.mp3 ／ 中ボス：mid-<id>.mp3（あらわれた とき）・mid-<id>-happy.mp3（たおされた あと）
 // キーは .env.local の GEMINI_API_KEY（キーを 自動で つける プロキシ ごしなら なくてよい）。ffmpeg が いる。
 // 使い方:
 //   npx tsx scripts/gen-voices.ts            … ない ものだけ 作る
@@ -32,10 +32,16 @@ const MOOD: Record<Who, Record<'angry' | 'happy', string>> = {
 type Cast = { voice: string; long: string; short: string; pre?: string };
 const cast = (w: Who, mood: 'angry' | 'happy'): Cast => ({ voice: VOICE[w], long: `${TONE[w]}; ${MOOD[w][mood]}`, short: MOOD[w][mood] });
 // 中ボス：1＝おまわりさん（ゴリラの 着ぐるみ。ゴリラっぽい 声）、2＝インフルエンサー（気どった 声）
-const MID_CAST: Record<number, Cast> = {
-  // 指示だけだと ゴリラっぽく ならないので、さいしょに「ウホッ、ウホッ！」と 言わせる
-  1: { voice: 'Algenib', long: '', short: '', pre: '[huffing like a gorilla] ウホッ、ウホッ！ [gruff gorilla voice] ' },
-  2: { voice: 'Zephyr', long: 'affected, snobbish show-off influencer talking to her livestream; smug and posh', short: 'smug, affected influencer' },
+const MID_CAST: Record<number, Record<'angry' | 'happy', Cast>> = {
+  1: {
+    // 指示だけだと ゴリラっぽく ならないので、さいしょに「ウホッ、ウホッ！」と 言わせる
+    angry: { voice: 'Algenib', long: '', short: '', pre: '[huffing like a gorilla] ウホッ、ウホッ！ [gruff gorilla voice] ' },
+    happy: { voice: 'Algenib', long: '', short: '', pre: '[huffing like a gorilla] ウホッ、ウホッ！ [gruff gorilla voice, impressed] ' },
+  },
+  2: {
+    angry: { voice: 'Zephyr', long: 'affected, snobbish show-off influencer talking to her livestream; smug and posh', short: 'smug, affected influencer' },
+    happy: { voice: 'Zephyr', long: 'affected show-off influencer, suddenly excited and gushing to her livestream', short: 'excited, gushing influencer' },
+  },
 };
 
 function apiKey(): string | null {
@@ -96,7 +102,10 @@ function jobs(): Job[] {
       out.push({ name: `stage-${stage}-${mood}`, key: String(stage), text: plain(bossLine(stage, mood === 'happy')), casts: who.map((w) => cast(w, mood)) });
     }
   }
-  for (const m of MID_BOSSES) out.push({ name: `mid-${m.id}`, key: 'mid', text: plain(m.line), casts: [MID_CAST[m.id]] });
+  for (const m of MID_BOSSES) {
+    out.push({ name: `mid-${m.id}`, key: 'mid', text: plain(m.line), casts: [MID_CAST[m.id].angry] });
+    out.push({ name: `mid-${m.id}-happy`, key: 'mid', text: plain(m.happyLine), casts: [MID_CAST[m.id].happy] });
+  }
   return out;
 }
 

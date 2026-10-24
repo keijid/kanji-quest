@@ -14,6 +14,8 @@ export type MidBoss = {
   name: string;
   /** あらわれた ときの せりふ（記法つき） */
   line: string;
+  /** たおされた あとの せりふ（記法つき） */
+  happyLine: string;
 };
 
 export const MID_BOSSES: MidBoss[] = [
@@ -22,6 +24,7 @@ export const MID_BOSSES: MidBoss[] = [
     pick: [{ stages: [1, 2, 3, 4, 5], per: 4 }],
     name: 'かん字チェックの おまわりさん',
     line: 'ピピーッ！ とまりなさい！ ここまでの かん字を ちゃんと おぼえているか、しらべます！',
+    happyLine: 'まいった！ かん字の チェック、もんだい なし！ {通:とお}って よし！',
   },
   {
     id: 2, after: 10,
@@ -29,6 +32,7 @@ export const MID_BOSSES: MidBoss[] = [
     pick: [{ stages: [6, 7, 8, 9, 10], per: 3 }, { stages: [1, 2, 3, 4, 5], per: 2 }],
     name: 'カリスマ インフルエンサー',
     line: 'ちょっと！ {今:いま} ライブ{中:ちゅう}なんだけど！ かん字を わすれた{子:こ}は この{先:さき}へ {通:とお}さないよ！',
+    happyLine: 'え、すごっ！ コメント{欄:らん}が「かしこい！」で うまってる！ フォロー しちゃお！',
   },
 ];
 
