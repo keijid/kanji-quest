@@ -1,17 +1,18 @@
 // ボスの せりふを Gemini の 音声合成で mp3 に する → public/voice/
 //   ステージボス（お父さん・お母さん）：stage-<n>-<angry|happy>.mp3 ／ 中ボス：mid-<id>.mp3（あらわれた とき）・mid-<id>-happy.mp3（たおされた あと）
-//   なかま：hero-<称号の 段階>.mp3（勇者の せりふ）・partner-fire-<しんかの 段階>.mp3（ホムラの 鳴き声）
+//   なかま：hero-<称号の 段階>.mp3（勇者の せりふ）・partner-<fire|wood|light>-<しんかの 段階>.mp3（相棒の 鳴き声）
 // キーは .env.local の GEMINI_API_KEY（キーを 自動で つける プロキシ ごしなら なくてよい）。ffmpeg が いる。
 // 使い方:
 //   npx tsx scripts/gen-voices.ts            … ない ものだけ 作る
 //   npx tsx scripts/gen-voices.ts --force 3  … ステージ3を 作りなおす（--force だけなら ぜんぶ）
-//   npx tsx scripts/gen-voices.ts --force mid … 中ボスを 作りなおす（hero・homura も 同じ）
+//   npx tsx scripts/gen-voices.ts --force mid … 中ボスを 作りなおす（hero・fire・wood・light も 同じ）
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { bossLine } from '../lib/bossLines';
-import { HERO_LINES, HOMURA_CRIES, heroVoice, partnerVoice } from '../lib/friendLines';
+import { HERO_LINES, PARTNER_CRIES, heroVoice, partnerVoice } from '../lib/friendLines';
+import { PARTNER_IDS, type PartnerId } from '../lib/partners';
 import { parseTokens } from '../lib/markup';
 import { MID_BOSSES } from '../lib/midboss';
 
@@ -50,14 +51,33 @@ const MID_CAST: Record<number, Record<'angry' | 'happy', Cast>> = {
 const pitch = (r: number) => `asetrate=${24000 * r},aresample=24000,atempo=${(1 / r).toFixed(4)}`;
 // 勇者：元気な 男の子。少し 高く して 子どもっぽく する
 const HERO_CAST: Cast = { voice: 'Puck', long: 'energetic, brave young boy hero, cheerful and confident', short: 'energetic young boy', fx: pitch(1.12) };
-// ホムラ：たまごの ころは 小さく 高い 声、しんかするほど 低く 大きな ほえ声。ことばでは なく 鳴き声
-const HOMURA_CAST: Cast[] = [
-  { voice: 'Leda', long: 'tiny cute baby dragon squeaking happily, not words', short: 'tiny baby dragon squeak', fx: pitch(1.3) },
-  { voice: 'Leda', long: 'small baby dragon squealing like a little animal, not words', short: 'baby dragon squeal', fx: pitch(1.4) },
-  { voice: 'Fenrir', long: 'young dragon growling and yelping like a wild animal, not words', short: 'young dragon yelp', fx: pitch(0.9) },
-  { voice: 'Algenib', long: 'big dragon roaring like a beast, not words', short: 'big dragon roar', fx: `${pitch(0.75)},aecho=0.8:0.5:40:0.25` },
-  { voice: 'Algenib', long: 'huge legendary dragon, mighty thunderous roar, not words', short: 'mighty dragon roar', fx: `${pitch(0.75)},aecho=0.8:0.6:60:0.3` },
-];
+// 相棒：ことばでは なく 鳴き声。しんかするほど 大きく りっぱな 声に する
+const PARTNER_CAST: Record<PartnerId, Cast[]> = {
+  // ホムラ：たまごの ころは 小さく 高い 声、しんかするほど 低く 大きな ほえ声
+  fire: [
+    { voice: 'Leda', long: 'tiny cute baby dragon squeaking happily, not words', short: 'tiny baby dragon squeak', fx: pitch(1.3) },
+    { voice: 'Leda', long: 'small baby dragon squealing like a little animal, not words', short: 'baby dragon squeal', fx: pitch(1.4) },
+    { voice: 'Fenrir', long: 'young dragon growling and yelping like a wild animal, not words', short: 'young dragon yelp', fx: pitch(0.9) },
+    { voice: 'Algenib', long: 'big dragon roaring like a beast, not words', short: 'big dragon roar', fx: `${pitch(0.75)},aecho=0.8:0.5:40:0.25` },
+    { voice: 'Algenib', long: 'huge legendary dragon, mighty thunderous roar, not words', short: 'mighty dragon roar', fx: `${pitch(0.75)},aecho=0.8:0.6:60:0.3` },
+  ],
+  // モリー：小さい ころは リスの 高い 声、さいごは 森の まもりがみの ひびく 声
+  wood: [
+    { voice: 'Leda', long: 'tiny baby squirrel squeaking, not words', short: 'baby squirrel squeak', fx: pitch(1.45) },
+    { voice: 'Leda', long: 'little squirrel chattering quickly, not words', short: 'squirrel chatter', fx: pitch(1.4) },
+    { voice: 'Leda', long: 'lively squirrel chirping excitedly, not words', short: 'squirrel chirp', fx: pitch(1.3) },
+    { voice: 'Kore', long: 'brave forest guardian squirrel crying out, animal sound, not words', short: 'forest animal cry', fx: pitch(1.1) },
+    { voice: 'Fenrir', long: 'mighty forest guardian beast howling powerfully like a wolf, loud and proud, not words', short: 'mighty beast howl', fx: `${pitch(0.9)},aecho=0.8:0.6:80:0.35` },
+  ],
+  // キララ：ひよこの ピヨピヨ から、さいごは 星の フェニックスの すんだ 声
+  light: [
+    { voice: 'Leda', long: 'tiny newborn chick peeping, not words', short: 'baby chick peep', fx: pitch(1.45) },
+    { voice: 'Leda', long: 'little chick chirping happily, not words', short: 'chick chirp', fx: pitch(1.35) },
+    { voice: 'Aoede', long: 'songbird trilling beautifully, bird sound, not words', short: 'songbird trill', fx: pitch(1.3) },
+    { voice: 'Aoede', long: 'graceful bird of light singing a high clear call, not words', short: 'clear bird call', fx: pitch(1.2) },
+    { voice: 'Zephyr', long: 'legendary phoenix letting out a loud, piercing, majestic battle cry like a great eagle, not words', short: 'loud majestic eagle cry', fx: `${pitch(1.1)},aecho=0.8:0.7:70|140:0.35|0.2` },
+  ],
+};
 
 function apiKey(): string | null {
   if (!existsSync(join(ROOT, '.env.local'))) return null;
@@ -122,7 +142,9 @@ function jobs(): Job[] {
     out.push({ name: `mid-${m.id}-happy`, key: 'mid', text: plain(m.happyLine), casts: [MID_CAST[m.id].happy] });
   }
   HERO_LINES.forEach((l, i) => out.push({ name: heroVoice(i + 1), key: 'hero', text: plain(l), casts: [HERO_CAST] }));
-  HOMURA_CRIES.forEach((l, i) => out.push({ name: partnerVoice('fire', i + 1)!, key: 'homura', text: l, casts: [HOMURA_CAST[i]] }));
+  for (const id of PARTNER_IDS) {
+    PARTNER_CRIES[id].forEach((l, i) => out.push({ name: partnerVoice(id, i + 1), key: id, text: l, casts: [PARTNER_CAST[id][i]] }));
+  }
   return out;
 }
 

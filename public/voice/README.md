@@ -1,7 +1,7 @@
 # ボスと なかまの 声
 
 ボスの せりふを 読みあげた 音声です（ステージボス：`lib/bossLines.ts`、中ボス：`lib/midboss.ts` の line）。
-主人公の せりふと ホムラの 鳴き声も あります（`lib/friendLines.ts`）。
+主人公の せりふと 相棒（ホムラ・モリー・キララ）の 鳴き声も あります（`lib/friendLines.ts`）。
 
 | ファイル | 鳴る場所 |
 |---|---|
@@ -9,8 +9,8 @@
 | stage-<n>-happy.mp3 | ボスせんで クリアした あとの けっか画面（ファンファーレの あと） |
 | mid-<id>.mp3 | 中ボスが あらわれた とき（ジャジャーンの あと） |
 | hero-<1〜6>.mp3 | ずかんの「なかま」で 主人公を おした とき（称号の 段階ごと） |
-| partner-fire-<1〜5>.mp3 | ずかんの「なかま」で ホムラを おした とき（しんかの 段階ごと） |
+| partner-<fire\|wood\|light>-<1〜5>.mp3 | ずかんの「なかま」で 相棒を おした とき（しんかの 段階ごと） |
 
-`npx tsx scripts/gen-voices.ts` で Gemini の 音声合成から 作ります（ない ものだけ。`--force 3` で ステージ3、`--force mid` で 中ボス、`hero`・`homura` で なかまを 作りなおす）。
+`npx tsx scripts/gen-voices.ts` で Gemini の 音声合成から 作ります（ない ものだけ。`--force 3` で ステージ3、`--force mid` で 中ボス、`hero`・`fire`・`wood`・`light` で なかまを 作りなおす）。
 プロキシ ごしに 呼ぶ 環境では `NODE_USE_ENV_PROXY=1` を つけます。
 せりふを 書きかえたら、その ステージを 作りなおしてください。効果音を 切っていると 鳴りません。

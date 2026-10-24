@@ -14,7 +14,7 @@ import { sfx } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 import { BossBubble } from '@/components/BossBubble';
 import { PartnerAvatar } from '@/components/Partner';
-import { HERO_LINES, HOMURA_CRIES, heroVoice, partnerVoice } from '@/lib/friendLines';
+import { HERO_LINES, PARTNER_CRIES, heroVoice, partnerVoice } from '@/lib/friendLines';
 import { EVOLVE_AT, formName, PARTNERS } from '@/lib/partners';
 import { TITLES } from '@/lib/progress';
 
@@ -181,7 +181,7 @@ type FriendEntry = { key: string; group: 'hero' | 'partner'; rank: number; title
 
 function friendEntries(d: AppData): FriendEntry[] {
   const p = PARTNERS[d.profile!.partner];
-  const cries = d.profile!.partner === 'fire' ? HOMURA_CRIES : [];
+  const cries = PARTNER_CRIES[d.profile!.partner];
   return [
     ...TITLES.map(([lv, t], i): FriendEntry => ({
       key: `h${i + 1}`, group: 'hero', rank: i + 1, title: t, sub: d.profile!.name, line: HERO_LINES[i], say: heroVoice(i + 1),
@@ -207,7 +207,7 @@ function FriendPic({ e, d, size, mood }: { e: FriendEntry; d: AppData; size: num
   );
 }
 
-/** なかまずかん：主人公（称号ごとの すがた）と 相棒（しんかごとの すがた）。おすと しゃべる（ホムラは 鳴く） */
+/** なかまずかん：主人公（称号ごとの すがた）と 相棒（しんかごとの すがた）。おすと しゃべる（相棒は 鳴く） */
 function FriendZukan({ d, sel, onSel }: { d: AppData; sel: string; onSel: (key: string) => void }) {
   const list = friendEntries(d);
   const e = list.find((x) => x.key === sel) ?? list[0];
