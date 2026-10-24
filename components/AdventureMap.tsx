@@ -13,7 +13,8 @@ import { Mk } from '@/components/ui';
 import { PartnerAvatar } from '@/components/Partner';
 import type { PartnerId } from '@/lib/partners';
 import { MAP_ART, STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
-import { sfx } from '@/lib/sfx';
+import { sfx, voice } from '@/lib/sfx';
+import { stageVoice } from '@/lib/bossLines';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -141,6 +142,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
             if (n.kind === 'boss') {
               const cleared = bossCleared(n.stage);
               const size = bossSize(n.stage);
+              // 行ける ボスを タップすると、ステージ画面へ 行きながら 今の せりふを しゃべる（たおす前は おこる、たおしたら ほめる）
               // まだ たおしていない ボスは 黒い シルエットに して、どんな ボスか わからなくする（先の ステージは うすく）。たおしたら ニッコリ顔
               const filter = cleared ? undefined : open ? 'brightness(0) opacity(.85)' : 'brightness(0) opacity(.45)';
               const body = (
@@ -152,7 +154,7 @@ export function AdventureMap({ current, practiced, bossCleared, partner, partner
                 </>
               );
               return open ? (
-                <Link key={n.i} href={`/stage/${n.stage}/`} onClick={() => sfx('tap')} aria-label={`${n.i === here.i ? 'いまここ：' : ''}ステージ${n.stage}のボス`} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center no-underline" style={pos}>{body}</Link>
+                <Link key={n.i} href={`/stage/${n.stage}/`} onClick={() => { sfx('tap'); voice(stageVoice(n.stage, cleared)); }} aria-label={`${n.i === here.i ? 'いまここ：' : ''}ステージ${n.stage}のボス`} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center no-underline" style={pos}>{body}</Link>
               ) : (
                 <div key={n.i} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center" style={pos}>{body}</div>
               );
