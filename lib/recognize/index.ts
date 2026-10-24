@@ -221,17 +221,27 @@ function alignTo(user: Stroke[], tpl: Pt[]): Stroke[] {
   return cur;
 }
 
+/**
+ * 画ごとに 見る ときの、まわりの ずれの 合わせかた。
+ * 字ぜんたいを 合わせても、へんと つくりの 高さが ずれて いると（「語」の 五 が 下に ある など）、
+ * 書けている 画まで「ない」に なる。そこで その画の まわり（LOCAL_R 以内）の ほかの 画で、ずれを はかって 合わせる。
+ * その画 自身は 使わない（ぬけた画が となりの 線に 引きよせられて「ある」に ならない ように）
+ */
+const LOCAL_R = 0.2;
+const LOCAL_SHIFT = 0.05;
+const LOCAL_ITER = 4;
+
 /** お手本の 画ごとに、書いた線までの 平均距離を かえす（大きい 画ほど 書けていない） */
 function strokeGaps(strokes: Stroke[], expected: string): number[] {
   const usable = strokes.filter((s) => s.length > 0);
   const tpl = normalize(STROKES[expected].map(pathToPoints)).map(resample);
   const user = alignTo(normalize(usable), tpl.flat()).flatMap(resample);
-  return tpl.map((st) => {
+  const gapOf = (st: Feat[], ox: number, oy: number) => {
     let sum = 0;
     for (const p of st) {
       let best = Infinity;
       for (const q of user) {
-        const d = Math.hypot(p.x - q.x, p.y - q.y);
+        const d = Math.hypot(p.x + ox - q.x, p.y + oy - q.y);
         if (d >= best) continue;
         const v = d + DIR_W * (1 - Math.abs(p.dx * q.dx + p.dy * q.dy));
         if (v < best) best = v;
@@ -239,6 +249,24 @@ function strokeGaps(strokes: Stroke[], expected: string): number[] {
       sum += best;
     }
     return sum / st.length;
+  };
+  return tpl.map((st, k) => {
+    const cx = st.reduce((a, p) => a + p.x, 0) / st.length, cy = st.reduce((a, p) => a + p.y, 0) / st.length;
+    const near = tpl.flatMap((t, j) => (j === k ? [] : t)).filter((p) => Math.hypot(p.x - cx, p.y - cy) < LOCAL_R);
+    let ox = 0, oy = 0;
+    if (near.length >= 4) {
+      for (let it = 0; it < LOCAL_ITER; it++) {
+        let sx = 0, sy = 0;
+        for (const p of near) {
+          const q = nearest({ x: p.x + ox, y: p.y + oy }, user);
+          sx += q.x - p.x; sy += q.y - p.y;
+        }
+        ox = sx / near.length; oy = sy / near.length;
+        const l = Math.hypot(ox, oy);
+        if (l > LOCAL_SHIFT) { ox *= LOCAL_SHIFT / l; oy *= LOCAL_SHIFT / l; }
+      }
+    }
+    return gapOf(st, ox, oy);
   });
 }
 

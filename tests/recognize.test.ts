@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { KANA_POOL, KANJI_POOL, judge, judgeCopy, judgeKana, judgeKanji } from '@/lib/recognize';
+import { KANA_POOL, KANJI_POOL, checkCopy, judge, judgeCopy, judgeKana, judgeKanji } from '@/lib/recognize';
 import { fakeHand, rng } from './fake-hand';
+import type { Pt } from '@/lib/recognize/svgPath';
 
 // 子どもが書いたような線（ゆがみ・書き順ちがい・つづけ書き）で、合格率と誤合格率を確かめる
 function rates(pool: readonly string[], mess: number, every = 4) {
@@ -93,6 +94,33 @@ describe('5回れんしゅう の判定', () => {
     let ok = 0;
     for (let seed = 0; seed < 20; seed++) if (judgeCopy(fakeHand('遠', seed * 17 + 3, { mess: 1.3, shuffle: true, joinProb: 0.15 }), '遠')) ok++;
     expect(ok / 20).toBeGreaterThanOrEqual(0.8);
+  });
+
+  // 実機で 書いた「語」（写真から 線を おこしたもの。700×700 の マス）
+  /** 点を つないだ 線（1区間 10点） */
+  const L = (...p: number[][]) => {
+    const out: Pt[] = [];
+    for (let i = 1; i < p.length; i++) for (let t = 0; t < 10; t++) out.push({ x: p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t / 10, y: p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t / 10 });
+    out.push({ x: p[p.length - 1][0], y: p[p.length - 1][1] });
+    return out;
+  };
+  /** 1回目（そのまま できた） */
+  const pad1 = [L([145,120],[175,110],[205,170]),L([55,265],[270,275]),L([120,350],[240,348]),L([140,450],[245,452]),L([110,535],[105,650]),L([110,535],[235,510],[200,635]),L([90,660],[240,630]),
+    L([390,140],[615,148]),L([470,135],[425,320]),L([390,215],[540,210],[505,340]),L([370,330],[630,350]),L([400,455],[410,600]),L([400,455],[550,445],[520,590]),L([410,600],[560,590])];
+  /** 3回目（五 が へんより 下に 書いてあり、五の 一 が「ない」に なっていた） */
+  const pad3 = [L([185,105],[240,195]),L([90,285],[315,235]),L([170,360],[280,345]),L([160,465],[270,452]),L([95,545],[120,655]),L([95,545],[270,505],[215,655]),L([145,640],[240,655]),
+    L([425,178],[590,170]),L([495,185],[455,330]),L([390,262],[560,228],[545,340]),L([375,350],[610,340]),L([390,425],[400,575]),L([400,430],[550,425],[520,550]),L([400,575],[545,555])];
+  const lower = (h: Pt[][], dy: number) => h.map((s, j) => (j >= 7 ? s.map((p) => ({ x: p.x, y: p.y + dy })) : s));
+
+  it('へんと つくりの 高さが ずれていても、画が そろっていれば できた（「語」）', () => {
+    expect(checkCopy(pad1, '語')).toEqual({ ok: true, missing: [] });
+    for (const dy of [0, 15, 30]) expect(checkCopy(lower(pad3, dy), '語'), `dy=${dy}`).toEqual({ ok: true, missing: [] });
+  });
+
+  it('ずれを 合わせても、ぬけた画は ぬけた まま（「語」の 五 の 一）', () => {
+    const r = checkCopy(lower(pad3, 15).filter((_, j) => j !== 7), '語');
+    expect(r.ok).toBe(false);
+    expect(r.missing).toContain(7);
   });
 
   it('画が 大きく足りない字は できた に しない', () => {
