@@ -188,7 +188,7 @@ function friendEntries(d: AppData): FriendEntry[] {
       unlocked: d.titleRank > i, hint: `Lv.${lv}に なると 見られるよ`,
     })),
     ...EVOLVE_AT.map((n, i): FriendEntry => ({
-      key: `p${i + 1}`, group: 'partner', rank: i + 1, title: formName(d.profile!.partner, i + 1), sub: `${p.name}（しんか ${i + 1}）`, line: cries[i] ?? '', say: partnerVoice(d.profile!.partner, i + 1),
+      key: `p${i + 1}`, group: 'partner', rank: i + 1, title: formName(d.profile!.partner, i + 1), sub: `なまえ：${p.name}　しんか ${i + 1}の すがた`, line: cries[i] ?? '', say: partnerVoice(d.profile!.partner, i + 1),
       unlocked: d.evo.stage > i, hint: `${n}{字:じ} れんしゅう すると 見られるよ`,
     })),
   ];
