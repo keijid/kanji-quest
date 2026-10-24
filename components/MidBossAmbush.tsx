@@ -1,13 +1,13 @@
 'use client';
 // 中ボス：地図で つぎの ステージの 字を えらぶと、いきなり 画面が ゆれて とび出してくる（lib/midboss.ts）
 // 「たたかう！」で 中ボスせんへ。「あとで」なら 地図に もどるが、つぎに 字を えらぶと また あらわれる
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Btn, Mk } from '@/components/ui';
 import type { AppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
 import { midBossCount, midBossSet, midBossStages, pendingMidBoss, type MidBoss } from '@/lib/midboss';
-import { sfx } from '@/lib/sfx';
+import { preloadVoice, sfx, voice } from '@/lib/sfx';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
@@ -20,9 +20,12 @@ export function useMidBossGate(d: AppData | undefined) {
   const startSet = useGame((s) => s.startSet);
   const [shown, setShown] = useState<MidBoss | null>(null);
   const mb = d ? pendingMidBoss(d.bossCleared, d.midCleared) : null;
+  // あらわれたら ジャジャーンの あとに せりふを しゃべる（声は 先に 読みこんで おく）
+  const mbId = mb?.id;
+  useEffect(() => { if (mbId) preloadVoice(`mid-${mbId}`); }, [mbId]);
 
   const gate = (stage: number, go: () => void) => {
-    if (mb && stage > mb.after) { sfx('ambush'); setShown(mb); } else go();
+    if (mb && stage > mb.after) { sfx('ambush'); voice(`mid-${mb.id}`, 0.9); setShown(mb); } else go();
   };
   const fight = () => {
     if (!d || !shown) return;

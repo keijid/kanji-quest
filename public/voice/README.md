@@ -1,12 +1,13 @@
 # ボスの 声
 
-ステージボス（お父さん・お母さん）の せりふ（`lib/bossLines.ts`）を 読みあげた 音声です。
+ボスの せりふを 読みあげた 音声です（ステージボス：`lib/bossLines.ts`、中ボス：`lib/midboss.ts` の line）。
 
 | ファイル | 鳴る場所 |
 |---|---|
 | stage-<n>-angry.mp3 | ステージ画面で「ボスせん」を えらんだ とき |
 | stage-<n>-happy.mp3 | ボスせんで クリアした あとの けっか画面（ファンファーレの あと） |
+| mid-<id>.mp3 | 中ボスが あらわれた とき（ジャジャーンの あと） |
 
-`npx tsx scripts/gen-voices.ts` で Gemini の 音声合成から 作ります（ない ものだけ。`--force 3` で ステージ3を 作りなおす）。
+`npx tsx scripts/gen-voices.ts` で Gemini の 音声合成から 作ります（ない ものだけ。`--force 3` で ステージ3、`--force mid` で 中ボスを 作りなおす）。
 プロキシ ごしに 呼ぶ 環境では `NODE_USE_ENV_PROXY=1` を つけます。
 せりふを 書きかえたら、その ステージを 作りなおしてください。効果音を 切っていると 鳴りません。

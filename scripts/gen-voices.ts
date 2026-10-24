@@ -1,14 +1,17 @@
-// ステージボス（お父さん・お母さん）の せりふを Gemini の 音声合成で mp3 に する → public/voice/stage-<n>-<angry|happy>.mp3
+// ボスの せりふを Gemini の 音声合成で mp3 に する → public/voice/
+//   ステージボス（お父さん・お母さん）：stage-<n>-<angry|happy>.mp3 ／ 中ボス（あらわれた ときの せりふ）：mid-<id>.mp3
 // キーは .env.local の GEMINI_API_KEY（キーを 自動で つける プロキシ ごしなら なくてよい）。ffmpeg が いる。
 // 使い方:
 //   npx tsx scripts/gen-voices.ts            … ない ものだけ 作る
 //   npx tsx scripts/gen-voices.ts --force 3  … ステージ3を 作りなおす（--force だけなら ぜんぶ）
+//   npx tsx scripts/gen-voices.ts --force mid … 中ボスを 作りなおす
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { bossLine } from '../lib/bossLines';
 import { parseTokens } from '../lib/markup';
+import { MID_BOSSES } from '../lib/midboss';
 
 const ROOT = join(__dirname, '..');
 const OUT = join(ROOT, 'public/voice');
@@ -23,6 +26,16 @@ const TONE: Record<Who, string> = { dad: 'deep, smooth, handsome low voice', mom
 const MOOD: Record<Who, Record<'angry' | 'happy', string>> = {
   dad: { angry: 'furious and terrifying, roaring like a menacing final boss', happy: 'smiling, proud and warm' },
   mom: { angry: 'icy, terrifying rage', happy: 'smiling, proud and warm' },
+};
+
+/** 1人ぶんの 声：声の 名前と、演技の 指示（long が だめなら short で やりなおす）。pre は せりふの 前に 言わせる ことば（[ ] の 指示も 書ける） */
+type Cast = { voice: string; long: string; short: string; pre?: string };
+const cast = (w: Who, mood: 'angry' | 'happy'): Cast => ({ voice: VOICE[w], long: `${TONE[w]}; ${MOOD[w][mood]}`, short: MOOD[w][mood] });
+// 中ボス：1＝おまわりさん（ゴリラの 着ぐるみ。ゴリラっぽい 声）、2＝インフルエンサー（気どった 声）
+const MID_CAST: Record<number, Cast> = {
+  // 指示だけだと ゴリラっぽく ならないので、さいしょに「ウホッ、ウホッ！」と 言わせる
+  1: { voice: 'Algenib', long: '', short: '', pre: '[huffing like a gorilla] ウホッ、ウホッ！ [gruff gorilla voice] ' },
+  2: { voice: 'Zephyr', long: 'affected, snobbish show-off influencer talking to her livestream; smug and posh', short: 'smug, affected influencer' },
 };
 
 function apiKey(): string | null {
@@ -41,7 +54,7 @@ async function tts(text: string, voice: string, style: string): Promise<Buffer> 
       method: 'POST',
       headers: { 'content-type': 'application/json', ...(key ? { 'x-goog-api-key': key } : {}) },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: `${style} ${text}` }] }],
+        contents: [{ parts: [{ text: `${style} ${text}`.trim() }] }],
         generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } } },
       }),
     });
@@ -73,28 +86,41 @@ function toMp3(wavs: Buffer[], out: string) {
   rmSync(tmp, { recursive: true, force: true });
 }
 
+type Job = { name: string; key: string; text: string; casts: Cast[] };
+
+function jobs(): Job[] {
+  const out: Job[] = [];
+  for (let stage = 1; stage <= 16; stage++) {
+    const who: Who[] = stage === 16 ? ['dad', 'mom'] : stage % 2 ? ['dad'] : ['mom'];
+    for (const mood of ['angry', 'happy'] as const) {
+      out.push({ name: `stage-${stage}-${mood}`, key: String(stage), text: plain(bossLine(stage, mood === 'happy')), casts: who.map((w) => cast(w, mood)) });
+    }
+  }
+  for (const m of MID_BOSSES) out.push({ name: `mid-${m.id}`, key: 'mid', text: plain(m.line), casts: [MID_CAST[m.id]] });
+  return out;
+}
+
 async function main() {
   const a = process.argv.slice(2);
   const force = a.includes('--force');
-  const only = a.filter((x) => /^\d+$/.test(x)).map(Number);
+  const only = a.filter((x) => x !== '--force');
   mkdirSync(OUT, { recursive: true });
-  for (let stage = 1; stage <= 16; stage++) {
-    if (only.length && !only.includes(stage)) continue;
-    const who: Who[] = stage === 16 ? ['dad', 'mom'] : stage % 2 ? ['dad'] : ['mom'];
-    for (const mood of ['angry', 'happy'] as const) {
-      const out = join(OUT, `stage-${stage}-${mood}.mp3`);
-      if (existsSync(out) && !force) continue;
-      const text = plain(bossLine(stage, mood === 'happy'));
-      for (let tryNo = 1; ; tryNo++) {
-        // 2回 だめなら 指示を みじかく する（声の 感じは はずして、気持ちだけ）
-        const tag = (w: Who) => (tryNo <= 2 ? `[${TONE[w]}; ${MOOD[w][mood]}]` : `[${MOOD[w][mood]}]`);
-        const wavs = await Promise.all(who.map((w) => tts(text, VOICE[w], tag(w))));
-        toMp3(wavs, out);
-        const sec = seconds(out);
-        if (sec <= maxSeconds(text) || tryNo >= 4) {
-          console.log(`${sec <= maxSeconds(text) ? '✓' : '⚠ 長い'} stage-${stage}-${mood} ${sec.toFixed(1)}秒: ${text}`);
-          break;
-        }
+  for (const { name, key, text, casts } of jobs()) {
+    if (only.length && !only.includes(key)) continue;
+    const out = join(OUT, `${name}.mp3`);
+    if (existsSync(out) && !force) continue;
+    for (let tryNo = 1; ; tryNo++) {
+      // 2回 だめなら 指示を みじかく する（声の 感じは はずして、気持ちだけ）
+      const wavs = await Promise.all(casts.map((c) => {
+        const tag = tryNo <= 2 ? c.long : c.short;
+        return tts(`${c.pre ?? ''}${text}`, c.voice, tag ? `[${tag}]` : '');
+      }));
+      toMp3(wavs, out);
+      const sec = seconds(out);
+      const max = maxSeconds(`${(casts[0].pre ?? '').replace(/\[[^\]]*\]/g, '').trim()}${text}`);
+      if (sec <= max || tryNo >= 4) {
+        console.log(`${sec <= max ? '✓' : '⚠ 長い'} ${name} ${sec.toFixed(1)}秒: ${text}`);
+        break;
       }
     }
   }
