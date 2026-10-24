@@ -1,5 +1,6 @@
 'use client';
 // 03 ステージ：10字を1字ずつ順番に練習 → 全部おわったらボスせん
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { BackBtn, Card, Mk, Screen } from '@/components/ui';
 import { useAppData } from '@/lib/hooks';
@@ -7,7 +8,7 @@ import { STAGE_COUNT, STAGE_NAMES, stageKanji } from '@/lib/data';
 import { bossUnlocked } from '@/lib/progress';
 import { bossSet } from '@/lib/quiz';
 import { useGame } from '@/lib/game';
-import { sfx } from '@/lib/sfx';
+import { preloadVoice, sfx, voice } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 import { useMidBossGate } from '@/components/MidBossAmbush';
 import { BossBubble } from '@/components/BossBubble';
@@ -20,6 +21,8 @@ export function StageScreen({ stage }: { stage: number }) {
   const startSet = useGame((s) => s.startSet);
   const startLesson = useGame((s) => s.startLesson);
   const { gate, popup } = useMidBossGate(d);
+  // ボスせんを えらんだら ボスが おこる（声は 先に 読みこんで おく）
+  useEffect(() => { preloadVoice(`stage-${stage}-angry`); }, [stage]);
   if (!d?.profile) return null;
 
   const chars = stageKanji(stage).map((k) => k.char);
@@ -35,7 +38,7 @@ export function StageScreen({ stage }: { stage: number }) {
   const lesson = (c: string) => { sfx('tap'); gate(stage, () => { startLesson(c); router.push('/lesson/'); }); };
   const boss = () => {
     sfx('tap');
-    gate(stage, () => { startSet(bossSet(stage)); router.push('/play/'); });
+    gate(stage, () => { voice(`stage-${stage}-angry`); startSet(bossSet(stage)); router.push('/play/'); });
   };
 
   const cardCls = 'press flex flex-col gap-2 rounded-[18px] border-[3px] border-ink p-[18px] text-left shadow-hard-5';

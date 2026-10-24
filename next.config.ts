@@ -8,10 +8,10 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 // 静的に書き出す全画面。Service Worker が先に保存して、オフラインでも開けるようにする
 const ROUTES = ['', 'onboard', 'home', 'lesson', 'play', 'result', 'practice', 'zukan', 'mock', 'parent', 'credits', ...Array.from({ length: 16 }, (_, i) => `stage/${i + 1}`)];
 const revision = process.env.GITHUB_SHA ?? String(Date.now());
-// public/ の画像（相棒の絵・アイコン・マップの背景・ボス・モードのアイコン・勇者の絵）も先に保存する
-const PUBLIC_FILES = ['partners', 'icons', 'maps', 'bosses', 'modes', 'heroes']
+// public/ の画像（相棒の絵・アイコン・マップの背景・ボス・モードのアイコン・勇者の絵）と ボスの 声も先に保存する
+const PUBLIC_FILES = ['partners', 'icons', 'maps', 'bosses', 'modes', 'heroes', 'voice']
   .filter((dir) => existsSync(`public/${dir}`))
-  .flatMap((dir) => readdirSync(`public/${dir}`).filter((f) => /\.(png|jpg|webp)$/.test(f)).map((f) => `${dir}/${f}`));
+  .flatMap((dir) => readdirSync(`public/${dir}`).filter((f) => /\.(png|jpg|webp|mp3)$/.test(f)).map((f) => `${dir}/${f}`));
 
 const withSerwist = withSerwistInit({
   swSrc: 'app/sw.ts',

@@ -80,3 +80,44 @@ export function sfx(name: SfxName) {
   src.connect(ctx.destination);
   src.start();
 }
+
+// ステージボス（お父さん・お母さん）の 声。public/voice/stage-<n>-<angry|happy>.mp3（scripts/gen-voices.ts で 作る）
+// 効果音を 切っていれば 鳴らさない。つぎの 声が 鳴ったら 前の 声は 止める
+const voiceFiles = new Map<string, Promise<ArrayBuffer | null>>();
+const voiceBufs = new Map<string, AudioBuffer>();
+let voiceSrc: AudioBufferSourceNode | null = null;
+
+/** 先に 読みこんで おく（鳴らす ときに 待たない） */
+export function preloadVoice(name: string) {
+  if (typeof window === 'undefined' || voiceFiles.has(name)) return voiceFiles.get(name);
+  const p = fetch(`${BASE}/voice/${name}.mp3`).then((r) => (r.ok ? r.arrayBuffer() : null)).catch(() => null);
+  voiceFiles.set(name, p);
+  return p;
+}
+
+/** delay 秒 あとに 鳴らす（読みこみに 時間が かかったら、その ぶん 待つ 時間を へらす） */
+export function voice(name: string, delay = 0) {
+  if (!enabled || !ctx) return;
+  const c = ctx;
+  const at = c.currentTime + delay;
+  void (async () => {
+    let buf = voiceBufs.get(name);
+    if (!buf) {
+      const file = await preloadVoice(name);
+      if (!file) return;
+      try {
+        buf = await c.decodeAudioData(file.slice(0));
+      } catch {
+        return;
+      }
+      voiceBufs.set(name, buf);
+    }
+    if (!enabled || ctx !== c) return;
+    try { voiceSrc?.stop(); } catch { /* もう 止まっている */ }
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    src.connect(c.destination);
+    src.start(Math.max(at, c.currentTime));
+    voiceSrc = src;
+  })();
+}

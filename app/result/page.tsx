@@ -7,7 +7,7 @@ import { useAppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
 import { STAGE_NAMES, stageKanji } from '@/lib/data';
 import { evolution, PARTNERS } from '@/lib/partners';
-import { sfx } from '@/lib/sfx';
+import { sfx, voice } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 import { BossBubble } from '@/components/BossBubble';
 import { midBossOf, midBossSet } from '@/lib/midboss';
@@ -31,6 +31,9 @@ export default function Result() {
   // 最初の描画はサーバー側の初期値（null）なので、実際の値を見てから判断する
   useEffect(() => { if (!useGame.getState().result) router.replace('/home/'); }, [r, router]);
   useEffect(() => { if (evolved) { setShowEvolve(true); sfx('evolve'); } }, [evolved]);
+  // ボスに かったら、ファンファーレの あとで ボスが ほめる
+  const happyStage = r?.bossCleared && r.set.kind === 'boss' ? r.set.stage : undefined;
+  useEffect(() => { if (happyStage) voice(`stage-${happyStage}-happy`, 1.8); }, [happyStage]);
   if (!r || !d?.profile || !after) return null;
 
   const p = PARTNERS[d.profile.partner];
