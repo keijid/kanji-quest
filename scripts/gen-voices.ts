@@ -19,7 +19,11 @@ type Who = keyof typeof VOICE;
 
 // 演技の 指示は せりふの 頭に [ ] の タグで つける（ふつうの 文で 書くと、指示まで 読みあげて しまう）
 const TONE: Record<Who, string> = { dad: 'deep, smooth, handsome low voice', mom: 'refined, elegant, well-bred lady voice' };
-const MOOD: Record<'angry' | 'happy', string> = { angry: 'comically angry like a video game boss', happy: 'smiling, proud and warm' };
+// おこる 声は めっちゃ こわく。お母さんは どなるより 冷たく おこる（どなる 指示だと 指示まで 読みあげて しまう）
+const MOOD: Record<Who, Record<'angry' | 'happy', string>> = {
+  dad: { angry: 'furious and terrifying, roaring like a menacing final boss', happy: 'smiling, proud and warm' },
+  mom: { angry: 'icy, terrifying rage', happy: 'smiling, proud and warm' },
+};
 
 function apiKey(): string | null {
   if (!existsSync(join(ROOT, '.env.local'))) return null;
@@ -82,7 +86,9 @@ async function main() {
       if (existsSync(out) && !force) continue;
       const text = plain(bossLine(stage, mood === 'happy'));
       for (let tryNo = 1; ; tryNo++) {
-        const wavs = await Promise.all(who.map((w) => tts(text, VOICE[w], `[${TONE[w]}; ${MOOD[mood]}]`)));
+        // 2回 だめなら 指示を みじかく する（声の 感じは はずして、気持ちだけ）
+        const tag = (w: Who) => (tryNo <= 2 ? `[${TONE[w]}; ${MOOD[w][mood]}]` : `[${MOOD[w][mood]}]`);
+        const wavs = await Promise.all(who.map((w) => tts(text, VOICE[w], tag(w))));
         toMp3(wavs, out);
         const sec = seconds(out);
         if (sec <= maxSeconds(text) || tryNo >= 4) {
