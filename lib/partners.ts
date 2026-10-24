@@ -2,14 +2,14 @@ import { TOTAL } from './data';
 
 export type PartnerId = 'fire' | 'wood' | 'light';
 
-/** name は 相棒の 名前、forms は しんかの 段階 1〜5 ごとの すがたの 名前 */
+/** name は 相棒の 名前、forms は しんかの 段階 1〜5 ごとの すがたの 名前（長い 名前は 空白の ところで 折りかえす） */
 export const PARTNERS: Record<PartnerId, { name: string; kind: string; elem: string; color: string; tint: string; forms: string[] }> = {
   fire: { name: 'ホムラ', kind: 'ドラゴン', elem: 'ほのお', color: '#b8321f', tint: 'repeating-linear-gradient(45deg,#f6d6c4 0 10px,#efc6ae 10px 20px)',
-    forms: ['ヒノコドラ', 'フレアドラ', 'バーンドラゴン', 'ブレイズドラゴン', 'インフェルノカイザー'] },
+    forms: ['ヒノコドラ', 'フレアドラ', 'バーン ドラゴン', 'ブレイズ ドラゴン', 'インフェルノ カイザー'] },
   wood: { name: 'モリー', kind: 'リス', elem: 'もり', color: '#5a8a3a', tint: 'repeating-linear-gradient(45deg,#e6f0cc 0 10px,#d8e8b4 10px 20px)',
-    forms: ['ドングリス', 'コノミリス', 'リーフリス', 'フォレストガーディアン', 'ユグドラリス'] },
+    forms: ['ドングリス', 'コノミリス', 'リーフリス', 'フォレスト ガーディアン', 'ユグドラリス'] },
   light: { name: 'キララ', kind: 'ほしどり', elem: 'ひかり', color: '#c48a12', tint: 'repeating-linear-gradient(45deg,#fbeec0 0 10px,#f6e2a0 10px 20px)',
-    forms: ['ホシタマ', 'ピヨスター', 'スターウイング', 'コメットバード', 'ギャラクシーフェニックス'] },
+    forms: ['ホシタマ', 'ピヨスター', 'スター ウイング', 'コメット バード', 'ギャラクシー フェニックス'] },
 };
 /** しんかの 段階の すがたの 名前 */
 export const formName = (id: PartnerId, stage: number) => PARTNERS[id].forms[stage - 1] ?? PARTNERS[id].name;

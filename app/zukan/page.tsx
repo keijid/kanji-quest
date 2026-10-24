@@ -231,7 +231,8 @@ function FriendZukan({ d, sel, onSel }: { d: AppData; sel: string; onSel: (key: 
                     style={{ border: on ? '3px solid #3a2614' : `2px solid ${x.unlocked ? '#3a2614' : '#c9a46a'}`, background: on ? '#f3e2b8' : x.unlocked ? '#fffdf4' : 'rgba(255,247,226,.35)' }}
                   >
                     <FriendPic e={x} d={d} size={88} />
-                    <span className="text-xs text-frame">{x.group === 'hero' ? `Lv.${TITLES[x.rank - 1][0]}〜` : `しんか ${x.rank}`}</span>
+                    {/* 相棒は すがたの 名前（まだの すがたは ひみつ） */}
+                    <span className="text-center text-xs leading-tight text-frame [word-break:keep-all]">{x.group === 'hero' ? `Lv.${TITLES[x.rank - 1][0]}〜` : x.unlocked ? x.title : '？？？'}</span>
                   </button>
                 );
               })}
