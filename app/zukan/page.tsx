@@ -12,11 +12,16 @@ import type { AppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
+import { BossBubble } from '@/components/BossBubble';
+import { PartnerAvatar } from '@/components/Partner';
+import { HERO_LINES, HOMURA_CRIES, heroVoice, partnerVoice } from '@/lib/friendLines';
+import { EVOLVE_AT, PARTNERS } from '@/lib/partners';
+import { TITLES } from '@/lib/progress';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
-// 学習の対象は小2の160字だけなので、タブは「2ねん」と「にがて」。「ボス」は たおした ボスの ずかん
-type Tab = 2 | 3 | 'boss';
+// 学習の対象は小2の160字だけなので、タブは「2ねん」と「にがて」。「ボス」は たおした ボスの ずかん、「なかま」は 主人公と 相棒
+type Tab = 2 | 3 | 'boss' | 'friends';
 
 /** ボスずかんの 1体：ステージの ボス（stage）か 中ボス（mid） */
 type BossEntry = { key: string; img: string; title: string; sub: string; mid?: boolean; cleared: (d: AppData) => boolean; say: (happy: boolean) => string };
@@ -37,6 +42,7 @@ export default function Zukan() {
   const [tab, setTab] = useState<Tab>(2);
   const [sel, setSel] = useState<string>(KANJI[0].char);
   const [bossSel, setBossSel] = useState<string | null>(null);
+  const [friendSel, setFriendSel] = useState<string | null>(null);
   if (!d?.profile) return null;
   const bosses = shownBosses(d);
   const bossCount = bosses.filter((b) => b.cleared(d)).length;
@@ -45,12 +51,12 @@ export default function Zukan() {
   const k = kanjiOf(sel);
   const rd = kanjiReadingText(k);
   const weakSet = new Set(d.weak);
-  const tabs: [Tab, string][] = [[2, `2年 ${TOTAL}`], [3, `にがて ${d.weak.length}`], ['boss', `ボス ${bossCount}/${bosses.length}`]];
+  const tabs: [Tab, string][] = [[2, `2年 ${TOTAL}`], [3, `にがて ${d.weak.length}`], ['boss', `ボス ${bossCount}/${bosses.length}`], ['friends', 'なかま']];
 
   const pickTab = (t: Tab) => {
     sfx('tap');
     setTab(t);
-    if (t === 'boss') return;
+    if (t === 'boss' || t === 'friends') return;
     const first = t === 3 ? d.weak[0] : KANJI[0].char;
     if (first) setSel(first);
   };
@@ -60,9 +66,9 @@ export default function Zukan() {
       <div className="flex flex-wrap items-center gap-[14px]">
         <BackBtn href="/home/" />
         <div className="font-yusei text-[clamp(24px,3vw,32px)]"><Mk>かん字ずかん</Mk></div>
-        {tab !== 'boss' && <div className="text-base text-frame">あつめた {d.learned} / {TOTAL}</div>}
+        {(tab === 2 || tab === 3) && <div className="text-base text-frame">あつめた {d.learned} / {TOTAL}</div>}
         <div className="flex-1" />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {tabs.map(([t, label]) => (
             <button
               key={t}
@@ -73,7 +79,7 @@ export default function Zukan() {
           ))}
         </div>
       </div>
-      {tab === 'boss' ? <BossZukan d={d} sel={bossSel ?? bosses.find((b) => b.cleared(d))?.key ?? bosses[0].key} onSel={(k) => { sfx('tap'); setBossSel(k); }} /> : (
+      {tab === 'friends' ? <FriendZukan d={d} sel={friendSel ?? `h${d.titleRank}`} onSel={(k) => { sfx('tap'); setFriendSel(k); }} /> : tab === 'boss' ? <BossZukan d={d} sel={bossSel ?? bosses.find((b) => b.cleared(d))?.key ?? bosses[0].key} onSel={(k) => { sfx('tap'); setBossSel(k); }} /> : (
       <div className="flex flex-1 flex-wrap items-start gap-5">
         <div className="grid flex-[1_1_460px] gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(60px,1fr))' }}>
           {list.length === 0 && <div className="col-span-full py-10 text-center text-lg text-frame"><Mk>にがてな かん字は ないよ！</Mk></div>}
@@ -163,6 +169,91 @@ function BossZukan({ d, sel, onSel }: { d: AppData; sel: string; onSel: (key: st
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`${BASE}/bosses/${b.img}.png`} alt="" className="aspect-square w-full max-w-[220px]" style={{ filter: 'brightness(0) opacity(.35)' }} />
             <div className="text-center text-base text-frame"><Mk>たおすと ここで 見られるよ</Mk></div>
+          </>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+/** なかまずかんの 1人：主人公（称号の 段階ごと）か 相棒（しんかの 段階ごと） */
+type FriendEntry = { key: string; group: 'hero' | 'partner'; rank: number; title: string; sub: string; line: string; say?: string; unlocked: boolean; hint: string };
+
+function friendEntries(d: AppData): FriendEntry[] {
+  const p = PARTNERS[d.profile!.partner];
+  const cries = d.profile!.partner === 'fire' ? HOMURA_CRIES : [];
+  return [
+    ...TITLES.map(([lv, t], i): FriendEntry => ({
+      key: `h${i + 1}`, group: 'hero', rank: i + 1, title: t, sub: d.profile!.name, line: HERO_LINES[i], say: heroVoice(i + 1),
+      unlocked: d.titleRank > i, hint: `Lv.${lv}に なると 見られるよ`,
+    })),
+    ...EVOLVE_AT.map((n, i): FriendEntry => ({
+      key: `p${i + 1}`, group: 'partner', rank: i + 1, title: `${p.name}（しんか ${i + 1}）`, sub: `${p.elem}の ${p.kind}`, line: cries[i] ?? '', say: partnerVoice(d.profile!.partner, i + 1),
+      unlocked: d.evo.stage > i, hint: `${n}{字:じ} れんしゅう すると 見られるよ`,
+    })),
+  ];
+}
+
+/** なかまの 絵（主人公は public/heroes/hero-<段階>.png、相棒は しんかの 段階の 絵）。まだの 段階は 黒い シルエット */
+function FriendPic({ e, d, size, mood }: { e: FriendEntry; d: AppData; size: number; mood?: 'happy' }) {
+  const style = e.unlocked ? undefined : { filter: 'brightness(0) opacity(.35)' };
+  return (
+    <span className="block" style={style}>
+      {e.group === 'hero'
+        // eslint-disable-next-line @next/next/no-img-element
+        ? <img src={`${BASE}/heroes/hero-${e.rank}.png`} alt="" draggable={false} style={{ width: size, height: size, objectFit: 'contain' }} />
+        : <PartnerAvatar id={d.profile!.partner} stage={e.rank} mood={e.unlocked ? mood : undefined} size={size} />}
+    </span>
+  );
+}
+
+/** なかまずかん：主人公（称号ごとの すがた）と 相棒（しんかごとの すがた）。おすと しゃべる（ホムラは 鳴く） */
+function FriendZukan({ d, sel, onSel }: { d: AppData; sel: string; onSel: (key: string) => void }) {
+  const list = friendEntries(d);
+  const e = list.find((x) => x.key === sel) ?? list[0];
+  const pick = (x: FriendEntry) => { onSel(x.key); if (x.unlocked && x.say) voice(x.say); };
+  const groups: [FriendEntry['group'], string][] = [['hero', '{主人公:しゅじんこう}'], ['partner', 'あいぼう']];
+  return (
+    <div className="flex flex-1 flex-wrap items-start gap-5">
+      <div className="flex flex-[1_1_460px] flex-col gap-4">
+        {groups.map(([g, label]) => (
+          <div key={g} className="flex flex-col gap-2">
+            <div className="font-yusei text-xl"><Mk>{label}</Mk></div>
+            <div className="grid gap-2.5" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(104px,1fr))' }}>
+              {list.filter((x) => x.group === g).map((x) => {
+                const on = x.key === e.key;
+                return (
+                  <button
+                    key={x.key}
+                    onClick={() => pick(x)}
+                    aria-label={x.unlocked ? x.title : 'まだ 見られない なかま'}
+                    className="flex flex-col items-center rounded-[14px] p-1.5"
+                    style={{ border: on ? '3px solid #3a2614' : `2px solid ${x.unlocked ? '#3a2614' : '#c9a46a'}`, background: on ? '#f3e2b8' : x.unlocked ? '#fffdf4' : 'rgba(255,247,226,.35)' }}
+                  >
+                    <FriendPic e={x} d={d} size={88} />
+                    <span className="text-xs text-frame">{x.group === 'hero' ? `Lv.${TITLES[x.rank - 1][0]}〜` : `しんか ${x.rank}`}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      <Card className="sticky top-4 flex flex-[1_1_300px] flex-col items-center gap-3 rounded-[20px] p-[22px]">
+        <div className="text-sm text-frame"><Mk>{e.sub}</Mk></div>
+        <div className="text-center font-yusei text-[24px]">{e.unlocked ? <Mk>{e.title}</Mk> : '？？？'}</div>
+        {e.unlocked ? (
+          <>
+            {e.line && <BossBubble line={e.line} happy tail="bottom" className="max-w-full" />}
+            <button type="button" onClick={() => e.say && voice(e.say)} aria-label={`${e.title.replace(/\{([^:}]*):[^}]*\}/g, '$1')}の こえを きく`} className={`press block ${e.say ? 'cursor-pointer' : 'cursor-default'}`}>
+              <FriendPic e={e} d={d} size={200} mood="happy" />
+            </button>
+            {e.say && <div className="text-sm text-frame">おすと しゃべるよ</div>}
+          </>
+        ) : (
+          <>
+            <FriendPic e={e} d={d} size={200} />
+            <div className="text-center text-base text-frame"><Mk>{e.hint}</Mk></div>
           </>
         )}
       </Card>

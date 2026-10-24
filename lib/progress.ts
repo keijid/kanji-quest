@@ -16,7 +16,7 @@ export function levelOf(xp: number) {
   return n;
 }
 // 竜の 力を うけつぐ 勇者の 出世（段階ごとに 勇者の 絵が かわる）
-const TITLES: [number, string][] = [
+export const TITLES: [number, string][] = [
   [1, 'かけだし ゆうしゃ'],
   [6, 'りゅうの みならい'],
   [15, 'りゅうの けんし'],
