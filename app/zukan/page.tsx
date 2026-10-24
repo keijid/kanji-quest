@@ -15,7 +15,7 @@ import { LevelUp } from '@/components/LevelUp';
 import { BossBubble } from '@/components/BossBubble';
 import { PartnerAvatar } from '@/components/Partner';
 import { HERO_LINES, HOMURA_CRIES, heroVoice, partnerVoice } from '@/lib/friendLines';
-import { EVOLVE_AT, PARTNERS } from '@/lib/partners';
+import { EVOLVE_AT, formName, PARTNERS } from '@/lib/partners';
 import { TITLES } from '@/lib/progress';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -188,7 +188,7 @@ function friendEntries(d: AppData): FriendEntry[] {
       unlocked: d.titleRank > i, hint: `Lv.${lv}に なると 見られるよ`,
     })),
     ...EVOLVE_AT.map((n, i): FriendEntry => ({
-      key: `p${i + 1}`, group: 'partner', rank: i + 1, title: `${p.name}（しんか ${i + 1}）`, sub: `${p.elem}の ${p.kind}`, line: cries[i] ?? '', say: partnerVoice(d.profile!.partner, i + 1),
+      key: `p${i + 1}`, group: 'partner', rank: i + 1, title: formName(d.profile!.partner, i + 1), sub: `${p.name}（しんか ${i + 1}）`, line: cries[i] ?? '', say: partnerVoice(d.profile!.partner, i + 1),
       unlocked: d.evo.stage > i, hint: `${n}{字:じ} れんしゅう すると 見られるよ`,
     })),
   ];

@@ -8,7 +8,7 @@ import { useAppData } from '@/lib/hooks';
 import { STAGE_COUNT, stageKanji, TOTAL } from '@/lib/data';
 import { AdventureMap } from '@/components/AdventureMap';
 import { db, today } from '@/lib/db';
-import { PARTNERS } from '@/lib/partners';
+import { formName, PARTNERS } from '@/lib/partners';
 import { reviewSet } from '@/lib/quiz';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
@@ -81,7 +81,10 @@ export default function Home() {
                 </div>
               </div>
             )}
-            <div className="font-yusei text-[26px]">{p.name}</div>
+            <div className="text-center">
+              <div className="font-yusei text-[26px]">{p.name}</div>
+              <div className="text-sm text-frame">{formName(d.profile.partner, d.evo.stage)}</div>
+            </div>
             <div className="flex gap-1.5">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="h-6 w-6 rounded-full border-2 border-ink" style={{ background: i <= d.evo.stage ? p.color : undefined }} />

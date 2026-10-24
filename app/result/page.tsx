@@ -6,7 +6,7 @@ import { PartnerAvatar } from '@/components/Partner';
 import { useAppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
 import { STAGE_NAMES, stageKanji } from '@/lib/data';
-import { evolution, PARTNERS } from '@/lib/partners';
+import { evolution, formName, PARTNERS } from '@/lib/partners';
 import { sfx, voice } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 import { BossBubble } from '@/components/BossBubble';
@@ -105,7 +105,7 @@ export default function Result() {
         <Modal>
           <div className="font-yusei text-[44px]" style={{ color: p.color }}>しんか した！</div>
           <div className="animate-poyon"><PartnerAvatar id={d.profile.partner} size={160} stage={after.stage} mood="happy" label={`${p.kind}\nしんか ${after.stage}`} /></div>
-          <div className="text-lg">{p.name}が しんか {after.stage}に なったよ！</div>
+          <div className="text-center text-lg">{p.name}が <span className="font-yusei text-[26px]" style={{ color: p.color }}>{formName(d.profile.partner, after.stage)}</span>に しんか した！</div>
           <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={() => setShowEvolve(false)}>やったね！</Btn>
         </Modal>
       )}
