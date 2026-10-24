@@ -5,6 +5,9 @@ import { BackBtn, Btn, Card, Mk } from '@/components/ui';
 import { useAppData } from '@/lib/hooks';
 import { KANJI, kanjiOf, kanjiReadingText, STAGE_COUNT, STAGE_NAMES, TOTAL } from '@/lib/data';
 import { MID_BOSSES } from '@/lib/midboss';
+import { midVoice, stageVoice } from '@/lib/bossLines';
+import { voice } from '@/lib/sfx';
+import { TalkingBoss } from '@/components/TalkingBoss';
 import type { AppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
 import { sfx } from '@/lib/sfx';
@@ -16,12 +19,12 @@ const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 type Tab = 2 | 3 | 'boss';
 
 /** ボスずかんの 1体：ステージの ボス（stage）か 中ボス（mid） */
-type BossEntry = { key: string; img: string; title: string; sub: string; mid?: boolean; cleared: (d: AppData) => boolean };
+type BossEntry = { key: string; img: string; title: string; sub: string; mid?: boolean; cleared: (d: AppData) => boolean; say: (happy: boolean) => string };
 
 /** 出てくる じゅんに ならべる（ステージ5 の ボスの あとに 中ボス1、のように） */
 const BOSSES: BossEntry[] = Array.from({ length: STAGE_COUNT }, (_, i) => i + 1).flatMap((s) => {
-  const stage: BossEntry = { key: `s${s}`, img: `stage-${s}`, title: STAGE_NAMES[s - 1], sub: `ステージ${s}の ボス`, cleared: (d) => d.bossCleared(s) };
-  const mids = MID_BOSSES.filter((m) => m.after === s).map((m): BossEntry => ({ key: `m${m.id}`, img: `mid-${m.id}`, title: m.name, sub: '{中:ちゅう}ボス', mid: true, cleared: (d) => d.midCleared(m.id) }));
+  const stage: BossEntry = { key: `s${s}`, img: `stage-${s}`, title: STAGE_NAMES[s - 1], sub: `ステージ${s}の ボス`, cleared: (d) => d.bossCleared(s), say: (h) => stageVoice(s, h) };
+  const mids = MID_BOSSES.filter((m) => m.after === s).map((m): BossEntry => ({ key: `m${m.id}`, img: `mid-${m.id}`, title: m.name, sub: '{中:ちゅう}ボス', mid: true, cleared: (d) => d.midCleared(m.id), say: (h) => midVoice(m.id, h) }));
   return [stage, ...mids];
 });
 /** ずかんに のせる ボス：中ボスは いきなり あらわれるので、たおすまでは のせない（シルエットも 出さない） */
@@ -116,7 +119,7 @@ export default function Zukan() {
   );
 }
 
-/** ボスずかん：たおした ボスは ニッコリ顔、まだの ボスは 黒い シルエット。えらぶと おこった顔と ニッコリ顔を ならべて 見られる */
+/** ボスずかん：たおした ボスは ニッコリ顔、まだの ボスは 黒い シルエット。えらぶと おこった顔と ニッコリ顔を ならべて 見られる。たおした ボスは おすと しゃべる */
 function BossZukan({ d, sel, onSel }: { d: AppData; sel: string; onSel: (key: string) => void }) {
   const b = BOSSES.find((x) => x.key === sel)!;
   const cleared = b.cleared(d);
@@ -128,7 +131,7 @@ function BossZukan({ d, sel, onSel }: { d: AppData; sel: string; onSel: (key: st
           return (
             <button
               key={x.key}
-              onClick={() => onSel(x.key)}
+              onClick={() => { onSel(x.key); if (c) voice(x.say(true)); }}
               aria-label={c ? x.title.replace(/\{([^:}]*):[^}]*\}/g, '$1') : 'まだ たおしていない ボス'}
               className="flex flex-col items-center rounded-[14px] p-1.5"
               style={{ border: on ? '3px solid #3a2614' : `2px solid ${c ? '#3a2614' : '#c9a46a'}`, background: on ? '#f3e2b8' : c ? '#fffdf4' : 'rgba(255,247,226,.35)' }}
@@ -148,8 +151,7 @@ function BossZukan({ d, sel, onSel }: { d: AppData; sel: string; onSel: (key: st
             <div className="flex w-full justify-center gap-2">
               {(['', '-happy'] as const).map((h) => (
                 <div key={h} className="flex flex-1 flex-col items-center">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`${BASE}/bosses/${b.img}${h}.png`} alt="" className="aspect-square w-full max-w-[200px]" />
+                  <TalkingBoss img={`${b.img}${h}`} say={b.say(!!h)} label={h ? 'たおしたあとの ボス' : 'たたかう まえの ボス'} className="w-full max-w-[200px]" imgClass="aspect-square w-full" />
                   <span className="text-sm text-frame">{h ? 'たおしたあと' : 'たたかう まえ'}</span>
                 </div>
               ))}

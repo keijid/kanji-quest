@@ -26,3 +26,7 @@ export const bossLine = (stage: number, happy: boolean) => {
   const l = LINES[stage];
   return l ? (happy ? l.happy : l.angry) : '';
 };
+
+/** せりふの 声（public/voice/ の ファイル名）。ステージボス：stage-<n>-<angry|happy>、中ボス：mid-<id>（あらわれた とき）・mid-<id>-happy */
+export const stageVoice = (stage: number, happy: boolean) => `stage-${stage}-${happy ? 'happy' : 'angry'}`;
+export const midVoice = (id: number, happy: boolean) => `mid-${id}${happy ? '-happy' : ''}`;

@@ -8,8 +8,8 @@ import type { AppData } from '@/lib/hooks';
 import { useGame } from '@/lib/game';
 import { midBossCount, midBossSet, midBossStages, pendingMidBoss, type MidBoss } from '@/lib/midboss';
 import { preloadVoice, sfx, voice } from '@/lib/sfx';
-
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+import { midVoice } from '@/lib/bossLines';
+import { TalkingBoss } from './TalkingBoss';
 
 /**
  * 字を えらんだ ときに 通す 関所。gate(その字の ステージ, ふだんの 動き)：
@@ -22,10 +22,10 @@ export function useMidBossGate(d: AppData | undefined) {
   const mb = d ? pendingMidBoss(d.bossCleared, d.midCleared) : null;
   // あらわれたら ジャジャーンの あとに せりふを しゃべる（声は 先に 読みこんで おく）
   const mbId = mb?.id;
-  useEffect(() => { if (mbId) preloadVoice(`mid-${mbId}`); }, [mbId]);
+  useEffect(() => { if (mbId) preloadVoice(midVoice(mbId, false)); }, [mbId]);
 
   const gate = (stage: number, go: () => void) => {
-    if (mb && stage > mb.after) { sfx('ambush'); voice(`mid-${mb.id}`, 0.9); setShown(mb); } else go();
+    if (mb && stage > mb.after) { sfx('ambush'); voice(midVoice(mb.id, false), 0.9); setShown(mb); } else go();
   };
   const fight = () => {
     if (!d || !shown) return;
@@ -46,8 +46,7 @@ function MidBossAmbush({ mb, onFight, onLater }: { mb: MidBoss; onFight: () => v
         </div>
         <div className="relative">
           <span className="animate-poyon absolute -left-10 top-0 z-[1] font-yusei text-[96px] leading-none text-gold drop-shadow-[4px_4px_0_#3a2614]" style={{ animationDelay: '0.5s' }} aria-hidden>！</span>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${BASE}/bosses/mid-${mb.id}.png`} alt={mb.name} className="animate-ambush h-[min(300px,42vh)] w-[min(300px,42vh)] max-w-none drop-shadow-[4px_6px_0_rgba(58,38,20,.35)]" />
+          <TalkingBoss img={`mid-${mb.id}`} say={midVoice(mb.id, false)} label={mb.name} imgClass="animate-ambush h-[min(300px,42vh)] w-[min(300px,42vh)] max-w-none drop-shadow-[4px_6px_0_rgba(58,38,20,.35)]" />
         </div>
         <div className="animate-poyon flex w-full flex-col gap-3 rounded-[22px] border-4 border-ink bg-card px-6 py-4 shadow-hard-8" style={{ animationDelay: '0.7s' }}>
           <div className="text-center font-yusei text-[22px] text-boss">{mb.name}</div>

@@ -12,8 +12,8 @@ import { preloadVoice, sfx, voice } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 import { useMidBossGate } from '@/components/MidBossAmbush';
 import { BossBubble } from '@/components/BossBubble';
-
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+import { TalkingBoss } from '@/components/TalkingBoss';
+import { stageVoice } from '@/lib/bossLines';
 
 export function StageScreen({ stage }: { stage: number }) {
   const d = useAppData();
@@ -22,7 +22,7 @@ export function StageScreen({ stage }: { stage: number }) {
   const startLesson = useGame((s) => s.startLesson);
   const { gate, popup } = useMidBossGate(d);
   // ボスせんを えらんだら ボスが おこる（声は 先に 読みこんで おく）
-  useEffect(() => { preloadVoice(`stage-${stage}-angry`); }, [stage]);
+  useEffect(() => { preloadVoice(stageVoice(stage, false)); }, [stage]);
   if (!d?.profile) return null;
 
   const chars = stageKanji(stage).map((k) => k.char);
@@ -38,10 +38,10 @@ export function StageScreen({ stage }: { stage: number }) {
   const lesson = (c: string) => { sfx('tap'); gate(stage, () => { startLesson(c); router.push('/lesson/'); }); };
   const boss = () => {
     sfx('tap');
-    gate(stage, () => { voice(`stage-${stage}-angry`); startSet(bossSet(stage)); router.push('/play/'); });
+    gate(stage, () => { voice(stageVoice(stage, false)); startSet(bossSet(stage)); router.push('/play/'); });
   };
 
-  const cardCls = 'press flex flex-col gap-2 rounded-[18px] border-[3px] border-ink p-[18px] text-left shadow-hard-5';
+  const cardCls = 'flex flex-col gap-2 rounded-[18px] border-[3px] border-ink p-[18px] text-left shadow-hard-5';
 
   return (
     <Screen label="03 ステージ" className="gap-[18px] pb-20 pt-4">
@@ -82,9 +82,11 @@ export function StageScreen({ stage }: { stage: number }) {
         </div>
       </Card>
 
-      <button className={`${cardCls} min-h-[120px] bg-boss text-paper disabled:cursor-default disabled:opacity-80`} onClick={boss} disabled={!unlocked}>
+      {/* カードの どこを おしても ボスせん（下に しいた ボタン）。ボスの 絵だけは おすと せりふを しゃべる */}
+      <div className={`${cardCls} relative min-h-[120px] bg-boss text-paper transition-transform duration-75 has-[.boss-go:active:not(:disabled)]:translate-x-[2px] has-[.boss-go:active:not(:disabled)]:translate-y-[2px] ${unlocked ? '' : 'opacity-80'}`}>
+        <button className="boss-go absolute inset-0 rounded-[15px] disabled:cursor-default" onClick={boss} disabled={!unlocked} aria-label="ボスせん" />
         {/* 左に 説明、右に このステージの ボスを 大きく */}
-        <div className="flex w-full flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="pointer-events-none relative flex w-full flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex flex-col gap-2">
             <div className="font-yusei text-[28px]">ボスせん</div>
             <div className="text-[15px] opacity-90"><Mk>{`10字の 読み（おくりがな）・書き・書きじゅんを ぜんぶ ためすよ（${bossCount}もん）`}</Mk></div>
@@ -95,11 +97,10 @@ export function StageScreen({ stage }: { stage: number }) {
           {/* たおしたら ニッコリ顔。吹き出しも おこる せりふ → ほめる せりふに かわる */}
           <div className="flex flex-none items-center gap-3 self-end sm:self-auto">
             <BossBubble stage={stage} happy={cleared} className="max-w-[min(42vw,300px)]" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${BASE}/bosses/stage-${stage}${cleared ? '-happy' : ''}.png`} alt="" className="-my-4 h-[190px] w-[190px] flex-none" />
+            <TalkingBoss img={`stage-${stage}${cleared ? '-happy' : ''}`} say={stageVoice(stage, cleared)} label="ボス" className="pointer-events-auto -my-4 flex-none" imgClass="h-[190px] w-[190px]" />
           </div>
         </div>
-      </button>
+      </div>
 
       <LevelUp />
       {popup}

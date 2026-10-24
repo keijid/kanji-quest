@@ -10,9 +10,9 @@ import { evolution, PARTNERS } from '@/lib/partners';
 import { sfx, voice } from '@/lib/sfx';
 import { LevelUp } from '@/components/LevelUp';
 import { BossBubble } from '@/components/BossBubble';
+import { TalkingBoss } from '@/components/TalkingBoss';
+import { midVoice, stageVoice } from '@/lib/bossLines';
 import { midBossOf, midBossSet } from '@/lib/midboss';
-
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
 const KIND_TITLE = { read: '読み', write: '書き', stroke: '書きじゅん・画数', okuri: 'おくりがな', boss: 'ボスせん', midboss: '{中:ちゅう}ボスせん', review: 'ふくしゅう', lesson: 'れんしゅう' } as const;
 
@@ -33,8 +33,8 @@ export default function Result() {
   useEffect(() => { if (evolved) { setShowEvolve(true); sfx('evolve'); } }, [evolved]);
   // ボス・中ボスに かったら、ファンファーレの あとで ボスが ほめる
   const happyVoice = !r?.bossCleared ? undefined
-    : r.set.kind === 'boss' && r.set.stage ? `stage-${r.set.stage}-happy`
-      : r.set.kind === 'midboss' && r.set.mid ? `mid-${r.set.mid}-happy` : undefined;
+    : r.set.kind === 'boss' && r.set.stage ? stageVoice(r.set.stage, true)
+      : r.set.kind === 'midboss' && r.set.mid ? midVoice(r.set.mid, true) : undefined;
   useEffect(() => { if (happyVoice) voice(happyVoice, 1.8); }, [happyVoice]);
   if (!r || !d?.profile || !after) return null;
 
@@ -67,12 +67,10 @@ export default function Result() {
         <div className="font-yusei text-[44px]">{mid ? (r.bossCleared ? <Mk>{'{中:ちゅう}ボスを たおした！'}</Mk> : 'おしい！') : r.bossCleared ? 'ステージ クリア！' : r.set.kind === 'lesson' ? `「${r.set.char}」 れんしゅう できた！` : 'よく がんばった！'}</div>
         {/* ボスに かったら、ボス（お父さん・お母さん）が ニッコリ */}
         {r.bossCleared && r.set.stage && <BossBubble stage={r.set.stage} happy tail="bottom" className="max-w-[360px]" />}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {r.bossCleared && r.set.stage && <img src={`${BASE}/bosses/stage-${r.set.stage}-happy.png`} alt="" className="animate-poyon -my-2 h-[180px] w-[180px]" />}
+        {r.bossCleared && r.set.stage && <TalkingBoss img={`stage-${r.set.stage}-happy`} say={stageVoice(r.set.stage, true)} label="ボス" className="-my-2" imgClass="animate-poyon h-[180px] w-[180px]" />}
         {/* 中ボス：たおしたら おまわりさんは ニコッ、インフルエンサーは 大わらい。まけたら おこった まま */}
         {mid && r.bossCleared && <BossBubble line={mid.happyLine} happy tail="bottom" className="max-w-[360px]" />}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {mid && <img src={`${BASE}/bosses/mid-${mid.id}${r.bossCleared ? '-happy' : ''}.png`} alt={mid.name} className="animate-poyon -my-2 h-[200px] w-[200px]" />}
+        {mid && <TalkingBoss img={`mid-${mid.id}${r.bossCleared ? '-happy' : ''}`} say={midVoice(mid.id, r.bossCleared)} label={mid.name} className="-my-2" imgClass="animate-poyon h-[200px] w-[200px]" />}
         {mid && !r.bossCleared && <div className="text-[17px] text-frame"><Mk>8わり せいかいで たおせるよ。にがての 字を ふくしゅう してから でも いいよ</Mk></div>}
         <div className="flex gap-2.5 text-[56px] leading-none text-gold">
           {[0, 1, 2].map((i) => <span key={i} className="animate-poyon" style={{ color: i < r.stars ? '#c48a12' : '#d9c49a', animationDelay: `${i * 0.15}s` }}>★</span>)}
