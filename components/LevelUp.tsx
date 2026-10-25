@@ -2,7 +2,6 @@
 // レベルが上がったら お祝いを出す。知らせた レベルは meta.seenLevel に のこす（ほかの端末でも 2回は出さない）
 import { useEffect } from 'react';
 import { Btn, Mk, Modal } from '@/components/ui';
-import { PartnerAvatar } from '@/components/Partner';
 import { db, getMeta } from '@/lib/db';
 import { useAppData } from '@/lib/hooks';
 import { titleOf, titleRank } from '@/lib/progress';
@@ -36,20 +35,16 @@ export function LevelUp({ blocked = false }: { blocked?: boolean }) {
         <span className="text-frame">→</span>
         <span className="animate-poyon text-[48px] text-primary">Lv.{level}</span>
       </div>
+      {/* レベルが 上がったのは 主人公なので、主人公の 絵を 出す */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`${BASE}/heroes/hero-${titleRank(level)}.png`} alt="" className="animate-poyon h-44 w-44 object-contain" />
       {newTitle ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`${BASE}/heroes/hero-${titleRank(level)}.png`} alt="" className="animate-poyon h-44 w-44" />
-          <div className="flex flex-col items-center gap-1">
-            <div className="text-lg">あたらしい しょうごう</div>
-            <div className="text-center font-yusei text-[30px] text-primary"><Mk>{titleOf(level)}</Mk></div>
-          </div>
-        </>
+        <div className="flex flex-col items-center gap-1">
+          <div className="text-lg">あたらしい しょうごう</div>
+          <div className="text-center font-yusei text-[30px] text-primary"><Mk>{titleOf(level)}</Mk></div>
+        </div>
       ) : (
-        <>
-          <PartnerAvatar id={d.profile.partner} stage={d.evo.stage} mood="happy" size={110} />
-          <div className="text-center text-lg">この ちょうしで がんばろう！</div>
-        </>
+        <div className="text-center text-lg">この ちょうしで がんばろう！</div>
       )}
       <Btn tone="red" className="min-h-16 w-full font-yusei text-2xl" onClick={() => void saveSeen(level)}>やったね！</Btn>
     </Modal>
