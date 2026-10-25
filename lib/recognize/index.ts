@@ -274,14 +274,16 @@ export type CopyResult = {
   ok: boolean;
   /** 書けていない（近くに 線が ない）お手本の 画（0始まり） */
   missing: number[];
-  /** だめだった わけ：画数が 足りない・画が ぬけている・形が ちがう */
-  reason?: 'few' | 'missing' | 'shape';
+  /** だめだった わけ：画数が 足りない・多すぎる・画が ぬけている・形が ちがう */
+  reason?: 'few' | 'many' | 'missing' | 'shape';
 };
 
 /**
  * お手本を見て 写す れんしゅう の判定。形が その字と みとめられ、画数も ほぼ足りていて、
  * お手本の 画が 1本も ぬけていないこと
  * （写して書くので、画数が 大きく足りないものは だめ。つなげて書く分は 1/4 まで ゆるす）
+ * 余分な線（「高」の 口の 中の ななめ線 など）は 形の 近さでは 見分けられないので、画数で 見る。
+ * 折れを 2本に 分けて 書く分として 1画だけ ゆるす
  */
 export function checkCopy(strokes: Stroke[], expected: string): CopyResult {
   const total = STROKES[expected]?.length ?? 0;
@@ -289,6 +291,7 @@ export function checkCopy(strokes: Stroke[], expected: string): CopyResult {
   if (!usable.length) return { ok: false, missing: [], reason: 'few' };
   const missing = strokeGaps(usable, expected).flatMap((g, i) => (g > MISS_MAX ? [i] : []));
   if (usable.length < total - Math.ceil(total / 4)) return { ok: false, missing, reason: 'few' };
+  if (usable.length > total + 1) return { ok: false, missing, reason: 'many' };
   if (missing.length) return { ok: false, missing, reason: 'missing' };
   if (!judge(usable, expected, KANJI_POOL, COPY_THRESH).ok) return { ok: false, missing, reason: 'shape' };
   return { ok: true, missing };

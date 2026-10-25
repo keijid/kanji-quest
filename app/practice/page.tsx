@@ -139,6 +139,7 @@ export default function Practice() {
             <div className="animate-pop-in rounded-[14px] border-2 border-dashed border-gold bg-hint px-4 py-2.5 text-[17px]">
               <Mk>{retry.reason === 'missing' ? 'おしい！ お手本の 赤い 画が 書けて いないみたい。そこに 気をつけて もう一回 書こう'
                 : retry.reason === 'few' ? `おしい！ 画が 足りないみたい。ぜんぶで ${k.strokes}画 あるよ。もう一回 書こう`
+                  : retry.reason === 'many' ? `おしい！ よけいな 線が あるみたい。ぜんぶで ${k.strokes}画 だよ。もう一回 書こう`
                   : 'おしい！ かたちを お手本に よせて、もう一回 書こう'}</Mk>
             </div>
           )}
