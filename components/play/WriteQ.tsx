@@ -39,7 +39,13 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
   // 書くたびに 描き直して、書き直した 赤い マスの 色を もどす
   const [, setTick] = useState(0);
   const onChange = () => { updateFilled(wrong); setTick((t) => t + 1); };
-  const clear = () => { pads.current.forEach((p) => p?.clear()); setWrong([]); setFilled(false); };
+  const clearAll = () => { pads.current.forEach((p) => p?.clear()); setWrong([]); setFilled(false); };
+  // 「けす」：ちがうと 出た マスが あるときは、その マスだけ 消す（合っていた マスは のこす）
+  const clear = () => {
+    if (!wrong.length) return clearAll();
+    wrong.forEach((j) => pads.current[j]?.clear());
+    setFilled(false);
+  };
   /** まだ 書き直していない 赤い マス */
   const isRed = (j: number) => wrong.includes(j) && (pads.current[j]?.isEmpty() ?? true);
   /** 赤い マスと ふつうの マスの わく */
@@ -118,7 +124,7 @@ export function WriteQ({ q, partner, partnerStage = 1, hint, onAnswer, submitLab
         )}
         <div className={`flex gap-3 ${q.kind === 'read' ? 'w-full' : 'w-[min(100%,460px)]'}`}>
           {/* わからないとき：1回目はヒント、ヒントのあとは こたえを みる（＝まちがえたのと同じあつかい） */}
-          <Btn className="min-h-[68px] flex-1 px-1 text-[17px] leading-tight" onClick={() => { clear(); onAnswer(false); }} disabled={busy}>
+          <Btn className="min-h-[68px] flex-1 px-1 text-[17px] leading-tight" onClick={() => { clearAll(); onAnswer(false); }} disabled={busy}>
             <Mk>{hint ? '答えを 見る' : 'わからない'}</Mk>
           </Btn>
           <Btn className="min-h-[68px] flex-1 text-xl" onClick={clear}>けす</Btn>
