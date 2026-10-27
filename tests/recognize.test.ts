@@ -56,6 +56,16 @@ describe('手書き判定', () => {
     expect(judgeKana(fakeHand('よ', 3, { mess: 0.5 }), 'ょ').ok).toBe(true);
   });
 
+  it('左に たて画、細い わ、右へ 長い はらい の「ょ」も 認める（「しょうご」の 写真から）', () => {
+    // マス（300×300）の 左下に 小さく 書いた ょ。たて画と わを つづけた 形と、分けた 形
+    const line = (...p: number[][]): Pt[] => p.flatMap((a, i) => (i ? Array.from({ length: 10 }, (_, t) => ({
+      x: p[i - 1][0] + ((a[0] - p[i - 1][0]) * (t + 1)) / 10, y: p[i - 1][1] + ((a[1] - p[i - 1][1]) * (t + 1)) / 10 })) : [{ x: a[0], y: a[1] }]));
+    const bar = line([61, 191], [100, 190]);
+    const loop = [[52, 262], [35, 265], [31, 235], [40, 227], [65, 240], [95, 251]];
+    expect(judgeKana([bar, line([52, 170], ...loop)], 'ょ').ok).toBe(true);
+    expect(judgeKana([line([52, 170], [52, 262]), bar, line(...loop)], 'ょ').ok).toBe(true);
+  });
+
   it('小さい字は ゆるめに 見るが、ちがう字は 小さい字として 認めない', () => {
     for (const c of ['ま', 'は', 'ほ', 'お', 'す', 'ふ']) {
       for (let s = 1; s <= 5; s++) expect(judgeKana(fakeHand(c, s, { mess: 0.8, shuffle: true }), 'ょ').ok).toBe(false);

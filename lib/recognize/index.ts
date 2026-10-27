@@ -79,6 +79,37 @@ export function templateOf(char: string): Shape {
   return t;
 }
 
+/**
+ * お手本（KanjiVG）と 形が だいぶ ちがうが、子どもが よく 書く 形（同じ 0〜109 の 座標）。
+ * よ：たて画を 左に、わを 細く 書いて、右へ 長く はらう（「しょうご」の ょ が 落ちた）
+ */
+const VARIANTS: Record<string, string[][]> = {
+  よ: [[
+    'M49,31C60,30,72,30,82,29',
+    'M42,14C42,40,42,65,42,87C42,91,30,92,28,89C25,82,25,70,30,62C34,58,45,64,52,69C62,75,70,77,77,79',
+  ]],
+};
+const variantCache = new Map<string, Shape[]>();
+/** お手本と、子どもが よく 書く 形 */
+function templatesOf(char: string): Shape[] {
+  let ts = variantCache.get(char);
+  if (!ts) {
+    ts = [templateOf(char), ...(VARIANTS[char] ?? []).map((v) => toShape(v.map(pathToPoints)))];
+    variantCache.set(char, ts);
+  }
+  return ts;
+}
+
+/** その字の いちばん 近い 形との 距離と、その形の 画数 */
+function closest(user: Shape, char: string, f: (s: Shape) => Shape = (s) => s) {
+  let best = { s: Infinity, strokes: 0 };
+  for (const t of templatesOf(char)) {
+    const s = distance(user, f(t));
+    if (s < best.s) best = { s, strokes: t.strokes };
+  }
+  return best;
+}
+
 function oneWay(a: Feat[], b: Feat[]) {
   let sum = 0;
   for (const p of a) {
@@ -116,17 +147,17 @@ export function judge(strokes: Stroke[], expected: string, pool: readonly string
   const user = toShape(usable);
   const cands = pool.includes(expected) ? pool : [...pool, expected];
   const uc = coarse(user);
-  const rough = cands.map((c) => ({ c, s: distance(uc, coarse(templateOf(c))) })).sort((a, b) => a.s - b.s);
+  const rough = cands.map((c) => ({ c, s: closest(uc, c, coarse).s })).sort((a, b) => a.s - b.s);
   const keep = rough.slice(0, COARSE_KEEP).map((x) => x.c);
   if (!keep.includes(expected)) keep.push(expected);
-  const scored = keep.map((c) => ({ c, s: distance(user, templateOf(c)) })).sort((a, b) => a.s - b.s);
+  const scored = keep.map((c) => ({ c, ...closest(user, c) })).sort((a, b) => a.s - b.s);
   // 大まかな比較で外れた字は、きちんと比べた字より下の順位とみなす
   const fineRank = scored.findIndex((x) => x.c === expected);
   const rank = fineRank < COARSE_KEEP ? fineRank : rough.findIndex((x) => x.c === expected);
   const score = scored[fineRank].s;
   const best = scored[0];
-  const exp = templateOf(expected);
-  const confusable = best.c !== expected && templateOf(best.c).strokes === user.strokes && exp.strokes !== user.strokes;
+  const expStrokes = templatesOf(expected).map((t) => t.strokes);
+  const confusable = best.c !== expected && best.strokes === user.strokes && !expStrokes.includes(user.strokes);
   const ok = score <= th.absMax && !confusable && (rank === 0 || (rank < th.rank && score <= best.s * (1 + th.margin)));
   return { ok, rank, score, best: best.c, bestScore: best.s };
 }
