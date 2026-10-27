@@ -9,11 +9,16 @@ import { pathToPoints, type Pt } from './svgPath';
 
 export type Stroke = Pt[];
 type Feat = { x: number; y: number; dx: number; dy: number };
-type Shape = { pts: Feat[]; strokes: number };
+/** w・h は 正規化した あとの はば・高さ（大きいほうが 1） */
+type Shape = { pts: Feat[]; strokes: number; w: number; h: number };
 
 const STEP = 0.025; // 点の間隔（正規化後の単位）
 const DIR_W = 0.12; // 向きのちがいの重み
 const STROKE_TOL = 2; // 画数のちがいを何画まで許すか
+// 子どもは 字を 横長・縦長に 書きがち（「工」を ぺしゃんこに 書く など）。
+// 比べる前に、書いた字の 縦横比を お手本に 近づける（この倍率まで）。のばした分は 少し 減点する
+const ASPECT_FIX = 2.5;
+const ASPECT_W = 0.01;
 
 // 判定のしきい値（scripts/calibrate-recognizer.ts で調整、tests/recognize.test.ts で確認）
 export const THRESH = {
@@ -62,9 +67,35 @@ function resample(s: Stroke): Feat[] {
   return out;
 }
 
+function extent(pts: Feat[]) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of pts) {
+    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+    minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+  }
+  return { w: maxX - minX, h: maxY - minY };
+}
+
 export function toShape(strokes: Stroke[]): Shape {
   const usable = strokes.filter((s) => s.length > 0);
-  return { pts: normalize(usable).flatMap(resample), strokes: usable.length };
+  const pts = normalize(usable).flatMap(resample);
+  return { pts, strokes: usable.length, ...extent(pts) };
+}
+
+/** 書いた字の 縦横比を お手本に 近づける。かえすのは のばした 形と、のばした 倍率 */
+function fitAspect(user: Shape, tpl: Shape): { pts: Feat[]; k: number } {
+  // 「一」のような 平たい 字で 0 で わらない ように
+  const ar = (s: Shape) => Math.max(s.w, 0.1) / Math.max(s.h, 0.1);
+  const k = Math.min(ASPECT_FIX, Math.max(1 / ASPECT_FIX, ar(tpl) / ar(user)));
+  if (Math.abs(k - 1) < 0.05) return { pts: user.pts, k: 1 };
+  let sx = Math.sqrt(k), sy = 1 / sx;
+  const big = Math.max(user.w * sx, user.h * sy, 1e-6);
+  sx /= big; sy /= big;
+  const pts = user.pts.map((p) => {
+    const dx = p.dx * sx, dy = p.dy * sy, l = Math.hypot(dx, dy) || 1;
+    return { x: p.x * sx, y: p.y * sy, dx: dx / l, dy: dy / l };
+  });
+  return { pts, k };
 }
 
 const templateCache = new Map<string, Shape>();
@@ -96,14 +127,15 @@ function oneWay(a: Feat[], b: Feat[]) {
 }
 
 export function distance(user: Shape, tpl: Shape) {
-  const d = (oneWay(user.pts, tpl.pts) + oneWay(tpl.pts, user.pts)) / 2;
+  const { pts, k } = fitAspect(user, tpl);
+  const d = (oneWay(pts, tpl.pts) + oneWay(tpl.pts, pts)) / 2;
   const extra = Math.max(0, Math.abs(user.strokes - tpl.strokes) - STROKE_TOL);
-  return d + extra * 0.015;
+  return d + extra * 0.015 + ASPECT_W * Math.abs(Math.log(k));
 }
 
 export type Judge = { ok: boolean; rank: number; score: number; best: string; bestScore: number };
 
-const coarse = (sh: Shape): Shape => ({ pts: sh.pts.filter((_, i) => i % 3 === 0), strokes: sh.strokes });
+const coarse = (sh: Shape): Shape => ({ ...sh, pts: sh.pts.filter((_, i) => i % 3 === 0) });
 
 /**
  * expected の字として書けているか。pool は比べる候補（expected を含めなくてもよい）。

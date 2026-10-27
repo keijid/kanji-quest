@@ -135,6 +135,15 @@ describe('5回れんしゅう の判定', () => {
     expect(checkCopy(ko.filter((_, j) => j !== 1), '高').ok).toBe(true);
   });
 
+  // 実機で 書いた「工」（写真から 線を おこしたもの）。横長に ぺしゃんこに 書いてあり、「本」などに まけて バツに なっていた
+  it('横長・縦長に 書いた字も、形が 合っていれば 正解（「工」）', () => {
+    const flatKo = [L([1262, 487], [1445, 480]), L([1330, 488], [1326, 614]), L([1175, 622], [1535, 640])];
+    expect(judgeKanji(flatKo, '工').ok).toBe(true);
+    // のばして 合わせても、ちがう字には しない
+    expect(judgeKanji(flatKo, '土').ok).toBe(false);
+    expect(judgeKanji(flatKo, '二').ok).toBe(false);
+  });
+
   it('画が 大きく足りない字は できた に しない', () => {
     for (const c of ['雲', '曜', '親', '顔']) {
       const hand = fakeHand(c, 7, { mess: 0.5 });
