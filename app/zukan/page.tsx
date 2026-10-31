@@ -66,7 +66,7 @@ export default function Zukan() {
       <div className="flex flex-wrap items-center gap-[14px]">
         <BackBtn href="/home/" />
         <div className="font-yusei text-[clamp(24px,3vw,32px)]"><Mk>かん字ずかん</Mk></div>
-        {(tab === 2 || tab === 3) && <div className="text-base text-frame">あつめた {d.learned} / {TOTAL}</div>}
+        {(tab === 2 || tab === 3) && <div className="text-base text-frame">あつめた {d.practicedSet.size} / {TOTAL}</div>}
         <div className="flex-1" />
         <div className="flex flex-wrap gap-2">
           {tabs.map(([t, label]) => (
@@ -84,7 +84,8 @@ export default function Zukan() {
         <div className="grid flex-[1_1_460px] gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(60px,1fr))' }}>
           {list.length === 0 && <div className="col-span-full py-10 text-center text-lg text-frame"><Mk>にがてな かん字は ないよ！</Mk></div>}
           {list.map((c) => {
-            const on = sel === c, l = d.learnedSet.has(c);
+            // ステージ画面の「クリア」と そろえて、練習ずみの字を あつめた 字として 見せる
+            const on = sel === c, l = d.practicedSet.has(c);
             return (
               <button
                 key={c}
