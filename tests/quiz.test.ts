@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canAsk, bossSet, lessonSet } from '@/lib/quiz';
+import { canAsk, bossSet, lessonSet, reviewSet } from '@/lib/quiz';
 import { bossUnlocked, starsFor } from '@/lib/progress';
 import { stageKanji, STAGE_COUNT } from '@/lib/data';
 
@@ -63,5 +63,32 @@ describe('星', () => {
     expect(starsFor(7, 10)).toBe(1);
     expect(starsFor(2, 4)).toBe(1);
     expect(starsFor(0, 1)).toBe(0);
+  });
+});
+
+describe('ふくしゅう', () => {
+  it('苦手の字を ちがう形で 2回ずつ出し、同じ字は 続けない', () => {
+    const weak = stageKanji(1).map((k) => k.char).slice(0, 6);
+    for (let t = 0; t < 50; t++) {
+      const s = reviewSet(weak);
+      expect(s.kind).toBe('review');
+      expect(s.questions).toHaveLength(weak.length * 2);
+      for (const c of weak) {
+        const qs = s.questions.filter((q) => q.char === c);
+        expect(qs).toHaveLength(2);
+        expect(qs[0].kind).not.toBe(qs[1].kind);
+        expect(qs.some((q) => q.kind === 'write')).toBe(true);
+      }
+      for (let i = 1; i < s.questions.length; i++) expect(s.questions[i].char).not.toBe(s.questions[i - 1].char);
+    }
+  });
+
+  it('多くて10字まで', () => {
+    const weak = stageKanji(1).concat(stageKanji(2)).map((k) => k.char);
+    expect(new Set(reviewSet(weak).questions.map((q) => q.char)).size).toBe(10);
+  });
+
+  it('1字だけでも 2問出る', () => {
+    expect(reviewSet([stageKanji(1)[0].char]).questions).toHaveLength(2);
   });
 });

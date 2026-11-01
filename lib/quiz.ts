@@ -92,10 +92,22 @@ export function bossSet(stage: number): QuizSet {
   return { kind: 'boss', stage, questions: [...reads, ...writes, ...strokes] };
 }
 
-/** ふくしゅう：苦手の字（多くて10字）を よみ・かき で */
+/**
+ * ふくしゅう：苦手の字（多くて10字）を、1字につき ちがう形で 2回ずつ出す（かき ＋ よみ か かきじゅん）。
+ * 苦手は「1回目で 2回続けて 正解」で外れるので、1回の ふくしゅうで 両方 正解すれば 外れる。
+ * 1周目で 全部の字を 1回ずつ出してから、2周目で ならびを かえて もう1回（同じ字が 続かないように）。
+ */
 export function reviewSet(weak: string[]): QuizSet {
   const chars = shuffle(weak).slice(0, 10);
-  return { kind: 'review', stage: null, questions: chars.map((c) => makeQuestion(c, pick<Mode>(['read', 'write', 'write', 'stroke']))) };
+  const modes = new Map(chars.map((c) => [c, shuffle<Mode>(['write', pick<Mode>(['read', 'read', 'stroke'])])]));
+  const first = shuffle(chars);
+  let second = shuffle(chars);
+  if (second.length > 1 && second[0] === first[first.length - 1]) second = [...second.slice(1), second[0]];
+  const questions = [
+    ...first.map((c) => makeQuestion(c, modes.get(c)![0])),
+    ...second.map((c) => makeQuestion(c, modes.get(c)![1])),
+  ];
+  return { kind: 'review', stage: null, questions };
 }
 
 export const modeOf = (q: Question): Mode => q.kind;
