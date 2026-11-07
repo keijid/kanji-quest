@@ -117,7 +117,9 @@
   background: radial-gradient(ellipse at center, var(--color-paper) 55%, var(--color-paper-edge) 100%);
   border-radius: clamp(0px, 2vw, 28px);
   border: clamp(0px, 0.8vw, 10px) solid var(--color-frame);
+  /* hidden だと 中の position: sticky が きかない（ずかんの 右の カードが ついてこない）ので clip にする。clip が 使えない 古い ブラウザは hidden */
   overflow: hidden;
+  overflow: clip;
   display: flex;
   flex-direction: column;
   position: relative;
