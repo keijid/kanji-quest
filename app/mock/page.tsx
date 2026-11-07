@@ -14,7 +14,7 @@ import type { Question } from '@/lib/quiz';
 import { sfx } from '@/lib/sfx';
 
 type Run = { test: MockTest; endAt: number; sec: number; idx: number; answers: boolean[] };
-type Done = { test: MockTest; answers: boolean[]; score: number; max: number };
+type Done = { test: MockTest; answers: boolean[]; score: number; max: number; missed: string[] };
 
 export default function Mock() {
   const d = useAppData();
@@ -38,12 +38,13 @@ export default function Mock() {
     const at = Date.now();
     // id は時刻にする（端末をまたいでクラウドに保存しても重ならないように）
     await db.mocks.put({ id: at, kind: r.test.kind, score, max, byField, at });
-    // 答えた問題は学習の記録にも入れる（苦手に入れるのは ボスせん だけ）
+    // 答えた問題は学習の記録にも入れる。まちがえた字は 苦手（ふくしゅうの対象）に入れる
     const logs: AnswerLog[] = all.slice(0, answers.length).map(({ q }, i) => ({ char: q.char, mode: q.kind, outcome: answers[i] ? 2 : 0 }));
-    await recordAnswers(logs);
+    await recordAnswers(logs, { addWeak: true });
     sfx('stageClear');
     setRun(null);
-    setDone({ test: r.test, answers, score, max });
+    const missed = [...new Set(logs.filter((l) => l.outcome < 2).map((l) => l.char))];
+    setDone({ test: r.test, answers, score, max, missed });
   };
 
   // 残り時間
@@ -157,6 +158,14 @@ export default function Mock() {
               <div className="font-yusei text-[44px]">{done.test.kind === 'full' ? <Mk>{done.score >= FULL.pass ? '合格 ライン こえた！' : 'よく がんばった！'}</Mk> : 'おつかれさま！'}</div>
               <div className="text-[22px]"><span className="text-[64px] text-primary">{done.score}</span> / {done.max} <Mk>{done.test.kind === 'full' ? '点' : 'もん'}</Mk></div>
               {done.test.kind === 'full' && <div className="text-base text-frame"><Mk>{`合格の めやすは ${FULL.pass}点`}</Mk></div>}
+              {done.missed.length > 0 && (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="text-[17px]"><Mk>{`まちがえた ${done.missed.length}字は にがてに 入れたよ。ふくしゅうで もう一回！`}</Mk></div>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {done.missed.map((c) => <div key={c} className="flex h-12 w-12 items-center justify-center rounded-[10px] border-2 border-primary bg-cell font-klee text-[28px]">{c}</div>)}
+                  </div>
+                </div>
+              )}
             </Card>
             <Card shadow={6} className="flex flex-[1_1_320px] flex-col gap-3 rounded-[22px] p-6">
               {done.test.sections.map((s) => {
